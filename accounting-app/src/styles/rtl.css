@@ -1,0 +1,74 @@
+/* RTL Utilities */
+.rtl {
+  direction: rtl;
+}
+
+.ltr {
+  direction: ltr;
+}
+
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+.ms-auto {
+  margin-inline-start: auto;
+}
+
+.me-auto {
+  margin-inline-end: auto;
+}
+
+.ps-1 {
+  padding-inline-start: 0.25rem;
+}
+
+.ps-2 {
+  padding-inline-start: 0.5rem;
+}
+
+.ps-3 {
+  padding-inline-start: 0.75rem;
+}
+
+.ps-4 {
+  padding-inline-start: 1rem;
+}
+
+.pe-1 {
+  padding-inline-end: 0.25rem;
+}
+
+.pe-2 {
+  padding-inline-end: 0.5rem;
+}
+
+.pe-3 {
+  padding-inline-end: 0.75rem;
+}
+
+.pe-4 {
+  padding-inline-end: 1rem;
+}
+
+/* Border utilities */
+.border-s {
+  border-inline-start-width: 1px;
+}
+
+.border-e {
+  border-inline-end-width: 1px;
+}
+
+/* Flexbox order can help with visual ordering in RTL layouts */
+.order-first-rtl:dir(rtl) {
+  order: -1;
+}
+
+.order-last-rtl:dir(rtl) {
+  order: 999;
+} 
