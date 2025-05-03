@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
+"use client";
+
 import { vazirmatn } from "@/lib/fonts";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
-
-export const metadata: Metadata = {
-  title: "سیستم حسابداری کسب و کار کوچک",
-  description: "اپلیکیشن حسابداری برای کسب و کارهای کوچک",
-};
+import { AuthProvider } from "@/lib/auth-context";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
@@ -18,13 +16,30 @@ export default function RootLayout({
       <body
         className={`${vazirmatn.variable} font-sans antialiased`}
       >
-        <div className="flex h-screen bg-background">
-          <div className="flex-1 p-6 overflow-auto">
-            {children}
-          </div>
-          <Sidebar />
-        </div>
+        <AuthProvider>
+          <LayoutContent>{children}</LayoutContent>
+        </AuthProvider>
       </body>
     </html>
+  );
+}
+
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  
+  // Check if we're on the login page
+  const isLoginPage = pathname === '/login';
+  
+  if (isLoginPage) {
+    return children;
+  }
+
+  return (
+    <div className="flex h-screen bg-background">
+      <div className="flex-1 p-6 overflow-auto">
+        {children}
+      </div>
+      <Sidebar />
+    </div>
   );
 }
