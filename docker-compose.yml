@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+
+  accounting-postgres:
+    image: postgres:17
+    container_name: accounting-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: iwfrFb6V6vcnoB06
+      POSTGRES_DB: postgres
+    ports:
+      - "5666:5432"
+    volumes:
+      - /home/ubuntu/Neuro/postgres-data:/var/lib/postgresql/data
+    networks:
+      - neurobackend_neuro-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  accounting-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: accounting-backend
+    environment:
+      - ConnectionStrings__DatabseConnectString=Host=postgres:5432;Database=AccountingDB;Username=postgres;Password=iwfrFb6V6vcnoB06
+      - Logging__FilePath=/app/logs/log.txt
+      - ASPNETCORE_ENVIRONMENT=Production
+      - JWT__ValidAudience=http://localhost:5294
+      - JWT__ValidIssuer=http://localhost:5294
+    ports:
+      - "8000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - accounting_network
+
+  accounting-front:
+    build:
+      context: ./accounting-app
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: 180.180.180.180:3000
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+    networks:
+      - accounting_network
+
+volumes:
+  postgres-data: 
+
+networks:
+  accounting_network:
+    driver: bridge 

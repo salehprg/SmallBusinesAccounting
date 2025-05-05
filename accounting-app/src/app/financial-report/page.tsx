@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Edit, Trash } from 'lucide-react';
 import { TransactionsAPI, TransactionDTO, TransactionType } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 
 export default function FinancialReportPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'income' | 'expense'>('all');
@@ -13,6 +15,10 @@ export default function FinancialReportPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<TransactionDTO[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<TransactionDTO | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
   const itemsPerPage = 10;
 
   // Fetch transactions from API
@@ -81,6 +87,38 @@ export default function FinancialReportPage() {
     };
   });
 
+  const handleEditTransaction = (transaction: TransactionDTO) => {
+    // Redirect to add-income or add-expense page with transaction ID as query parameter
+    const route = transaction.transactionType === TransactionType.Income 
+      ? `/add-income?id=${transaction.id}` 
+      : `/add-expense?id=${transaction.id}`;
+    
+    router.push(route);
+  };
+
+  const handleDeleteClick = (transaction: TransactionDTO) => {
+    setTransactionToDelete(transaction);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!transactionToDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      await TransactionsAPI.delete(transactionToDelete.id);
+      
+      // Remove the transaction from the state
+      setTransactions(prev => prev.filter(t => t.id !== transactionToDelete.id));
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete transaction:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col">
@@ -110,72 +148,7 @@ export default function FinancialReportPage() {
       </div>
 
       {/* Financial Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-base">مانده</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col">
-              <p className="text-3xl font-bold">{new Intl.NumberFormat('fa-IR').format(balance)}</p>
-              <p className="text-sm text-muted-foreground">اختلاف درآمد و هزینه</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-base">هزینه کل</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col">
-              <p className="text-3xl font-bold">{new Intl.NumberFormat('fa-IR').format(totalExpense)}</p>
-              <p className="text-sm text-muted-foreground">مجموع کل پرداختی‌ها</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-base">درآمد کل</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col">
-              <p className="text-3xl font-bold">{new Intl.NumberFormat('fa-IR').format(totalIncome)}</p>
-              <p className="text-sm text-muted-foreground">مجموع کل دریافتی‌ها</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Monthly Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>نمودار ماهانه</CardTitle>
-        </CardHeader>
-        <CardContent className="h-72">
-          <h3 className="mb-4 text-sm text-muted-foreground">خلاصه ماهانه</h3>
-          <div className="w-full h-full flex items-end">
-            {monthlyData.map((data, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center">
-                <div 
-                  className="w-full mx-1" 
-                  style={{ 
-                    height: `${Math.max(10, Math.min(90, Math.abs(data.amount) / 1000000))}%`,
-                    maxWidth: '24px',
-                    margin: '0 auto',
-                    borderRadius: '4px 4px 0 0',
-                    backgroundColor: data.amount >= 0 ? '#000' : '#888'
-                  }}
-                ></div>
-                <span className="text-xs mt-2">
-                  {['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'][index]}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      
 
       {/* Transactions List */}
       <div>
@@ -202,12 +175,13 @@ export default function FinancialReportPage() {
                 <th className="p-3 text-right">دسته</th>
                 <th className="p-3 text-right">مبلغ</th>
                 <th className="p-3 text-right">نوع</th>
+                <th className="p-3 text-center">عملیات</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="p-6 text-center">
+                  <td colSpan={6} className="p-6 text-center">
                     در حال بارگذاری...
                   </td>
                 </tr>
@@ -225,11 +199,31 @@ export default function FinancialReportPage() {
                         {transaction.transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}
                       </span>
                     </td>
+                    <td className="p-3 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditTransaction(transaction)}
+                          title="ویرایش"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteClick(transaction)}
+                          title="حذف"
+                        >
+                          <Trash className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
                     هیچ تراکنشی یافت نشد.
                   </td>
                 </tr>
@@ -277,6 +271,34 @@ export default function FinancialReportPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تایید حذف تراکنش</DialogTitle>
+            <DialogDescription>
+              آیا از حذف این تراکنش اطمینان دارید؟ این عمل غیرقابل بازگشت است.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              انصراف
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'در حال حذف...' : 'حذف'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

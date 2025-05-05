@@ -33,12 +33,7 @@ const PersianDatePicker = React.forwardRef<HTMLInputElement, PersianDatePickerPr
             handleChange(date);
           }}
           size="md"
-          className="datepicker-input"
-          containerClassName="datepicker-popup"
-          inputClassName="datepicker-input"
-          popupClassName="datepicker-popup"
-          headerClassName="popup-header"
-          arrowClassName="popup-arrow"
+          dayClassName='hover'
           dir="rtl"
         />
       </div>

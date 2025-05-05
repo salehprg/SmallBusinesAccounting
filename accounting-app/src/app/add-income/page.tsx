@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
@@ -22,6 +22,9 @@ export default function AddIncomePage() {
   // Ensure user is authenticated
   const isAuthenticated = useRequireAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const transactionId = searchParams.get('id') ? parseInt(searchParams.get('id')!, 10) : null;
+  const isEditMode = transactionId !== null;
   
   const [income, setIncome] = useState<Partial<CreateTransactionDTO>>({
     name: '',
@@ -35,12 +38,14 @@ export default function AddIncomePage() {
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
   const [persons, setPersons] = useState<PersonDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsFetchingData(true);
         // Fetch cost types
         const costTypesData = await CostTypesAPI.getAll();
         setCostTypes(costTypesData);
@@ -48,16 +53,39 @@ export default function AddIncomePage() {
         // Fetch customers/persons
         const personsData = await PersonsAPI.getAll();
         setPersons(personsData);
+        
+        // If in edit mode, fetch transaction data
+        if (isEditMode && transactionId) {
+          const transactionData = await TransactionsAPI.getById(transactionId);
+          
+          // Verify this is an income transaction
+          if (transactionData.transactionType !== TransactionType.Income) {
+            router.push(`/add-expense?id=${transactionId}`);
+            return;
+          }
+          
+          setIncome({
+            name: transactionData.name,
+            description: transactionData.description,
+            amount: transactionData.amount,
+            date: transactionData.date,
+            costTypeId: transactionData.costTypeId,
+            transactionType: TransactionType.Income,
+            personId: transactionData.personId
+          });
+        }
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('خطا در بارگیری اطلاعات');
+      } finally {
+        setIsFetchingData(false);
       }
     };
     
     if (isAuthenticated) {
       fetchData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isEditMode, transactionId, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -94,15 +122,20 @@ export default function AddIncomePage() {
         personId: income.personId
       };
       
-      await TransactionsAPI.create(transactionData);
+      if (isEditMode && transactionId) {
+        await TransactionsAPI.update(transactionId, transactionData);
+      } else {
+        await TransactionsAPI.create(transactionData);
+      }
+      
       setSuccess(true);
       
       // Reset form or redirect
       setTimeout(() => {
-        router.push('/');
+        router.push('/financial-report');
       }, 1500);
     } catch (err: any) {
-      console.error('Error creating income:', err);
+      console.error('Error saving income:', err);
       setError(err.response?.data?.message || 'خطا در ثبت درآمد');
     } finally {
       setIsLoading(false);
@@ -113,13 +146,24 @@ export default function AddIncomePage() {
     return null; // Don't render anything while redirecting
   }
 
+  if (isFetchingData) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto rtl">
+        <h1 className="text-2xl font-bold mb-6">{isEditMode ? 'ویرایش درآمد' : 'ثبت درآمد'}</h1>
+        <div className="text-center py-8">
+          در حال بارگذاری...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-4xl mx-auto rtl">
-      <h1 className="text-2xl font-bold mb-6">ثبت درآمد</h1>
+      <h1 className="text-2xl font-bold mb-6">{isEditMode ? 'ویرایش درآمد' : 'ثبت درآمد'}</h1>
       
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          درآمد با موفقیت ثبت شد!
+          {isEditMode ? 'درآمد با موفقیت ویرایش شد!' : 'درآمد با موفقیت ثبت شد!'}
         </div>
       )}
       
@@ -215,9 +259,17 @@ export default function AddIncomePage() {
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => router.push('/financial-report')} 
+            disabled={isLoading}
+          >
+            انصراف
+          </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'در حال ذخیره...' : 'ذخیره'}
+            {isLoading ? 'در حال ذخیره...' : isEditMode ? 'به‌روزرسانی' : 'ذخیره'}
           </Button>
         </div>
       </form>
