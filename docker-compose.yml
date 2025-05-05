@@ -47,7 +47,7 @@ services:
       context: ./accounting-app
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: 180.180.180.180:3000
+        NEXT_PUBLIC_API_URL: 185.204.168.187:8000
     restart: always
     ports:
       - "3000:3000"

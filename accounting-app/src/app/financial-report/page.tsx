@@ -7,18 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Search, Edit, Trash } from 'lucide-react';
 import { TransactionsAPI, TransactionDTO, TransactionType } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 
 export default function FinancialReportPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'all' | 'income' | 'expense'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<TransactionDTO[]>([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [transactionToDelete, setTransactionToDelete] = useState<TransactionDTO | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   // Fetch transactions from API
@@ -87,35 +87,43 @@ export default function FinancialReportPage() {
     };
   });
 
-  const handleEditTransaction = (transaction: TransactionDTO) => {
-    // Redirect to add-income or add-expense page with transaction ID as query parameter
-    const route = transaction.transactionType === TransactionType.Income 
-      ? `/add-income?id=${transaction.id}` 
-      : `/add-expense?id=${transaction.id}`;
-    
-    router.push(route);
+  // Delete transaction handler
+  const handleDeleteTransaction = async (id: number) => {
+    setTransactionToDelete(id);
+    setShowDeleteConfirm(true);
   };
 
-  const handleDeleteClick = (transaction: TransactionDTO) => {
-    setTransactionToDelete(transaction);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
+  // Confirm delete transaction
+  const confirmDeleteTransaction = async () => {
     if (!transactionToDelete) return;
     
     try {
       setIsDeleting(true);
-      await TransactionsAPI.delete(transactionToDelete.id);
+      await TransactionsAPI.delete(transactionToDelete);
       
-      // Remove the transaction from the state
-      setTransactions(prev => prev.filter(t => t.id !== transactionToDelete.id));
-      setDeleteDialogOpen(false);
-      setTransactionToDelete(null);
+      // Remove deleted transaction from state
+      setTransactions(prev => prev.filter(t => t.id !== transactionToDelete));
+      setDeleteError(null);
     } catch (error) {
-      console.error("Failed to delete transaction:", error);
+      console.error("Error deleting transaction:", error);
+      setDeleteError("حذف تراکنش با خطا مواجه شد");
     } finally {
       setIsDeleting(false);
+      setShowDeleteConfirm(false);
+      setTransactionToDelete(null);
+    }
+  };
+
+  // Edit transaction handler
+  const handleEditTransaction = (transaction: TransactionDTO) => {
+    // Store the transaction in session storage for the target page to access
+    sessionStorage.setItem('editTransaction', JSON.stringify(transaction));
+    
+    // Redirect to the appropriate page based on transaction type
+    if (transaction.transactionType === TransactionType.Income) {
+      router.push('/add-income?edit=true');
+    } else {
+      router.push('/add-expense?edit=true');
     }
   };
 
@@ -175,13 +183,13 @@ export default function FinancialReportPage() {
                 <th className="p-3 text-right">دسته</th>
                 <th className="p-3 text-right">مبلغ</th>
                 <th className="p-3 text-right">نوع</th>
-                <th className="p-3 text-center">عملیات</th>
+                <th className="p-3 text-right">عملیات</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center">
+                  <td colSpan={7} className="p-6 text-center">
                     در حال بارگذاری...
                   </td>
                 </tr>
@@ -199,23 +207,25 @@ export default function FinancialReportPage() {
                         {transaction.transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}
                       </span>
                     </td>
-                    <td className="p-3 text-center">
-                      <div className="flex justify-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                    <td className="p-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
                           onClick={() => handleEditTransaction(transaction)}
-                          title="ویرایش"
+                          className="h-8 w-8 p-0"
                         >
                           <Edit className="h-4 w-4" />
+                          <span className="sr-only">ویرایش</span>
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteClick(transaction)}
-                          title="حذف"
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
                         >
-                          <Trash className="h-4 w-4 text-red-500" />
+                          <Trash className="h-4 w-4" />
+                          <span className="sr-only">حذف</span>
                         </Button>
                       </div>
                     </td>
@@ -223,7 +233,7 @@ export default function FinancialReportPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={7} className="p-6 text-center text-muted-foreground">
                     هیچ تراکنشی یافت نشد.
                   </td>
                 </tr>
@@ -273,32 +283,41 @@ export default function FinancialReportPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>تایید حذف تراکنش</DialogTitle>
-            <DialogDescription>
-              آیا از حذف این تراکنش اطمینان دارید؟ این عمل غیرقابل بازگشت است.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setDeleteDialogOpen(false)}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${showDeleteConfirm ? '' : 'hidden'}`}
+        onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+      >
+        <div
+          className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4 rtl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-semibold mb-4">آیا از حذف این تراکنش اطمینان دارید؟</h2>
+          <p className="text-gray-600 mb-4">
+            این عملیات غیرقابل بازگشت است و تراکنش به طور کامل حذف خواهد شد.
+          </p>
+          {deleteError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {deleteError}
+            </div>
+          )}
+          <div className="flex justify-between gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
               disabled={isDeleting}
             >
               انصراف
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteConfirm}
+            <Button
+              onClick={confirmDeleteTransaction}
               disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {isDeleting ? 'در حال حذف...' : 'حذف'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

@@ -23,8 +23,8 @@ export default function AddIncomePage() {
   const isAuthenticated = useRequireAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const transactionId = searchParams.get('id') ? parseInt(searchParams.get('id')!, 10) : null;
-  const isEditMode = transactionId !== null;
+  const isEditMode = searchParams.get('edit') === 'true';
+  const [transactionId, setTransactionId] = useState<number | null>(null);
   
   const [income, setIncome] = useState<Partial<CreateTransactionDTO>>({
     name: '',
@@ -38,14 +38,47 @@ export default function AddIncomePage() {
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
   const [persons, setPersons] = useState<PersonDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingData, setIsFetchingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Load existing transaction data for editing
+  useEffect(() => {
+    if (isEditMode && typeof window !== 'undefined') {
+      const storedTransaction = sessionStorage.getItem('editTransaction');
+      if (storedTransaction) {
+        try {
+          const transaction = JSON.parse(storedTransaction);
+          if (transaction.transactionType === TransactionType.Income) {
+            setTransactionId(transaction.id);
+            setIncome({
+              name: transaction.name,
+              description: transaction.description,
+              amount: transaction.amount,
+              date: transaction.date,
+              costTypeId: transaction.costTypeId,
+              transactionType: TransactionType.Income,
+              personId: transaction.personId
+            });
+          } else {
+            // If not an income transaction, redirect back
+            router.push('/financial-report');
+          }
+          // Clear session storage after retrieval
+          sessionStorage.removeItem('editTransaction');
+        } catch (error) {
+          console.error('Error parsing stored transaction', error);
+          setError('خطا در بارگیری اطلاعات تراکنش');
+        }
+      } else {
+        // If no transaction data found but in edit mode, redirect back
+        router.push('/financial-report');
+      }
+    }
+  }, [isEditMode, router]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsFetchingData(true);
         // Fetch cost types
         const costTypesData = await CostTypesAPI.getAll();
         setCostTypes(costTypesData);
@@ -53,39 +86,16 @@ export default function AddIncomePage() {
         // Fetch customers/persons
         const personsData = await PersonsAPI.getAll();
         setPersons(personsData);
-        
-        // If in edit mode, fetch transaction data
-        if (isEditMode && transactionId) {
-          const transactionData = await TransactionsAPI.getById(transactionId);
-          
-          // Verify this is an income transaction
-          if (transactionData.transactionType !== TransactionType.Income) {
-            router.push(`/add-expense?id=${transactionId}`);
-            return;
-          }
-          
-          setIncome({
-            name: transactionData.name,
-            description: transactionData.description,
-            amount: transactionData.amount,
-            date: transactionData.date,
-            costTypeId: transactionData.costTypeId,
-            transactionType: TransactionType.Income,
-            personId: transactionData.personId
-          });
-        }
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('خطا در بارگیری اطلاعات');
-      } finally {
-        setIsFetchingData(false);
       }
     };
     
     if (isAuthenticated) {
       fetchData();
     }
-  }, [isAuthenticated, isEditMode, transactionId, router]);
+  }, [isAuthenticated]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -123,17 +133,20 @@ export default function AddIncomePage() {
       };
       
       if (isEditMode && transactionId) {
+        // Update existing transaction
         await TransactionsAPI.update(transactionId, transactionData);
+        setSuccess(true);
+        setTimeout(() => {
+          router.push('/financial-report');
+        }, 1500);
       } else {
+        // Create new transaction
         await TransactionsAPI.create(transactionData);
+        setSuccess(true);
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
       }
-      
-      setSuccess(true);
-      
-      // Reset form or redirect
-      setTimeout(() => {
-        router.push('/financial-report');
-      }, 1500);
     } catch (err: any) {
       console.error('Error saving income:', err);
       setError(err.response?.data?.message || 'خطا در ثبت درآمد');
@@ -144,17 +157,6 @@ export default function AddIncomePage() {
 
   if (!isAuthenticated) {
     return null; // Don't render anything while redirecting
-  }
-
-  if (isFetchingData) {
-    return (
-      <div className="p-6 max-w-4xl mx-auto rtl">
-        <h1 className="text-2xl font-bold mb-6">{isEditMode ? 'ویرایش درآمد' : 'ثبت درآمد'}</h1>
-        <div className="text-center py-8">
-          در حال بارگذاری...
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -259,17 +261,16 @@ export default function AddIncomePage() {
           />
         </div>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-between">
           <Button 
             type="button" 
             variant="outline" 
-            onClick={() => router.push('/financial-report')} 
-            disabled={isLoading}
+            onClick={() => router.push('/financial-report')}
           >
             انصراف
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'در حال ذخیره...' : isEditMode ? 'به‌روزرسانی' : 'ذخیره'}
+            {isLoading ? 'در حال ذخیره...' : isEditMode ? 'ویرایش' : 'ذخیره'}
           </Button>
         </div>
       </form>
