@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Calendar, Plus, UserPlus, FileText, Menu, X, LogOut, Layers, Layers2 } from 'lucide-react';
+import { Calendar, Plus, Minus, UserPlus, FileText, Menu, X, LogOut, Layers, Layers2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
 export function Sidebar() {
@@ -63,7 +63,7 @@ export function Sidebar() {
               افزودن هزینه
             </SidebarItem>
             
-            <SidebarItem href="/add-income" icon={<Plus className="h-5 w-5" />} isCollapsed={!isOpen}>
+            <SidebarItem href="/add-income" icon={<Minus className="h-5 w-5" />} isCollapsed={!isOpen}>
               افزودن درآمد
             </SidebarItem>
 
