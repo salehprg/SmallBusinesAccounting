@@ -35,7 +35,7 @@ services:
     ports:
       - "7100:8080"
     depends_on:
-      postgres:
+      accounting-postgres:
         condition: service_healthy
     volumes:
       - ./accounting-logs:/app/logs
