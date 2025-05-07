@@ -10,11 +10,11 @@ services:
       POSTGRES_PASSWORD: iwfrFb6V6vcnoB06
       POSTGRES_DB: postgres
     ports:
-      - "5666:5432"
+      - "7500:5432"
     volumes:
       - /home/ubuntu/Neuro/postgres-data:/var/lib/postgresql/data
     networks:
-      - neurobackend_neuro-network
+      - accounting_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -27,18 +27,18 @@ services:
       dockerfile: Dockerfile
     container_name: accounting-backend
     environment:
-      - ConnectionStrings__DatabseConnectString=Host=postgres:5432;Database=AccountingDB;Username=postgres;Password=iwfrFb6V6vcnoB06
+      - ConnectionStrings__DatabseConnectString=Host=accounting-postgres:5432;Database=AccountingDB;Username=postgres;Password=iwfrFb6V6vcnoB06
       - Logging__FilePath=/app/logs/log.txt
       - ASPNETCORE_ENVIRONMENT=Production
       - JWT__ValidAudience=http://localhost:5294
       - JWT__ValidIssuer=http://localhost:5294
     ports:
-      - "8000:8080"
+      - "7100:8080"
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./logs:/app/logs
+      - ./accounting-logs:/app/logs
     networks:
       - accounting_network
 
@@ -47,12 +47,10 @@ services:
       context: ./accounting-app
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: 185.204.168.187:8000
+        NEXT_PUBLIC_API_URL: 185.204.168.187:7100
     restart: always
     ports:
-      - "3000:3000"
-    env_file:
-      - .env.local
+      - "7200:3000"
     environment:
       - NODE_ENV=production
     networks:

@@ -42,7 +42,7 @@ export function Sidebar() {
       </button>
       
       <aside className={cn(
-        "fixed md:static h-screen bg-sidebar text-sidebar-foreground border-e border-sidebar-border z-40 transition-all duration-300",
+        "fixed md:static bg-gray-100 h-screen text-sidebar-foreground border-e border-sidebar-border z-40 transition-all duration-300",
         isOpen ? "w-64 left-0" : "w-0 -left-64 md:w-16 md:left-0"
       )}>
         <div className="flex flex-col h-full py-4 px-3 space-y-6 overflow-hidden">
