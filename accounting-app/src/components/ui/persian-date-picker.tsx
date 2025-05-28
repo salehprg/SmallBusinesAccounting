@@ -21,6 +21,7 @@ const PersianDatePicker = React.forwardRef<HTMLInputElement, PersianDatePickerPr
     const handleChange = (date: string) => {
       
       setSelectedDate(date);
+      onChange(date)
     };
 
     return (
@@ -29,7 +30,6 @@ const PersianDatePicker = React.forwardRef<HTMLInputElement, PersianDatePickerPr
           value={selectedDate}
           placeholderText="Pick a date"
           onChange={(date) => {
-            console.log(date);
             handleChange(date);
           }}
           size="md"

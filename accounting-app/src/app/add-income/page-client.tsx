@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,14 +25,15 @@ export default function AddIncomePageClient() {
   const searchParams = useSearchParams();
   const isEditMode = searchParams.get('edit') === 'true';
   const [transactionId, setTransactionId] = useState<number | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   
-  const [income, setIncome] = useState<Partial<CreateTransactionDTO>>({
+  const [income, setIncome] = useState<CreateTransactionDTO>({
     name: '',
     description: '',
     amount: 0,
     date: new Date().toISOString(),
-    costTypeId: 0,
-    transactionType: TransactionType.Income
+    transactionType: TransactionType.Income,
+    isCash: true
   });
 
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
@@ -40,6 +41,13 @@ export default function AddIncomePageClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  // Autocomplete states
+  const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<string[]>([]);
+  const [currentSuggestion, setCurrentSuggestion] = useState<string>('');
+  const [showSuggestion, setShowSuggestion] = useState(false);
+  const [isLoadingAutocomplete, setIsLoadingAutocomplete] = useState(false);
 
   // Load existing transaction data for editing
   useEffect(() => {
@@ -57,8 +65,14 @@ export default function AddIncomePageClient() {
               date: transaction.date,
               costTypeId: transaction.costTypeId,
               transactionType: TransactionType.Income,
-              personId: transaction.personId
+              personId: transaction.personId,
+              isCash: transaction.isCash
             });
+            
+            // Show advanced section if any advanced fields have values
+            if (transaction.personId || transaction.costTypeId || transaction.description) {
+              setShowAdvanced(true);
+            }
           } else {
             // If not an income transaction, redirect back
             router.push('/financial-report');
@@ -75,6 +89,45 @@ export default function AddIncomePageClient() {
       }
     }
   }, [isEditMode, router]);
+
+  // Debounced autocomplete function
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      if (income.name && income.name.length > 1) {
+        setIsLoadingAutocomplete(true);
+        try {
+          const suggestions = await TransactionsAPI.getAutoComplete(income.name);
+          setAutocompleteSuggestions(suggestions);
+          
+          // Find the best matching suggestion
+          const bestMatch = suggestions.find(suggestion => 
+            suggestion.toLowerCase().startsWith(income.name.toLowerCase())
+          );
+          
+          if (bestMatch && bestMatch.toLowerCase() !== income.name.toLowerCase()) {
+            setCurrentSuggestion(bestMatch);
+            setShowSuggestion(true);
+          } else {
+            setCurrentSuggestion('');
+            setShowSuggestion(false);
+          }
+        } catch (err) {
+          console.error('Error fetching autocomplete:', err);
+          setAutocompleteSuggestions([]);
+          setCurrentSuggestion('');
+          setShowSuggestion(false);
+        } finally {
+          setIsLoadingAutocomplete(false);
+        }
+      } else {
+        setAutocompleteSuggestions([]);
+        setCurrentSuggestion('');
+        setShowSuggestion(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [income.name]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,6 +169,10 @@ export default function AddIncomePageClient() {
     setIncome(prev => ({ ...prev, date }));
   };
 
+  const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIncome(prev => ({ ...prev, isCash: e.target.value === 'cash' }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -127,9 +184,10 @@ export default function AddIncomePageClient() {
         description: income.description || '',
         amount: income.amount || 0,
         date: income.date || new Date().toISOString(),
-        costTypeId: income.costTypeId || 0,
+        costTypeId: income.costTypeId,
         transactionType: TransactionType.Income,
-        personId: income.personId
+        personId: income.personId,
+        isCash: income.isCash
       };
       
       if (isEditMode && transactionId) {
@@ -137,14 +195,32 @@ export default function AddIncomePageClient() {
         await TransactionsAPI.update(transactionId, transactionData);
         setSuccess(true);
         setTimeout(() => {
-          router.push('/financial-report');
+          setSuccess(false);
         }, 1500);
       } else {
         // Create new transaction
         await TransactionsAPI.create(transactionData);
         setSuccess(true);
+        
+        // Clear form fields except date and focus on name field
+        const currentDate = income.date;
+        setIncome({
+          name: '',
+          description: '',
+          amount: 0,
+          date: currentDate,
+          transactionType: TransactionType.Income,
+          isCash: true
+        });
+        setShowAdvanced(false);
+        
+        // Focus on name field after a short delay
         setTimeout(() => {
-          router.push('/');
+          nameInputRef.current?.focus();
+        }, 100);
+        
+        setTimeout(() => {
+          setSuccess(false);
         }, 1500);
       }
     } catch (err: any) {
@@ -189,16 +265,52 @@ export default function AddIncomePageClient() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <label htmlFor="name" className="block">عنوان درآمد</label>
-            <Input 
-              id="name"
-              name="name"
-              value={income.name || ''}
-              onChange={handleChange}
-              placeholder="عنوان درآمد را وارد کنید"
-              required
-            />
+            <div className="relative">
+              <Input 
+                id="name"
+                name="name"
+                value={income.name || ''}
+                onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab' && currentSuggestion && showSuggestion) {
+                    e.preventDefault();
+                    setIncome(prev => ({ ...prev, name: currentSuggestion }));
+                    setShowSuggestion(false);
+                    setCurrentSuggestion('');
+                  }
+                }}
+                placeholder="عنوان درآمد را وارد کنید"
+                required
+                ref={nameInputRef}
+                className="relative z-10 bg-transparent"
+                autoComplete="off"
+              />
+              {/* Autocomplete suggestion overlay */}
+              {showSuggestion && currentSuggestion && (
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="h-full flex items-center px-3 text-gray-400">
+                    <span className="invisible">{income.name}</span>
+                    <span className="text-gray-400">
+                      {currentSuggestion.slice(income.name?.length || 0)}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {/* Loading indicator */}
+              {isLoadingAutocomplete && (
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                </div>
+              )}
+            </div>
+            {/* Suggestion hint */}
+            {showSuggestion && currentSuggestion && (
+              <div className="text-xs text-gray-500">
+                برای تکمیل خودکار Tab را فشار دهید
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -206,60 +318,137 @@ export default function AddIncomePageClient() {
             <Input 
               id="amount"
               name="amount"
-              type="number"
-              value={income.amount || ''}
-              onChange={handleNumberChange}
-              placeholder="۰ تومان"
+              type="text"
+              value={income.amount ? income.amount.toLocaleString() : ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/,/g, '');
+                const numberValue = parseFloat(value) || 0;
+                handleNumberChange({
+                  target: {
+                    name: 'amount',
+                    value: numberValue.toString()
+                  }
+                } as React.ChangeEvent<HTMLInputElement>);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === '.') {
+                  e.preventDefault();
+                  const currentValue = income.amount || 0;
+                  const newValue = currentValue * 1000;
+                  handleNumberChange({
+                    target: {
+                      name: 'amount',
+                      value: newValue.toString()
+                    }
+                  } as React.ChangeEvent<HTMLInputElement>);
+                }
+              }}
+              placeholder="۰ ریال"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <label htmlFor="personId" className="block">مشتری</label>
-            <Select 
-              id="personId"
-              name="personId"
-              value={income.personId?.toString() || ''}
-              onChange={handleSelectChange}
-            >
-              <SelectItem value="">انتخاب کنید</SelectItem>
-              {persons.map((person) => (
-                <SelectItem key={person.id} value={person.id.toString()}>
-                  {person.personName}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="costTypeId" className="block">دسته‌بندی</label>
-            <Select 
-              id="costTypeId"
-              name="costTypeId"
-              value={income.costTypeId?.toString() || ''}
-              onChange={handleSelectChange}
-              required
-            >
-              <SelectItem value="">انتخاب کنید</SelectItem>
-              {costTypes.map((costType) => (
-                <SelectItem key={costType.id} value={costType.id.toString()}>
-                  {costType.name}
-                </SelectItem>
-              ))}
-            </Select>
+            <label className="block">نوع پرداخت</label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="isCash"
+                  value="cash"
+                  checked={income.isCash}
+                  onChange={handlePaymentMethodChange}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span>نقدی</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="isCash"
+                  value="non-cash"
+                  checked={!income.isCash}
+                  onChange={handlePaymentMethodChange}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span>غیر نقدی</span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="description" className="block">توضیحات</label>
-          <Textarea 
-            id="description"
-            name="description"
-            value={income.description || ''}
-            onChange={handleChange}
-            placeholder="توضیحات را وارد کنید"
-          />
+        {/* Advanced Section Toggle */}
+        <div className="border-t pt-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            <span>{showAdvanced ? 'پنهان کردن تنظیمات پیشرفته' : 'نمایش تنظیمات پیشرفته'}</span>
+            <svg 
+              className={`w-4 h-4 transform transition-transform ${showAdvanced ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
+
+        {/* Advanced Section */}
+        {showAdvanced && (
+          <div className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">تنظیمات پیشرفته</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="personId" className="block">مشتری</label>
+                <Select 
+                  id="personId"
+                  name="personId"
+                  value={income.personId?.toString() || ''}
+                  onChange={handleSelectChange}
+                >
+                  <SelectItem value="">انتخاب کنید</SelectItem>
+                  {persons.map((person) => (
+                    <SelectItem key={person.id} value={person.id.toString()}>
+                      {person.personName}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="costTypeId" className="block">دسته‌بندی</label>
+                <Select 
+                  id="costTypeId"
+                  name="costTypeId"
+                  value={income.costTypeId?.toString() || ''}
+                  onChange={handleSelectChange}
+                >
+                  <SelectItem value="">انتخاب کنید</SelectItem>
+                  {costTypes.map((costType) => (
+                    <SelectItem key={costType.id} value={costType.id.toString()}>
+                      {costType.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="description" className="block">توضیحات</label>
+              <Textarea 
+                id="description"
+                name="description"
+                value={income.description || ''}
+                onChange={handleChange}
+                placeholder="توضیحات را وارد کنید"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-between">
           <Button 

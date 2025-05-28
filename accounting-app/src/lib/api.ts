@@ -224,6 +224,7 @@ export interface TransactionDTO {
   description: string;
   amount: number;
   date: string;
+  isCash: boolean;
   costTypeId: number;
   costTypeName: string;
   transactionType: TransactionType;
@@ -236,7 +237,8 @@ export interface CreateTransactionDTO {
   description: string;
   amount: number;
   date: string;
-  costTypeId: number;
+  isCash: boolean;
+  costTypeId?: number;
   transactionType: TransactionType;
   personId?: number;
 }
@@ -247,11 +249,18 @@ export interface TransactionQueryDTO {
   personId?: number;
   costTypeId?: number;
   transactionType?: TransactionType;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export const TransactionsAPI = {
   getAll: async (): Promise<TransactionDTO[]> => {
     const response = await api.get<APIResponse<TransactionDTO[]>>('/api/Transactions');
+    return response.data.data;
+  },
+
+  getAutoComplete: async (query: string): Promise<string[]> => {
+    const response = await api.get<APIResponse<string[]>>(`/api/Transactions/autocomplete?query=${encodeURIComponent(query)}`);
     return response.data.data;
   },
   
@@ -355,6 +364,101 @@ export const UsersAPI = {
   
   getCurrentUserPermissions: async (): Promise<string[]> => {
     const response = await api.get<APIResponse<string[]>>('/api/Users/me/permissions');
+    return response.data.data;
+  }
+};
+
+// Reports
+export interface FinancialSummaryDTO {
+  totalDebts: number;
+  totalCredits: number;
+  financialBalance: number;
+}
+
+export interface DailyIncomeDTO {
+  day: string;
+  amount: number;
+}
+
+export interface ExpensesByCategoryDTO {
+  category: string;
+  amount: number;
+  label: string;
+}
+
+export interface ReportSummaryDTO {
+  financialSummary: FinancialSummaryDTO;
+  dailyIncomeData: DailyIncomeDTO[];
+  expensesData: ExpensesByCategoryDTO[];
+}
+
+export const ReportsAPI = {
+  getSummary: async (startDate?: Date, endDate?: Date, daysForDailyIncome?: number): Promise<ReportSummaryDTO> => {
+    let url = '/api/Report/summary';
+    const params = new URLSearchParams();
+    
+    if (startDate) {
+      params.append('StartDate', startDate.toISOString());
+    }
+    
+    if (endDate) {
+      params.append('EndDate', endDate.toISOString());
+    }
+    
+    if (daysForDailyIncome) {
+      params.append('DaysForDailyIncome', daysForDailyIncome.toString());
+    }
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await api.get<APIResponse<ReportSummaryDTO>>(url);
+    return response.data.data;
+  },
+  
+  getFinancialSummary: async (startDate?: Date, endDate?: Date): Promise<FinancialSummaryDTO> => {
+    let url = '/api/Report/financial-summary';
+    const params = new URLSearchParams();
+    
+    if (startDate) {
+      params.append('startDate', startDate.toISOString());
+    }
+    
+    if (endDate) {
+      params.append('endDate', endDate.toISOString());
+    }
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await api.get<APIResponse<FinancialSummaryDTO>>(url);
+    return response.data.data;
+  },
+  
+  getDailyIncome: async (days: number = 7): Promise<DailyIncomeDTO[]> => {
+    const response = await api.get<APIResponse<DailyIncomeDTO[]>>(`/api/Report/daily-income?days=${days}`);
+    return response.data.data;
+  },
+  
+  getExpensesByCategory: async (startDate?: Date, endDate?: Date): Promise<ExpensesByCategoryDTO[]> => {
+    let url = '/api/Report/expenses-by-category';
+    const params = new URLSearchParams();
+    
+    if (startDate) {
+      params.append('startDate', startDate.toISOString());
+    }
+    
+    if (endDate) {
+      params.append('endDate', endDate.toISOString());
+    }
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await api.get<APIResponse<ExpensesByCategoryDTO[]>>(url);
     return response.data.data;
   }
 }; 

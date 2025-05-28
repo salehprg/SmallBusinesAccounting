@@ -10,20 +10,23 @@ namespace backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class TransactionsController : MyBaseController
+public class TransactionsController(ITransactionService transactionService) : MyBaseController
 {
-    private readonly ITransactionService _transactionService;
-
-    public TransactionsController(ITransactionService transactionService)
-    {
-        _transactionService = transactionService;
-    }
+    private readonly ITransactionService _transactionService = transactionService;
 
     [HttpGet]
     [Authorize(Policy = "Permission:ViewTransactions")]
     public async Task<ActionResult<APIResponse<List<TransactionDTO>>>> GetAllTransactions()
     {
         var transactions = await _transactionService.GetAllTransactionsAsync();
+        return Ok(transactions);
+    }
+
+    [HttpGet("autocomplete")]
+    [Authorize(Policy = "Permission:ViewTransactions")]
+    public async Task<ActionResult<APIResponse<List<string>>>> GetTransactionNamesAutoComplete(string query)
+    {
+        var transactions = await _transactionService.GetTransactionNamesAutoComplete(query);
         return Ok(transactions);
     }
 

@@ -136,6 +136,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ICostTypeService, CostTypeService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // Register Auth Services
 builder.Services.AddScoped<IAuthService, AuthService>();

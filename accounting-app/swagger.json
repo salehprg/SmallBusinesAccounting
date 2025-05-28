@@ -841,6 +841,195 @@
         }
       }
     },
+    "/api/Report/summary": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "parameters": [
+          {
+            "name": "StartDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "EndDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "DaysForDailyIncome",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportSummaryDTOAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportSummaryDTOAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportSummaryDTOAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Report/financial-summary": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialSummaryDTOAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialSummaryDTOAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialSummaryDTOAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Report/daily-income": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 7
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyIncomeDTOListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyIncomeDTOListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyIncomeDTOListAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Report/expenses-by-category": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpensesByCategoryDTOListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpensesByCategoryDTOListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpensesByCategoryDTOListAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Roles": {
       "get": {
         "tags": [
@@ -1167,6 +1356,44 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TransactionDTOAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Transactions/autocomplete": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringListAPIResponse"
                 }
               }
             }
@@ -1908,13 +2135,17 @@
             "type": "number",
             "format": "double"
           },
+          "isCash": {
+            "type": "boolean"
+          },
           "date": {
             "type": "string",
             "format": "date-time"
           },
           "costTypeId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "transactionType": {
             "$ref": "#/components/schemas/TransactionType"
@@ -1957,6 +2188,136 @@
               "format": "int32"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DailyIncomeDTO": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DailyIncomeDTOListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "developerMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyIncomeDTO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExpensesByCategoryDTO": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExpensesByCategoryDTOListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "developerMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpensesByCategoryDTO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FinancialSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "totalDebts": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalCredits": {
+            "type": "number",
+            "format": "double"
+          },
+          "financialBalance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FinancialSummaryDTOAPIResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "developerMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/FinancialSummaryDTO"
           }
         },
         "additionalProperties": false
@@ -2202,6 +2563,53 @@
         },
         "additionalProperties": false
       },
+      "ReportSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "financialSummary": {
+            "$ref": "#/components/schemas/FinancialSummaryDTO"
+          },
+          "dailyIncomeData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyIncomeDTO"
+            },
+            "nullable": true
+          },
+          "expensesData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpensesByCategoryDTO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReportSummaryDTOAPIResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "developerMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReportSummaryDTO"
+          }
+        },
+        "additionalProperties": false
+      },
       "RoleDTO": {
         "type": "object",
         "properties": {
@@ -2326,6 +2734,9 @@
             "type": "number",
             "format": "double"
           },
+          "isCash": {
+            "type": "boolean"
+          },
           "date": {
             "type": "string",
             "format": "date-time"
@@ -2430,6 +2841,14 @@
           },
           "transactionType": {
             "$ref": "#/components/schemas/TransactionType"
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

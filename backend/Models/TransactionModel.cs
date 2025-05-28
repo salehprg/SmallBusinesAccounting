@@ -9,10 +9,13 @@ public class TransactionModel : BaseEntity
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }
+    public bool IsCash { get; set; }
+    public DateTime? UpdateDate { get; set; }
+    public DateTime SubmitDate { get; set; }
     public DateTime Date { get; set; }
-    public int CostTypeId { get; set; }
+    public int? CostTypeId { get; set; }
     [ForeignKey("CostTypeId")]
-    public CostType CostType { get; set; }
+    public CostType? CostType { get; set; }
     public TransactionType TransactionType { get; set; }
     
     // Optional reference to a person

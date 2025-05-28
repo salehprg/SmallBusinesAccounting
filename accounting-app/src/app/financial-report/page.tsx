@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Edit, Trash } from 'lucide-react';
-import { TransactionsAPI, TransactionDTO, TransactionType } from '@/lib/api';
+import { Select, SelectItem } from '@/components/ui/select';
+import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react';
+import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 export default function FinancialReportPage() {
@@ -19,14 +20,79 @@ export default function FinancialReportPage() {
   const [transactionToDelete, setTransactionToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  
+  // Filter and sort states
+  const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
+  const [persons, setPersons] = useState<PersonDTO[]>([]);
+  const [selectedCostType, setSelectedCostType] = useState<number | undefined>(undefined);
+  const [selectedPerson, setSelectedPerson] = useState<number | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('date');
+  const [sortOrder, setSortOrder] = useState<string>('desc');
+  const [showFilters, setShowFilters] = useState(false);
+  
   const itemsPerPage = 10;
 
-  // Fetch transactions from API
+  // Fetch initial data
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+        const [costTypesData, personsData] = await Promise.all([
+          CostTypesAPI.getAll(),
+          PersonsAPI.getAll()
+        ]);
+        setCostTypes(costTypesData);
+        setPersons(personsData);
+      } catch (error) {
+        console.error("Failed to fetch initial data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  // Reset current page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, selectedCostType, selectedPerson, startDate, endDate, searchQuery]);
+
+  // Fetch transactions with filters and sorting
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         setIsLoading(true);
-        const data = await TransactionsAPI.query({});
+        
+        const queryParams: TransactionQueryDTO = {
+          sortBy,
+          sortOrder
+        };
+
+        // Add filters based on active tab
+        if (activeTab !== 'all') {
+          queryParams.transactionType = activeTab === 'income' ? TransactionType.Income : TransactionType.Expense;
+        }
+
+        // Add date filters
+        if (startDate) {
+          queryParams.startDate = new Date(startDate).toISOString();
+        }
+        if (endDate) {
+          queryParams.endDate = new Date(endDate).toISOString();
+        }
+
+        // Add other filters
+        if (selectedCostType) {
+          queryParams.costTypeId = selectedCostType;
+        }
+        if (selectedPerson) {
+          queryParams.personId = selectedPerson;
+        }
+
+        const data = await TransactionsAPI.query(queryParams);
         setTransactions(data);
       } catch (error) {
         console.error("Failed to fetch transactions:", error);
@@ -36,22 +102,16 @@ export default function FinancialReportPage() {
     };
 
     fetchTransactions();
-  }, []);
+  }, [activeTab, selectedCostType, selectedPerson, startDate, endDate, sortBy, sortOrder]);
 
-  // Filter transactions based on active tab and search query
-  const filteredTransactions = transactions
-    .filter(transaction => 
-      activeTab === 'all' || 
-      (activeTab === 'income' && transaction.transactionType === TransactionType.Income) ||
-      (activeTab === 'expense' && transaction.transactionType === TransactionType.Expense)
-    )
-    .filter(transaction =>
-      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.amount.toString().includes(searchQuery) ||
-      (transaction.date && transaction.date.includes(searchQuery)) ||
-      (transaction.costTypeName && transaction.costTypeName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (transaction.personName && transaction.personName.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+  // Filter transactions based on search query (client-side for text search)
+  const filteredTransactions = transactions.filter(transaction =>
+    transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    transaction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    transaction.amount.toString().includes(searchQuery) ||
+    (transaction.costTypeName && transaction.costTypeName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (transaction.personName && transaction.personName.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
@@ -71,21 +131,31 @@ export default function FinancialReportPage() {
   
   const balance = totalIncome - totalExpense;
 
-  // Group transactions by month for chart
-  const monthlyData = Array(12).fill(0).map((_, i) => {
-    const monthTransactions = transactions.filter(t => {
-      if (!t.date) return false;
-      const date = new Date(t.date);
-      return date.getMonth() === i;
-    });
-    
-    return {
-      month: i + 1,
-      amount: monthTransactions.reduce((sum, t) => {
-        return t.transactionType === TransactionType.Income ? sum + t.amount : sum - t.amount;
-      }, 0),
-    };
-  });
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  // Get sort icon
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4" />;
+    return sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
+  };
+
+  // Clear filters
+  const clearFilters = () => {
+    setSelectedCostType(undefined);
+    setSelectedPerson(undefined);
+    setStartDate('');
+    setEndDate('');
+    setSearchQuery('');
+    setCurrentPage(1);
+  };
 
   // Delete transaction handler
   const handleDeleteTransaction = async (id: number) => {
@@ -156,11 +226,115 @@ export default function FinancialReportPage() {
       </div>
 
       {/* Financial Summary */}
-      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">کل درآمد</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {new Intl.NumberFormat('fa-IR').format(totalIncome)} ریال
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">کل هزینه</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              {new Intl.NumberFormat('fa-IR').format(totalExpense)} ریال
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">موجودی</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {new Intl.NumberFormat('fa-IR').format(balance)} ریال
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Transactions List */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">تراکنش‌های اخیر</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">تراکنش‌های اخیر</h2>
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            فیلترها
+          </Button>
+        </div>
+        
+        {/* Filters */}
+        {showFilters && (
+          <div className="bg-muted/50 p-4 rounded-lg mb-4 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Date Range */}
+              <div>
+                <label className="block text-sm font-medium mb-1">از تاریخ</label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">تا تاریخ</label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+              
+              {/* Cost Type Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-1">دسته هزینه</label>
+                <Select
+                  value={selectedCostType?.toString() || ''}
+                  onChange={(e) => setSelectedCostType(e.target.value ? Number(e.target.value) : undefined)}
+                >
+                  <SelectItem value="">همه دسته‌ها</SelectItem>
+                  {costTypes.map((costType) => (
+                    <SelectItem key={costType.id} value={costType.id.toString()}>
+                      {costType.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+              
+              {/* Person Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-1">شخص</label>
+                <Select
+                  value={selectedPerson?.toString() || ''}
+                  onChange={(e) => setSelectedPerson(e.target.value ? Number(e.target.value) : undefined)}
+                >
+                  <SelectItem value="">همه اشخاص</SelectItem>
+                  {persons.map((person) => (
+                    <SelectItem key={person.id} value={person.id.toString()}>
+                      {person.personName}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button onClick={clearFilters} variant="outline">
+                پاک کردن فیلترها
+              </Button>
+            </div>
+          </div>
+        )}
         
         {/* Search Bar */}
         <div className="relative mb-4">
@@ -178,10 +352,34 @@ export default function FinancialReportPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="p-3 text-right">تاریخ</th>
-                <th className="p-3 text-right">شرح</th>
+                <th className="p-3 text-right">
+                  <button
+                    className="flex items-center gap-1 hover:text-primary"
+                    onClick={() => handleSort('date')}
+                  >
+                    تاریخ
+                    {getSortIcon('date')}
+                  </button>
+                </th>
+                <th className="p-3 text-right">
+                  <button
+                    className="flex items-center gap-1 hover:text-primary"
+                    onClick={() => handleSort('name')}
+                  >
+                    شرح
+                    {getSortIcon('name')}
+                  </button>
+                </th>
                 <th className="p-3 text-right">دسته</th>
-                <th className="p-3 text-right">مبلغ</th>
+                <th className="p-3 text-right">
+                  <button
+                    className="flex items-center gap-1 hover:text-primary"
+                    onClick={() => handleSort('amount')}
+                  >
+                    مبلغ
+                    {getSortIcon('amount')}
+                  </button>
+                </th>
                 <th className="p-3 text-right">نوع</th>
                 <th className="p-3 text-right">عملیات</th>
               </tr>
@@ -189,7 +387,7 @@ export default function FinancialReportPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center">
+                  <td colSpan={6} className="p-6 text-center">
                     در حال بارگذاری...
                   </td>
                 </tr>
@@ -197,7 +395,7 @@ export default function FinancialReportPage() {
                 paginatedTransactions.map((transaction) => (
                   <tr key={transaction.id} className="border-b hover:bg-muted/50">
                     <td className="p-3 text-right">{new Date(transaction.date).toLocaleDateString('fa-IR')}</td>
-                    <td className="p-3 text-right">{transaction.description}</td>
+                    <td className="p-3 text-right">{transaction.name}</td>
                     <td className="p-3 text-right">{transaction.costTypeName}</td>
                     <td className="p-3 text-right">{new Intl.NumberFormat('fa-IR').format(transaction.amount)} ریال</td>
                     <td className="p-3 text-right">
@@ -233,7 +431,7 @@ export default function FinancialReportPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
                     هیچ تراکنشی یافت نشد.
                   </td>
                 </tr>

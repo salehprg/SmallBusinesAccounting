@@ -48,6 +48,9 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
+    if (response.data.code != 200) {
+      return Promise.reject(response);
+    }
     return response;
   },
   (error) => {
@@ -66,11 +69,11 @@ api.interceptors.response.use(
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await api.post('/api/Auth/login', credentials);
   const data = response.data.data;
-  
+
   // Store auth info
   setToken(data.token);
   setUser(data);
-  
+
   return data;
 };
 
@@ -82,7 +85,7 @@ export const register = async (userData: any): Promise<AuthResponse> => {
 export const logout = (): void => {
   removeToken();
   removeUser();
-  
+
   // Redirect to login page
   if (typeof window !== 'undefined') {
     window.location.href = '/login';

@@ -29,6 +29,8 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDTO> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO)
     {
+        createTransactionDTO.Date = createTransactionDTO.Date.ToUniversalTime();
+        
         // Validate amount
         if (createTransactionDTO.Amount <= 0)
         {
@@ -36,10 +38,13 @@ public class TransactionService : ITransactionService
         }
 
         // Validate cost type existence
-        var costType = await _costTypeRepository.GetById(createTransactionDTO.CostTypeId).FirstOrDefaultAsync();
-        if (costType == null)
+        if (createTransactionDTO.CostTypeId.HasValue)
         {
-            throw AppErrors.CostTypeNotFound;
+            var costType = await _costTypeRepository.GetById(createTransactionDTO.CostTypeId.Value).FirstOrDefaultAsync();
+            if (costType == null)
+            {
+                throw AppErrors.CostTypeNotFound;
+            }
         }
 
         // Validate person existence if provided
@@ -53,6 +58,8 @@ public class TransactionService : ITransactionService
         }
 
         var transaction = _mapper.Map<TransactionModel>(createTransactionDTO);
+
+        transaction.SubmitDate = DateTime.UtcNow;
         _transactionRepository.Add(transaction);
 
         return await GetTransactionByIdAsync(transaction.Id);
@@ -122,6 +129,20 @@ public class TransactionService : ITransactionService
             query = query.Where(t => t.TransactionType == queryDTO.TransactionType.Value);
         }
 
+        if (queryDTO.SortBy == "date")
+        {
+            query = queryDTO.SortOrder == "asc" ? query.OrderBy(t => t.Date) : query.OrderByDescending(t => t.Date);
+        }
+        else if (queryDTO.SortBy == "amount")
+        {
+            query = queryDTO.SortOrder == "asc" ? query.OrderBy(t => t.Amount) : query.OrderByDescending(t => t.Amount);
+        }
+        else if (queryDTO.SortBy == "name")
+        {
+            query = queryDTO.SortOrder == "asc" ? query.OrderBy(t => t.Name) : query.OrderByDescending(t => t.Name);
+        }
+        
+        
         var transactions = await query.ToListAsync();
         return _mapper.Map<List<TransactionDTO>>(transactions);
     }
@@ -141,10 +162,13 @@ public class TransactionService : ITransactionService
         }
 
         // Validate cost type existence
-        var costType = await _costTypeRepository.GetById(updateTransactionDTO.CostTypeId).FirstOrDefaultAsync();
-        if (costType == null)
+        if (updateTransactionDTO.CostTypeId.HasValue)
         {
-            throw AppErrors.CostTypeNotFound;
+            var costType = await _costTypeRepository.GetById(updateTransactionDTO.CostTypeId.Value).FirstOrDefaultAsync();
+            if (costType == null)
+            {
+                throw AppErrors.CostTypeNotFound;
+            }
         }
 
         // Validate person existence if provided
@@ -156,8 +180,10 @@ public class TransactionService : ITransactionService
                 throw AppErrors.PersonNotFound;
             }
         }
-
+    
         _mapper.Map(updateTransactionDTO, transaction);
+
+        transaction.UpdateDate = DateTime.UtcNow;
         _transactionRepository.Edit(transaction);
 
         return await GetTransactionByIdAsync(id);
@@ -173,4 +199,16 @@ public class TransactionService : ITransactionService
 
         _transactionRepository.Remove(transaction);
     }
-} 
+
+    public async Task<List<string>> GetTransactionNamesAutoComplete(string query)
+    {
+        var transactions = await _transactionRepository.GetAll()
+            .Where(t => t.Name.Contains(query))
+            .Distinct()
+            .OrderBy(t => t.Name)
+            .Select(t => t.Name)
+            .ToListAsync();
+
+        return transactions;
+    }
+}
