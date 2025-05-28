@@ -1,4 +1,5 @@
 using backend.Models.DTO;
+using backend.Models.Enums;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,14 @@ public class TransactionsController(ITransactionService transactionService) : My
         return Ok(transaction);
     }
 
+    [HttpGet("last/{count}")]
+    [Authorize(Policy = "Permission:ViewTransactions")]
+    public async Task<ActionResult<APIResponse<List<TransactionDTO>>>> GetLastTransactions([FromQuery] TransactionType? transactionType, int count)
+    {
+        var transactions = await _transactionService.GetLastTransactionsAsync(transactionType, count);
+        return Ok(transactions);
+    }
+
     [HttpPost("query")]
     [Authorize(Policy = "Permission:ViewTransactions")]
     public async Task<ActionResult<APIResponse<List<TransactionDTO>>>> QueryTransactions([FromBody] TransactionQueryDTO queryDTO)
@@ -68,6 +77,6 @@ public class TransactionsController(ITransactionService transactionService) : My
     public async Task<ActionResult> DeleteTransaction(int id)
     {
         await _transactionService.DeleteTransactionAsync(id);
-        return Ok();
+        return Ok(true);
     }
 } 

@@ -4,6 +4,7 @@ import { vazirmatn } from "@/lib/fonts";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { AuthProvider } from "@/lib/auth-context";
+import { ToastProvider } from "@/components/ui/toast";
 import { usePathname } from "next/navigation";
 
 export default function RootLayout({
@@ -16,9 +17,11 @@ export default function RootLayout({
       <body
         className={`${vazirmatn.variable} font-sans antialiased`}
       >
-        <AuthProvider>
-          <LayoutContent>{children}</LayoutContent>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );

@@ -59,12 +59,8 @@ export function Sidebar() {
               کارتابل
             </SidebarItem>
             
-            <SidebarItem href="/add-expense" icon={<Plus className="h-5 w-5" />} isCollapsed={!isOpen}>
-              افزودن هزینه
-            </SidebarItem>
-            
-            <SidebarItem href="/add-income" icon={<Minus className="h-5 w-5" />} isCollapsed={!isOpen}>
-              افزودن درآمد
+            <SidebarItem href="/add-transaction" icon={<Plus className="h-5 w-5" />} isCollapsed={!isOpen}>
+              افزودن تراکنش
             </SidebarItem>
 
             <SidebarItem href="/add-cost-type" icon={<Layers2 className="h-5 w-5" />} isCollapsed={!isOpen}>

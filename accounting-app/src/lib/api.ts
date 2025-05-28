@@ -259,6 +259,11 @@ export const TransactionsAPI = {
     return response.data.data;
   },
 
+  getLastTransactions: async (transactionType: TransactionType, count : number): Promise<TransactionDTO[]> => {
+    const response = await api.get<APIResponse<TransactionDTO[]>>(`/api/Transactions/last/${count}?transactionType=${transactionType}`);
+    return response.data.data;
+  },
+
   getAutoComplete: async (query: string): Promise<string[]> => {
     const response = await api.get<APIResponse<string[]>>(`/api/Transactions/autocomplete?query=${encodeURIComponent(query)}`);
     return response.data.data;
@@ -393,7 +398,7 @@ export interface ReportSummaryDTO {
 }
 
 export const ReportsAPI = {
-  getSummary: async (startDate?: Date, endDate?: Date, daysForDailyIncome?: number): Promise<ReportSummaryDTO> => {
+  getSummary: async (startDate: Date, endDate: Date,): Promise<ReportSummaryDTO> => {
     let url = '/api/Report/summary';
     const params = new URLSearchParams();
     
@@ -405,9 +410,6 @@ export const ReportsAPI = {
       params.append('EndDate', endDate.toISOString());
     }
     
-    if (daysForDailyIncome) {
-      params.append('DaysForDailyIncome', daysForDailyIncome.toString());
-    }
     
     if (params.toString()) {
       url += `?${params.toString()}`;

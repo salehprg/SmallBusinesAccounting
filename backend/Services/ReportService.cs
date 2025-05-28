@@ -20,7 +20,7 @@ public class ReportService : IReportService
         queryDTO ??= new ReportQueryDTO();
 
         var financialSummary = await GetFinancialSummaryAsync(queryDTO.StartDate, queryDTO.EndDate);
-        var dailyIncomeData = await GetDailyIncomeDataAsync(queryDTO.DaysForDailyIncome);
+        var dailyIncomeData = await GetDailyIncomeDataAsync(queryDTO.StartDate, queryDTO.EndDate);
         var expensesData = await GetExpensesByCategoryAsync(queryDTO.StartDate, queryDTO.EndDate);
 
         return new ReportSummaryDTO
@@ -31,20 +31,13 @@ public class ReportService : IReportService
         };
     }
 
-    public async Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate)
     {
         var query = _transactionRepository.GetAll().AsQueryable();
 
         // Apply date filters if provided
-        if (startDate.HasValue)
-        {
-            query = query.Where(t => t.Date >= startDate.Value);
-        }
+        query = query.Where(t => t.Date >= startDate && t.Date <= endDate);
 
-        if (endDate.HasValue)
-        {
-            query = query.Where(t => t.Date <= endDate.Value);
-        }
 
         decimal totalDebts = query.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => t.Amount);
         decimal totalCredits = query.Where(t => t.TransactionType == TransactionType.Income).Sum(t => t.Amount);
@@ -57,20 +50,19 @@ public class ReportService : IReportService
         };
     }
 
-    public async Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(int days = 7)
+    public async Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateTime startDate, DateTime endDate)
     {
-        var now = DateTime.UtcNow.Date;
-        var startDate = now.AddDays(-(days - 1));
-
         var transactions = await _transactionRepository.GetAll()
-            .Where(t => t.TransactionType == TransactionType.Income && t.Date >= startDate && t.Date <= now)
+            .Where(t => t.TransactionType == TransactionType.Income && t.Date >= startDate && t.Date <= endDate)
             .ToListAsync();
+
+        var days = (endDate - startDate).Days;
 
         // Initialize daily income dictionary with the specified number of days
         var dailyIncome = new Dictionary<string, decimal>();
         for (int i = days - 1; i >= 0; i--)
         {
-            var date = now.AddDays(-i);
+            var date = endDate.AddDays(-i);
             var day = date.Day.ToString();
             dailyIncome[day] = 0;
         }
@@ -93,28 +85,21 @@ public class ReportService : IReportService
         }).ToList();
     }
 
-    public async Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateTime startDate, DateTime endDate)
     {
         var query = _transactionRepository.GetAll()
             .Include(t => t.CostType)
             .Where(t => t.TransactionType == TransactionType.Expense);
 
         // Apply date filters if provided
-        if (startDate.HasValue)
-        {
-            query = query.Where(t => t.Date >= startDate.Value);
-        }
-
-        if (endDate.HasValue)
-        {
-            query = query.Where(t => t.Date <= endDate.Value);
-        }
+        query = query.Where(t => t.Date >= startDate && t.Date <= endDate);
 
         var transactions = await query.ToListAsync();
 
         // Group expenses by category
         var expensesByCategory = transactions
-            .GroupBy(t => new { 
+            .GroupBy(t => new
+            {
                 Category = t.CostType?.Name ?? "Uncategorized",
                 Label = t.CostType?.Name ?? "Uncategorized"
             })
@@ -128,4 +113,4 @@ public class ReportService : IReportService
 
         return expensesByCategory;
     }
-} 
+}

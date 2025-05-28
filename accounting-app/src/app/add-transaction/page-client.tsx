@@ -21,7 +21,7 @@ import {
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/ui/toast';
 
-export default function AddExpensePageClient() {
+export default function AddTransactionPageClient() {
   // Ensure user is authenticated
   const isAuthenticated = useRequireAuth();
   const router = useRouter();
@@ -31,7 +31,10 @@ export default function AddExpensePageClient() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
 
-  const [expense, setExpense] = useState<CreateTransactionDTO>({
+  // Transaction type state - default to expense
+  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.Expense);
+
+  const [transaction, setTransaction] = useState<CreateTransactionDTO>({
     name: '',
     description: '',
     amount: 0,
@@ -65,36 +68,26 @@ export default function AddExpensePageClient() {
           if (!isNaN(id)) {
             try {
               setIsLoading(true);
-              const transaction = await TransactionsAPI.getById(id);
+              const transactionData = await TransactionsAPI.getById(id);
 
-              if (transaction.transactionType === TransactionType.Expense) {
-                setTransactionId(transaction.id);
-                setExpense({
-                  name: transaction.name,
-                  description: transaction.description,
-                  amount: transaction.amount,
-                  date: transaction.date,
-                  costTypeId: transaction.costTypeId,
-                  transactionType: TransactionType.Expense,
-                  personId: transaction.personId,
-                  isCash: transaction.isCash
-                });
+              setTransactionId(transactionData.id);
+              setTransactionType(transactionData.transactionType);
+              setTransaction({
+                name: transactionData.name,
+                description: transactionData.description,
+                amount: transactionData.amount,
+                date: transactionData.date,
+                costTypeId: transactionData.costTypeId,
+                transactionType: transactionData.transactionType,
+                personId: transactionData.personId,
+                isCash: transactionData.isCash
+              });
 
-                nameInputRef.current?.focus();
+              nameInputRef.current?.focus();
 
-                // Show advanced section if any advanced fields have values
-                if (transaction.personId || transaction.costTypeId || transaction.description) {
-                  setShowAdvanced(true);
-                }
-              } else {
-                // If not an expense transaction, redirect back
-                addToast({
-                  type: 'error',
-                  message: 'تراکنش انتخاب شده یک هزینه نیست'
-                });
-                setTimeout(() => {
-                  router.push('/financial-report');
-                }, 2000);
+              // Show advanced section if any advanced fields have values
+              if (transactionData.personId || transactionData.costTypeId || transactionData.description) {
+                setShowAdvanced(true);
               }
             } catch (error) {
               console.error('Error loading transaction for edit:', error);
@@ -141,12 +134,12 @@ export default function AddExpensePageClient() {
         const costTypesData = await CostTypesAPI.getAll();
         setCostTypes(costTypesData);
 
-        // Fetch vendors/persons
+        // Fetch persons
         const personsData = await PersonsAPI.getAll();
         setPersons(personsData);
 
-        // Fetch last 10 expense transactions
-        const lastTransactionsData = await TransactionsAPI.getLastTransactions(TransactionType.Expense, 10);
+        // Fetch last 10 transactions of current type
+        const lastTransactionsData = await TransactionsAPI.getLastTransactions(transactionType, 10);
         setLastTransactions(lastTransactionsData);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -160,23 +153,23 @@ export default function AddExpensePageClient() {
     if (isAuthenticated) {
       fetchData();
     }
-  }, [isAuthenticated, addToast]);
+  }, [isAuthenticated, addToast, transactionType]);
 
   // Debounced autocomplete function
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
-      if (expense.name && expense.name.length > 1) {
+      if (transaction.name && transaction.name.length > 1) {
         setIsLoadingAutocomplete(true);
         try {
-          const suggestions = await TransactionsAPI.getAutoComplete(expense.name);
+          const suggestions = await TransactionsAPI.getAutoComplete(transaction.name);
           setAutocompleteSuggestions(suggestions);
 
           // Find the best matching suggestion
           const bestMatch = suggestions.find(suggestion =>
-            suggestion.toLowerCase().startsWith(expense.name.toLowerCase())
+            suggestion.toLowerCase().startsWith(transaction.name.toLowerCase())
           );
 
-          if (bestMatch && bestMatch.toLowerCase() !== expense.name.toLowerCase()) {
+          if (bestMatch && bestMatch.toLowerCase() !== transaction.name.toLowerCase()) {
             setCurrentSuggestion(bestMatch);
             setShowSuggestion(true);
           } else {
@@ -199,31 +192,51 @@ export default function AddExpensePageClient() {
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [expense.name]);
+  }, [transaction.name]);
+
+  // Update transaction type when switching
+  useEffect(() => {
+    setTransaction(prev => ({ ...prev, transactionType }));
+  }, [transactionType]);
+
+  const handleTransactionTypeChange = (newType: TransactionType) => {
+    setTransactionType(newType);
+    // Reset form when switching types (except date and payment method)
+    const currentDate = transaction.date;
+    const currentIsCash = transaction.isCash;
+    setTransaction({
+      name: '',
+      description: '',
+      amount: 0,
+      date: currentDate,
+      transactionType: newType,
+      isCash: currentIsCash
+    });
+    setShowAdvanced(false);
+    nameInputRef.current?.focus();
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setExpense(prev => ({ ...prev, [name]: value }));
+    setTransaction(prev => ({ ...prev, [name]: value }));
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setExpense(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    setTransaction(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    console.log(value);
-    setExpense(prev => ({ ...prev, [name]: value ? parseInt(value, 10) : null }));
+    setTransaction(prev => ({ ...prev, [name]: value ? parseInt(value, 10) : null }));
   };
 
   const handleDateChange = (date: string) => {
-    console.log(date);
-    setExpense(prev => ({ ...prev, date }));
+    setTransaction(prev => ({ ...prev, date }));
   };
 
   const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setExpense(prev => ({ ...prev, isCash: e.target.value === 'cash' }));
+    setTransaction(prev => ({ ...prev, isCash: e.target.value === 'cash' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -232,14 +245,14 @@ export default function AddExpensePageClient() {
 
     try {
       const transactionData: CreateTransactionDTO = {
-        name: expense.name || '',
-        description: expense.description || '',
-        amount: expense.amount || 0,
-        date: expense.date || "",
-        costTypeId: expense.costTypeId,
-        transactionType: TransactionType.Expense,
-        personId: expense.personId,
-        isCash: expense.isCash
+        name: transaction.name || '',
+        description: transaction.description || '',
+        amount: transaction.amount || 0,
+        date: transaction.date || "",
+        costTypeId: transaction.costTypeId,
+        transactionType: transactionType,
+        personId: transaction.personId,
+        isCash: transaction.isCash
       };
 
       if (isEditMode && transactionId) {
@@ -247,47 +260,48 @@ export default function AddExpensePageClient() {
         await TransactionsAPI.update(transactionId, transactionData);
         addToast({
           type: 'success',
-          message: 'هزینه با موفقیت ویرایش شد!'
+          message: `${transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'} با موفقیت ویرایش شد!`
         });
-
       } else {
         // Create new transaction
         await TransactionsAPI.create(transactionData);
         addToast({
           type: 'success',
-          message: 'هزینه با موفقیت ثبت شد!'
+          message: `${transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'} با موفقیت ثبت شد!`
         });
       }
 
-      const currentDate = expense.date;
-      setExpense({
+      const currentDate = transaction.date;
+      const currentIsCash = transaction.isCash;
+      setTransaction({
         name: '',
         description: '',
         amount: 0,
         date: currentDate,
-        transactionType: TransactionType.Expense,
-        isCash: expense.isCash
+        transactionType: transactionType,
+        isCash: currentIsCash
       });
+      setShowAdvanced(false);
 
-      // Redirect back to add expense mode after successful edit
+      // Redirect back to add transaction mode after successful edit
       setTimeout(() => {
         nameInputRef.current?.focus();
         if (isEditMode)
-          router.push('/add-expense');
+          router.push('/add-transaction');
       }, 200);
 
       // Refresh last transactions list
       try {
-        const lastTransactionsData = await TransactionsAPI.getLastTransactions(TransactionType.Expense, 10);
+        const lastTransactionsData = await TransactionsAPI.getLastTransactions(transactionType, 10);
         setLastTransactions(lastTransactionsData);
       } catch (err) {
         console.error('Error refreshing last transactions:', err);
       }
     } catch (err: any) {
-      console.error('Error saving expense:', err);
+      console.error('Error saving transaction:', err);
       addToast({
         type: 'error',
-        message: err.response?.data?.message || 'خطا در ثبت هزینه'
+        message: err.response?.data?.message || `خطا در ثبت ${transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}`
       });
     } finally {
       setIsLoading(false);
@@ -295,10 +309,9 @@ export default function AddExpensePageClient() {
   };
 
   // Handle edit transaction
-  const handleEditTransaction = (transaction: TransactionDTO) => {
+  const handleEditTransaction = (transactionData: TransactionDTO) => {
     // Redirect to edit mode with the transaction ID
-    router.push(`/add-expense?edit=true&id=${transaction.id}`);
-
+    router.push(`/add-transaction?edit=true&id=${transactionData.id}`);
   };
 
   // Handle delete transaction
@@ -320,7 +333,7 @@ export default function AddExpensePageClient() {
 
       // Refresh the list to get updated data
       try {
-        const lastTransactionsData = await TransactionsAPI.getLastTransactions(TransactionType.Expense, 10);
+        const lastTransactionsData = await TransactionsAPI.getLastTransactions(transactionType, 10);
         setLastTransactions(lastTransactionsData);
       } catch (err) {
         console.error('Error refreshing last transactions:', err);
@@ -331,9 +344,9 @@ export default function AddExpensePageClient() {
         message: 'تراکنش با موفقیت حذف شد'
       });
 
-      // Redirect back to add expense mode after successful delete
+      // Redirect back to add transaction mode after successful delete
       setTimeout(() => {
-        router.push('/add-expense');
+        router.push('/add-transaction');
       }, 200);
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -352,9 +365,43 @@ export default function AddExpensePageClient() {
     return null; // Don't render anything while redirecting
   }
 
+  const isIncome = transactionType === TransactionType.Income;
+
   return (
     <div className="p-6 max-w-4xl mx-auto rtl">
-      <h1 className="text-2xl font-bold mb-6">{isEditMode ? 'ویرایش هزینه' : 'ثبت هزینه'}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">
+          {isEditMode ? `ویرایش ${isIncome ? 'درآمد' : 'هزینه'}` : 'ثبت تراکنش'}
+        </h1>
+        
+        {/* Transaction Type Switch */}
+        {!isEditMode && (
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => handleTransactionTypeChange(TransactionType.Expense)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                !isIncome
+                  ? 'bg-white text-red-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              هزینه
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTransactionTypeChange(TransactionType.Income)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                isIncome
+                  ? 'bg-white text-green-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              درآمد
+            </button>
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -363,7 +410,7 @@ export default function AddExpensePageClient() {
             <PersianDatePicker
               id="date"
               name="date"
-              value={expense.date || ''}
+              value={transaction.date || ''}
               onChange={handleDateChange}
               placeholder="انتخاب تاریخ"
               required
@@ -371,22 +418,24 @@ export default function AddExpensePageClient() {
           </div>
 
           <div className="space-y-2 relative">
-            <label htmlFor="name" className="block">عنوان هزینه</label>
+            <label htmlFor="name" className="block">
+              عنوان {isIncome ? 'درآمد' : 'هزینه'}
+            </label>
             <div className="relative">
               <Input
                 id="name"
                 name="name"
-                value={expense.name || ''}
+                value={transaction.name || ''}
                 onChange={handleChange}
                 onKeyDown={(e) => {
                   if (e.key === 'Tab' && currentSuggestion && showSuggestion) {
                     e.preventDefault();
-                    setExpense(prev => ({ ...prev, name: currentSuggestion }));
+                    setTransaction(prev => ({ ...prev, name: currentSuggestion }));
                     setShowSuggestion(false);
                     setCurrentSuggestion('');
                   }
                 }}
-                placeholder="عنوان هزینه را وارد کنید"
+                placeholder={`عنوان ${isIncome ? 'درآمد' : 'هزینه'} را وارد کنید`}
                 required
                 ref={nameInputRef}
                 className="relative z-10 bg-transparent"
@@ -396,9 +445,9 @@ export default function AddExpensePageClient() {
               {showSuggestion && currentSuggestion && (
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="h-full flex items-center px-3 text-gray-400">
-                    <span className="invisible">{expense.name}</span>
+                    <span className="invisible">{transaction.name}</span>
                     <span className="text-gray-400">
-                      {currentSuggestion.slice(expense.name?.length || 0)}
+                      {currentSuggestion.slice(transaction.name?.length || 0)}
                     </span>
                   </div>
                 </div>
@@ -424,7 +473,7 @@ export default function AddExpensePageClient() {
               id="amount"
               name="amount"
               type="text"
-              value={expense.amount ? expense.amount.toLocaleString() : ''}
+              value={transaction.amount ? transaction.amount.toLocaleString() : ''}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, '');
                 const numberValue = parseFloat(value) || 0;
@@ -438,7 +487,7 @@ export default function AddExpensePageClient() {
               onKeyDown={(e) => {
                 if (e.key === '.') {
                   e.preventDefault();
-                  const currentValue = expense.amount || 0;
+                  const currentValue = transaction.amount || 0;
                   const newValue = currentValue * 1000;
                   handleNumberChange({
                     target: {
@@ -461,7 +510,7 @@ export default function AddExpensePageClient() {
                   type="radio"
                   name="paymentMethod"
                   value="cash"
-                  checked={expense.isCash}
+                  checked={transaction.isCash}
                   onChange={handlePaymentMethodChange}
                   className="w-4 h-4 text-blue-600"
                 />
@@ -472,7 +521,7 @@ export default function AddExpensePageClient() {
                   type="radio"
                   name="paymentMethod"
                   value="non-cash"
-                  checked={!expense.isCash}
+                  checked={!transaction.isCash}
                   onChange={handlePaymentMethodChange}
                   className="w-4 h-4 text-blue-600"
                 />
@@ -508,11 +557,13 @@ export default function AddExpensePageClient() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="personId" className="block">فروشنده</label>
+                <label htmlFor="personId" className="block">
+                  {isIncome ? 'مشتری' : 'فروشنده'}
+                </label>
                 <Select
                   id="personId"
                   name="personId"
-                  value={expense.personId?.toString() || ''}
+                  value={transaction.personId?.toString() || ''}
                   onChange={handleSelectChange}
                 >
                   <SelectItem value="">انتخاب کنید</SelectItem>
@@ -529,7 +580,7 @@ export default function AddExpensePageClient() {
                 <Select
                   id="costTypeId"
                   name="costTypeId"
-                  value={expense.costTypeId?.toString() || ''}
+                  value={transaction.costTypeId?.toString() || ''}
                   onChange={handleSelectChange}
                 >
                   <SelectItem value="">انتخاب کنید</SelectItem>
@@ -547,7 +598,7 @@ export default function AddExpensePageClient() {
               <Textarea
                 id="description"
                 name="description"
-                value={expense.description || ''}
+                value={transaction.description || ''}
                 onChange={handleChange}
                 placeholder="توضیحات را وارد کنید"
               />
@@ -571,7 +622,9 @@ export default function AddExpensePageClient() {
 
       {/* Last Transactions Table */}
       <div className="mt-8 border-t pt-6">
-        <h2 className="text-xl font-bold mb-4">آخرین هزینه‌ها</h2>
+        <h2 className="text-xl font-bold mb-4">
+          آخرین {isIncome ? 'درآمدها' : 'هزینه‌ها'}
+        </h2>
 
         {lastTransactions.length > 0 ? (
           <div className="overflow-x-auto">
@@ -583,36 +636,38 @@ export default function AddExpensePageClient() {
                   <th className="border border-gray-300 p-3 text-right">عنوان</th>
                   <th className="border border-gray-300 p-3 text-right">مبلغ</th>
                   <th className="border border-gray-300 p-3 text-right">دسته‌بندی</th>
-                  <th className="border border-gray-300 p-3 text-right">فروشنده</th>
+                  <th className="border border-gray-300 p-3 text-right">
+                    {isIncome ? 'مشتری' : 'فروشنده'}
+                  </th>
                   <th className="border border-gray-300 p-3 text-right">نوع پرداخت</th>
                   <th className="border border-gray-300 p-3 text-right">عملیات</th>
                 </tr>
               </thead>
               <tbody>
-                {lastTransactions.map((transaction, idx) => (
-                  <tr key={transaction.id} className="hover:bg-gray-50">
+                {lastTransactions.map((transactionData, idx) => (
+                  <tr key={transactionData.id} className="hover:bg-gray-50">
                     <td className="border border-gray-300 p-3 text-right">
                       {idx + 1}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      {new Date(transaction.date).toLocaleDateString('fa-IR')}
+                      {new Date(transactionData.date).toLocaleDateString('fa-IR')}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      {transaction.name}
+                      {transactionData.name}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      {new Intl.NumberFormat('fa-IR').format(transaction.amount)} ریال
+                      {new Intl.NumberFormat('fa-IR').format(transactionData.amount)} ریال
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      {transaction.costTypeName || '-'}
+                      {transactionData.costTypeName || '-'}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      {transaction.personName || '-'}
+                      {transactionData.personName || '-'}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      <span className={`px-2 py-1 rounded-full text-xs ${transaction.isCash ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                      <span className={`px-2 py-1 rounded-full text-xs ${transactionData.isCash ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
                         }`}>
-                        {transaction.isCash ? 'نقدی' : 'غیر نقدی'}
+                        {transactionData.isCash ? 'نقدی' : 'غیر نقدی'}
                       </span>
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
@@ -620,7 +675,7 @@ export default function AddExpensePageClient() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleEditTransaction(transaction)}
+                          onClick={() => handleEditTransaction(transactionData)}
                           className="p-2"
                           title="ویرایش"
                         >
@@ -629,7 +684,7 @@ export default function AddExpensePageClient() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          onClick={() => handleDeleteTransaction(transactionData.id)}
                           className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                           title="حذف"
                         >
@@ -644,14 +699,14 @@ export default function AddExpensePageClient() {
           </div>
         ) : (
           <div className="text-center py-8 text-gray-500">
-            هیچ هزینه‌ای یافت نشد
+            هیچ {isIncome ? 'درآمدی' : 'هزینه‌ای'} یافت نشد
           </div>
         )}
       </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black[200] bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-4 text-right">تأیید حذف</h3>
             <p className="text-right mb-6">آیا از حذف این تراکنش اطمینان دارید؟ این عملیات غیرقابل بازگشت است.</p>

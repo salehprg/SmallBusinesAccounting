@@ -186,14 +186,11 @@ export default function FinancialReportPage() {
 
   // Edit transaction handler
   const handleEditTransaction = (transaction: TransactionDTO) => {
-    // Store the transaction in session storage for the target page to access
-    sessionStorage.setItem('editTransaction', JSON.stringify(transaction));
-    
-    // Redirect to the appropriate page based on transaction type
+    // Redirect to the appropriate page based on transaction type with transaction ID
     if (transaction.transactionType === TransactionType.Income) {
-      router.push('/add-income?edit=true');
+      router.push(`/add-income?edit=true&id=${transaction.id}`);
     } else {
-      router.push('/add-expense?edit=true');
+      router.push(`/add-expense?edit=true&id=${transaction.id}`);
     }
   };
 

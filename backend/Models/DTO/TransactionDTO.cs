@@ -21,8 +21,9 @@ public class TransactionDTO
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public bool IsCash { get; set; }
+    public DateTime SubmitDate { get; set; }
     public DateTime Date { get; set; }
-    public int CostTypeId { get; set; }
+    public int? CostTypeId { get; set; }
     public string CostTypeName { get; set; } = string.Empty;
     public TransactionType TransactionType { get; set; }
     public int? PersonId { get; set; }

@@ -29,7 +29,6 @@ public class ReportSummaryDTO
 
 public class ReportQueryDTO
 {
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public int DaysForDailyIncome { get; set; } = 7; // Default to last 7 days
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 } 

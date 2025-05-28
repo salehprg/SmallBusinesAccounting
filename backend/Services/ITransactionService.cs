@@ -1,5 +1,6 @@
 using backend.Models;
 using backend.Models.DTO;
+using backend.Models.Enums;
 
 namespace backend.Services;
 
@@ -12,4 +13,5 @@ public interface ITransactionService
     Task<List<TransactionDTO>> GetTransactionsByQueryAsync(TransactionQueryDTO queryDTO);
     Task<TransactionDTO> UpdateTransactionAsync(int id, CreateTransactionDTO updateTransactionDTO);
     Task DeleteTransactionAsync(int id);
+    Task<List<TransactionDTO>> GetLastTransactionsAsync(TransactionType? transactionType, int count);
 } 

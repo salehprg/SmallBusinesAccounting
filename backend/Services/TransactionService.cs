@@ -149,6 +149,8 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDTO> UpdateTransactionAsync(int id, CreateTransactionDTO updateTransactionDTO)
     {
+        updateTransactionDTO.Date = updateTransactionDTO.Date.ToUniversalTime();
+
         var transaction = await _transactionRepository.GetById(id).FirstOrDefaultAsync();
         if (transaction == null)
         {
@@ -210,5 +212,16 @@ public class TransactionService : ITransactionService
             .ToListAsync();
 
         return transactions;
+    }
+
+    public async Task<List<TransactionDTO>> GetLastTransactionsAsync(TransactionType? transactionType, int count)
+    {
+        var transactions = await _transactionRepository.GetAll()
+            .Where(t => t.TransactionType == transactionType)
+            .OrderByDescending(t => t.SubmitDate)
+            .Take(count)
+            .ToListAsync();
+
+        return _mapper.Map<List<TransactionDTO>>(transactions);
     }
 }
