@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import AddTransactionPageClient from './page-client';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'ثبت تراکنش - سیستم حسابداری',
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function AddTransactionPage() {
-  return <AddTransactionPageClient />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AddTransactionPageClient />
+    </Suspense>
+  );
 } 
