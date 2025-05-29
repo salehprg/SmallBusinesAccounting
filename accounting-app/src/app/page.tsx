@@ -15,11 +15,11 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 export default function Dashboard() {
   // Ensure user is authenticated
   const isAuthenticated = useRequireAuth();
-  
+
   if (!isAuthenticated) {
     return null; // Don't render anything while redirecting
   }
-  
+
   return <DashboardContent />;
 }
 
@@ -27,18 +27,29 @@ function DashboardContent() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  
+
+
   const [financialData, setFinancialData] = useState<FinancialSummaryDTO>({
     totalDebts: 0,
     totalCredits: 0,
     financialBalance: 0
   });
-  
+
   const [dailyIncomeData, setDailyIncomeData] = useState<DailyIncomeDTO[]>([]);
   const [expensesData, setExpensesData] = useState<ExpensesByCategoryDTO[]>([]);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+
+  useEffect(() => {
+    const today = new Date();
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    setStartDate(threeMonthsAgo.toISOString());
+    setEndDate(today.toISOString());
+
+    fetchData(threeMonthsAgo.toISOString(), today.toISOString());
+  }, []);
 
   const fetchData = async (startDate: string, endDate: string) => {
     setIsLoading(true);
@@ -46,23 +57,23 @@ function DashboardContent() {
       // Calculate 7 days ago
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
+
       // Fetch summary data from the new API endpoint
       // Pass startDate and endDate if they are set, otherwise use default dates
       const summaryData = await ReportsAPI.getSummary(
-        startDate ? new Date(startDate) : sevenDaysAgo, 
-        endDate ? new Date(endDate) : new Date(),  
+        startDate ? new Date(startDate) : sevenDaysAgo,
+        endDate ? new Date(endDate) : new Date(),
       );
-      
+
       // Set the financial summary data
       setFinancialData(summaryData.financialSummary);
-      
+
       // Set daily income data
       setDailyIncomeData(summaryData.dailyIncomeData || []);
-      
+
       // Set expenses data
       setExpensesData(summaryData.expensesData || []);
-      
+
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
       setError('خطا در دریافت اطلاعات');
@@ -76,6 +87,8 @@ function DashboardContent() {
   }, []);
 
   const handleDateFilterApply = (startDate: string, endDate: string) => {
+    setStartDate(startDate);
+    setEndDate(endDate);
     fetchData(startDate, endDate);
   };
 
@@ -97,7 +110,7 @@ function DashboardContent() {
         </p>
       </div>
 
-      <FinancialSummary data={financialData} applyFilter={handleDateFilterApply} _startDate={''} _endDate={''} />
+      <FinancialSummary data={financialData} applyFilter={handleDateFilterApply} _startDate={startDate} _endDate={endDate} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <DailyIncomeChart data={dailyIncomeData} />

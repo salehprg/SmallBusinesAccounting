@@ -31,6 +31,25 @@ export default function AddTransactionPageClient() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
 
+  // Helper function to convert Arabic/Persian numerals to Latin numerals
+  const convertArabicToLatin = (str: string): string => {
+    const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
+    const persianNumerals = '۰۱۲۳۴۵۶۷۸۹';
+    const latinNumerals = '0123456789';
+    
+    return str.replace(/[٠-٩۰-۹]/g, (char) => {
+      const arabicIndex = arabicNumerals.indexOf(char);
+      const persianIndex = persianNumerals.indexOf(char);
+      
+      if (arabicIndex !== -1) {
+        return latinNumerals[arabicIndex];
+      } else if (persianIndex !== -1) {
+        return latinNumerals[persianIndex];
+      }
+      return char;
+    });
+  };
+
   // Transaction type state - default to expense
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.Expense);
 
@@ -475,7 +494,9 @@ export default function AddTransactionPageClient() {
               type="text"
               value={transaction.amount ? transaction.amount.toLocaleString() : ''}
               onChange={(e) => {
-                const value = e.target.value.replace(/,/g, '');
+                // Convert Arabic/Persian numerals to Latin numerals
+                const convertedValue = convertArabicToLatin(e.target.value);
+                const value = convertedValue.replace(/,/g, '');
                 const numberValue = parseFloat(value) || 0;
                 handleNumberChange({
                   target: {

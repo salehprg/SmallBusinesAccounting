@@ -382,7 +382,9 @@ export interface FinancialSummaryDTO {
 
 export interface DailyIncomeDTO {
   day: string;
-  amount: number;
+  income: number;
+  expenses: number;
+  balance: number;
 }
 
 export interface ExpensesByCategoryDTO {

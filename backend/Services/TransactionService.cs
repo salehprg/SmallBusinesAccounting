@@ -218,6 +218,7 @@ public class TransactionService : ITransactionService
     {
         var transactions = await _transactionRepository.GetAll()
             .Where(t => t.TransactionType == transactionType)
+            .Include(t => t.CostType)
             .OrderByDescending(t => t.SubmitDate)
             .Take(count)
             .ToListAsync();

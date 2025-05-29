@@ -3,16 +3,19 @@ using backend.Models.DTO;
 using backend.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using New_Back.DataAccess;
+using System.Globalization;
 
 namespace backend.Services;
 
 public class ReportService : IReportService
 {
     private readonly IRepository<TransactionModel> _transactionRepository;
+    private readonly PersianCalendar _persianCalendar;
 
     public ReportService(IRepository<TransactionModel> transactionRepository)
     {
         _transactionRepository = transactionRepository;
+        _persianCalendar = new PersianCalendar();
     }
 
     public async Task<ReportSummaryDTO> GetReportSummaryAsync(ReportQueryDTO? queryDTO = null)
@@ -53,36 +56,37 @@ public class ReportService : IReportService
     public async Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateTime startDate, DateTime endDate)
     {
         var transactions = await _transactionRepository.GetAll()
-            .Where(t => t.TransactionType == TransactionType.Income && t.Date >= startDate && t.Date <= endDate)
+            .Where(t => t.Date >= startDate && t.Date <= endDate)
             .ToListAsync();
 
-        var days = (endDate - startDate).Days;
+        var days = (endDate - startDate).Days + 1; // Include both start and end dates
 
-        // Initialize daily income dictionary with the specified number of days
-        var dailyIncome = new Dictionary<string, decimal>();
-        for (int i = days - 1; i >= 0; i--)
-        {
-            var date = endDate.AddDays(-i);
-            var day = date.Day.ToString();
-            dailyIncome[day] = 0;
-        }
+        List<DailyIncomeDTO> dailyIncomeList = [];
 
-        // Sum up income for each day
-        foreach (var transaction in transactions)
+        for (int i = 0; i < days; i++)
         {
-            var day = transaction.Date.Day.ToString();
-            if (dailyIncome.ContainsKey(day))
+            var date = startDate.AddDays(i).Date; // Use .Date to get just the date part without time
+            var persianMonth = _persianCalendar.GetMonth(date);
+            var persianDay = _persianCalendar.GetDayOfMonth(date);
+            var day = $"{persianMonth}/{persianDay}";
+            
+            var todayTransactions = transactions.Where(t => t.Date.ToLocalTime().Date == date.Date).ToList();
+
+            decimal income = todayTransactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => t.Amount);
+            decimal expenses = todayTransactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => t.Amount);
+            DailyIncomeDTO dailyIncome = new DailyIncomeDTO
             {
-                dailyIncome[day] += transaction.Amount;
-            }
+                Date = date,
+                Day = day,
+                Income = income,
+                Expenses = expenses,
+                Balance = income - expenses
+            };
+
+            dailyIncomeList.Add(dailyIncome);
         }
 
-        // Convert to list format
-        return dailyIncome.Select(kvp => new DailyIncomeDTO
-        {
-            Day = kvp.Key,
-            Amount = kvp.Value
-        }).ToList();
+        return dailyIncomeList;
     }
 
     public async Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateTime startDate, DateTime endDate)

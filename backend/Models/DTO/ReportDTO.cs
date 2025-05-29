@@ -9,8 +9,11 @@ public class FinancialSummaryDTO
 
 public class DailyIncomeDTO
 {
+    public DateTime Date { get; set; }
     public string Day { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
+    public decimal Income { get; set; }
+    public decimal Expenses { get; set; }
+    public decimal Balance { get; set; }
 }
 
 public class ExpensesByCategoryDTO

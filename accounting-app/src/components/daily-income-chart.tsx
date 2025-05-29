@@ -3,33 +3,23 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
-
-// Persian day numbers
-const persianDays = {
-  '1': '۱',
-  '2': '۲',
-  '3': '۳',
-  '4': '۴',
-  '5': '۵',
-  '6': '۶',
-  '7': '۷'
-};
+import { DailyIncomeDTO } from '@/lib/api';
 
 interface DailyIncomeChartProps {
-  data: Array<{ day: string; amount: number }>;
+  data: DailyIncomeDTO[];
 }
 
 export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
   // Translate the day numbers to Persian
   const translatedData = data.map(item => ({
     ...item,
-    day: persianDays[item.day as keyof typeof persianDays] || item.day
+    day: item.day
   }));
 
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle className="text-end">درآمد روزانه</CardTitle>
+        <CardTitle className="text-end">تراز روزانه</CardTitle>
       </CardHeader>
       <CardContent className="px-2">
         <ResponsiveContainer width="100%" height={300}>
@@ -54,13 +44,33 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
               width={40}
             />
             <Tooltip 
-              formatter={(value: any) => [new Intl.NumberFormat('fa-IR').format(value), '']}
-              labelFormatter={(label) => ''}
+              formatter={(value: any, name: string) => {
+                const formattedValue = new Intl.NumberFormat('fa-IR').format(value);
+                if (name === 'balance') return [formattedValue, 'تراز'];
+                if (name === 'income') return [formattedValue, 'درآمد'];
+                if (name === 'expenses') return [formattedValue, 'هزینه'];
+                return [formattedValue, name];
+              }}
+              labelFormatter={(label) => `روز ${label}`}
               contentStyle={{ textAlign: 'end', direction: 'rtl' }}
+              content={(props) => {
+                if (props.active && props.payload && props.payload.length > 0) {
+                  const data = props.payload[0].payload;
+                  return (
+                    <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md" style={{ direction: 'rtl', textAlign: 'right' }}>
+                      <p className="font-medium mb-2">{`روز ${data.day}`}</p>
+                      <p className="text-green-600">{`درآمد: ${new Intl.NumberFormat('fa-IR').format(data.income)}`}</p>
+                      <p className="text-red-600">{`هزینه: ${new Intl.NumberFormat('fa-IR').format(data.expenses)}`}</p>
+                      <p className="text-blue-600 font-semibold">{`تراز: ${new Intl.NumberFormat('fa-IR').format(data.balance)}`}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
             <Line 
               type="monotone" 
-              dataKey="amount" 
+              dataKey="balance" 
               stroke="var(--chart-1)" 
               strokeWidth={2} 
               dot={false}
