@@ -220,19 +220,25 @@ export default function AddTransactionPageClient() {
 
   const handleTransactionTypeChange = (newType: TransactionType) => {
     setTransactionType(newType);
-    // Reset form when switching types (except date and payment method)
-    const currentDate = transaction.date;
-    const currentIsCash = transaction.isCash;
-    setTransaction({
-      name: '',
-      description: '',
-      amount: 0,
-      date: currentDate,
-      transactionType: newType,
-      isCash: currentIsCash
-    });
-    setShowAdvanced(false);
-    nameInputRef.current?.focus();
+    
+    if (isEditMode) {
+      // In edit mode, just update the transaction type without resetting other fields
+      setTransaction(prev => ({ ...prev, transactionType: newType }));
+    } else {
+      // Reset form when switching types (except date and payment method)
+      const currentDate = transaction.date;
+      const currentIsCash = transaction.isCash;
+      setTransaction({
+        name: '',
+        description: '',
+        amount: 0,
+        date: currentDate,
+        transactionType: newType,
+        isCash: currentIsCash
+      });
+      setShowAdvanced(false);
+      nameInputRef.current?.focus();
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -387,39 +393,37 @@ export default function AddTransactionPageClient() {
   const isIncome = transactionType === TransactionType.Income;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto rtl">
+    <div className="p-6 max-w-4xl mx-auto rtl pt-16 sm:pt-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">
           {isEditMode ? `ویرایش ${isIncome ? 'درآمد' : 'هزینه'}` : 'ثبت تراکنش'}
         </h1>
         
         {/* Transaction Type Switch */}
-        {!isEditMode && (
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              type="button"
-              onClick={() => handleTransactionTypeChange(TransactionType.Expense)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                !isIncome
-                  ? 'bg-white text-red-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              هزینه
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTransactionTypeChange(TransactionType.Income)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                isIncome
-                  ? 'bg-white text-green-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              درآمد
-            </button>
-          </div>
-        )}
+        <div className="flex items-center bg-gray-100 rounded-lg p-1 border">
+          <button
+            type="button"
+            onClick={() => handleTransactionTypeChange(TransactionType.Expense)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 ${
+              !isIncome
+                ? 'bg-white text-red-600 shadow-sm border border-red-200'
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+            }`}
+          >
+            هزینه
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTransactionTypeChange(TransactionType.Income)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 ${
+              isIncome
+                ? 'bg-white text-green-600 shadow-sm border border-green-200'
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+            }`}
+          >
+            درآمد
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -652,14 +656,11 @@ export default function AddTransactionPageClient() {
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="border border-gray-300 p-3 text-right">ردیف</th>
+                  <th className="border border-gray-300 p-3 text-right hidden sm:table-cell">ردیف</th>
                   <th className="border border-gray-300 p-3 text-right">تاریخ</th>
                   <th className="border border-gray-300 p-3 text-right">عنوان</th>
                   <th className="border border-gray-300 p-3 text-right">مبلغ</th>
                   <th className="border border-gray-300 p-3 text-right">دسته‌بندی</th>
-                  <th className="border border-gray-300 p-3 text-right">
-                    {isIncome ? 'مشتری' : 'فروشنده'}
-                  </th>
                   <th className="border border-gray-300 p-3 text-right">نوع پرداخت</th>
                   <th className="border border-gray-300 p-3 text-right">عملیات</th>
                 </tr>
@@ -667,7 +668,7 @@ export default function AddTransactionPageClient() {
               <tbody>
                 {lastTransactions.map((transactionData, idx) => (
                   <tr key={transactionData.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 p-3 text-right">
+                    <td className="border border-gray-300 p-3 text-right hidden sm:table-cell">
                       {idx + 1}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
@@ -681,9 +682,6 @@ export default function AddTransactionPageClient() {
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
                       {transactionData.costTypeName || '-'}
-                    </td>
-                    <td className="border border-gray-300 p-3 text-right">
-                      {transactionData.personName || '-'}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
                       <span className={`px-2 py-1 rounded-full text-xs ${transactionData.isCash ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
@@ -727,8 +725,8 @@ export default function AddTransactionPageClient() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4" style={{ backgroundColor: '#ffffff' }}>
             <h3 className="text-lg font-semibold mb-4 text-right">تأیید حذف</h3>
             <p className="text-right mb-6">آیا از حذف این تراکنش اطمینان دارید؟ این عملیات غیرقابل بازگشت است.</p>
             <div className="flex gap-2 justify-end">
@@ -736,6 +734,8 @@ export default function AddTransactionPageClient() {
                 variant="outline"
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
+                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                style={{ backgroundColor: '#ffffff', borderColor: '#d1d5db', color: '#374151' }}
               >
                 لغو
               </Button>
@@ -743,6 +743,8 @@ export default function AddTransactionPageClient() {
                 variant="destructive"
                 onClick={confirmDeleteTransaction}
                 disabled={isDeleting}
+                className="bg-red-600 text-white hover:bg-red-700 border-0"
+                style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none' }}
               >
                 {isDeleting ? 'در حال حذف...' : 'حذف'}
               </Button>
