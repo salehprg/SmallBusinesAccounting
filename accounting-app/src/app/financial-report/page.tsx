@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
-import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react';
+import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter, Save, X } from 'lucide-react';
 import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { PersianDatePicker } from '@/components/ui/persian-date-picker';
@@ -21,6 +21,18 @@ export default function FinancialReportPage() {
   const [transactionToDelete, setTransactionToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Inline editing states
+  const [editingTransaction, setEditingTransaction] = useState<number | null>(null);
+  const [editingValues, setEditingValues] = useState<{
+    transactionType: TransactionType;
+    name: string;
+    date: string;
+    costTypeId: number;
+    amount: number;
+  } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Filter and sort states
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
@@ -191,11 +203,75 @@ export default function FinancialReportPage() {
   // Edit transaction handler
   const handleEditTransaction = (transaction: TransactionDTO) => {
     // Redirect to the appropriate page based on transaction type with transaction ID
-    if (transaction.transactionType === TransactionType.Income) {
-      router.push(`/add-income?edit=true&id=${transaction.id}`);
-    } else {
-      router.push(`/add-expense?edit=true&id=${transaction.id}`);
+    router.push(`/add-transaction?edit=true&id=${transaction.id}`);
+  };
+
+  // Inline edit handlers
+  const handleInlineEdit = (transaction: TransactionDTO) => {
+    setEditingTransaction(transaction.id);
+    setEditingValues({
+      transactionType: transaction.transactionType,
+      name: transaction.name,
+      date: transaction.date.split('T')[0], // Convert to YYYY-MM-DD format for date input
+      costTypeId: transaction.costTypeId,
+      amount: transaction.amount
+    });
+    setSaveError(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTransaction(null);
+    setEditingValues(null);
+    setSaveError(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingTransaction || !editingValues) return;
+
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      // Find the original transaction
+      const originalTransaction = transactions.find(t => t.id === editingTransaction);
+      if (!originalTransaction) return;
+
+      // Create updated transaction object
+      const updatedTransaction: TransactionDTO = {
+        ...originalTransaction,
+        amount: editingValues.amount,
+        transactionType: editingValues.transactionType,
+        name: editingValues.name,
+        date: new Date(editingValues.date).toISOString(),
+        costTypeId: editingValues.costTypeId,
+        costTypeName: costTypes.find(ct => ct.id === editingValues.costTypeId)?.name || originalTransaction.costTypeName
+      };
+
+      // Update via API
+      await TransactionsAPI.update(editingTransaction, updatedTransaction);
+
+      // Update local state
+      setTransactions(prev => prev.map(t =>
+        t.id === editingTransaction ? updatedTransaction : t
+      ));
+
+      // Reset editing state
+      setEditingTransaction(null);
+      setEditingValues(null);
+    } catch (error) {
+      console.error("Error saving transaction:", error);
+      setSaveError("ذخیره تغییرات با خطا مواجه شد");
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleEditValueChange = (field: string, value: any) => {
+    if (!editingValues) return;
+    setEditingValues(prev => {
+      if (!prev) return null;
+      return { ...prev, [field]: value };
+    });
   };
 
   return (
@@ -349,98 +425,217 @@ export default function FinancialReportPage() {
         </div>
 
         {/* Transactions Table */}
-        <div className="border rounded-md overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="p-3 text-right">ردیف</th>
-                <th className="p-3 text-right">
-                  <button
-                    className="flex items-center gap-1 hover:text-primary"
-                    onClick={() => handleSort('date')}
-                  >
-                    تاریخ
-                    {getSortIcon('date')}
-                  </button>
-                </th>
-                <th className="p-3 text-right">
-                  <button
-                    className="flex items-center gap-1 hover:text-primary"
-                    onClick={() => handleSort('name')}
-                  >
-                    شرح
-                    {getSortIcon('name')}
-                  </button>
-                </th>
-                <th className="p-3 text-right">دسته</th>
-                <th className="p-3 text-right">
-                  <button
-                    className="flex items-center gap-1 hover:text-primary"
-                    onClick={() => handleSort('amount')}
-                  >
-                    مبلغ
-                    {getSortIcon('amount')}
-                  </button>
-                </th>
-                <th className="p-3 text-right">نوع</th>
-                <th className="p-3 text-right">عملیات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="p-6 text-center">
-                    در حال بارگذاری...
-                  </td>
+        <div className="border rounded-md overflow-x-auto">
+          <div className="min-w-full">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="p-3 text-right">ردیف</th>
+                  <th className="p-3 text-right">
+                    <button
+                      className="flex items-center gap-1 hover:text-primary"
+                      onClick={() => handleSort('date')}
+                    >
+                      تاریخ
+                      {getSortIcon('date')}
+                    </button>
+                  </th>
+                  <th className="p-3 text-right">
+                    <button
+                      className="flex items-center gap-1 hover:text-primary"
+                      onClick={() => handleSort('name')}
+                    >
+                      شرح
+                      {getSortIcon('name')}
+                    </button>
+                  </th>
+                  <th className="p-3 text-right">دسته</th>
+                  <th className="p-3 text-right">
+                    <button
+                      className="flex items-center gap-1 hover:text-primary"
+                      onClick={() => handleSort('amount')}
+                    >
+                      مبلغ
+                      {getSortIcon('amount')}
+                    </button>
+                  </th>
+                  <th className="p-3 text-right">نوع</th>
+                  <th className="p-3 text-right">عملیات</th>
                 </tr>
-              ) : paginatedTransactions.length > 0 ? (
-                paginatedTransactions.map((transaction, index) => (
-                  <tr key={transaction.id} className="border-b hover:bg-muted/50">
-                    <td className="p-3 text-right">{pageSize * (currentPage - 1) + index + 1}</td>
-                    <td className="p-3 text-right">{new Date(transaction.date).toLocaleDateString('fa-IR')}</td>
-                    <td className="p-3 text-right">{transaction.name}</td>
-                    <td className="p-3 text-right">{transaction.costTypeName}</td>
-                    <td className="p-3 text-right">{new Intl.NumberFormat('fa-IR').format(transaction.amount)} ریال</td>
-                    <td className="p-3 text-right">
-                      <span className={`px-2 py-1 rounded-full text-xs ${transaction.transactionType === TransactionType.Income ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                        {transaction.transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right">
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditTransaction(transaction)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">ویرایش</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteTransaction(transaction.id)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">حذف</span>
-                        </Button>
-                      </div>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="p-6 text-center">
+                      در حال بارگذاری...
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
-                    هیچ تراکنشی یافت نشد.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                ) : paginatedTransactions.length > 0 ? (
+                  paginatedTransactions.map((transaction, index) => (
+                    <tr key={transaction.id} className="border-b hover:bg-muted/50">
+                      <td className="p-3 text-right whitespace-nowrap">{pageSize * (currentPage - 1) + index + 1}</td>
+
+                      {/* Date Column */}
+                      <td className="p-3 text-right whitespace-nowrap">
+                        {editingTransaction === transaction.id ? (
+                          <Input
+                            type="date"
+                            value={editingValues?.date || ''}
+                            onChange={(e) => handleEditValueChange('date', e.target.value)}
+                            className="w-32"
+                          />
+                        ) : (
+                          new Date(transaction.date).toLocaleDateString('fa-IR')
+                        )}
+                      </td>
+
+                      {/* Name Column */}
+                      <td className="p-3 text-right">
+                        {editingTransaction === transaction.id ? (
+                          <Input
+                            value={editingValues?.name || ''}
+                            onChange={(e) => handleEditValueChange('name', e.target.value)}
+                            className="min-w-32"
+                          />
+                        ) : (
+                          <div className="max-w-48 truncate" title={transaction.name}>
+                            {transaction.name}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Category Column */}
+                      <td className="p-3 text-right whitespace-nowrap">
+                        {editingTransaction === transaction.id ? (
+                          <Select
+                            value={editingValues?.costTypeId?.toString() || ''}
+                            onChange={(e) => handleEditValueChange('costTypeId', Number(e.target.value))}
+                          >
+                            <SelectItem value="">انتخاب کنید...</SelectItem>
+                            {costTypes.map((costType) => (
+                              <SelectItem key={costType.id} value={costType.id.toString()}>
+                                {costType.name}
+                              </SelectItem>
+                            ))}
+                          </Select>
+                        ) : (
+                          transaction.costTypeName
+                        )}
+                      </td>
+
+                      <td className="p-3 text-right whitespace-nowrap">
+                        {editingTransaction === transaction.id ? (
+                          <Input
+                            value={editingValues?.amount || ''}
+                            onChange={(e) => handleEditValueChange('amount', parseInt(e.target.value))}
+                            className="min-w-32"
+                          />
+                        ) : (
+                          <span>
+                            {new Intl.NumberFormat('fa-IR').format(transaction.amount)} ریال
+                          </span>
+                        )}
+
+                      </td>
+
+                      {/* Transaction Type Column */}
+                      <td className="p-3 text-right whitespace-nowrap">
+                        {editingTransaction === transaction.id ? (
+                          <Select
+                            value={editingValues?.transactionType || ''}
+                            onChange={(e) => handleEditValueChange('transactionType', parseInt(e.target.value) as unknown as TransactionType)}
+                          >
+                            <SelectItem value={TransactionType.Income}>درآمد</SelectItem>
+                            <SelectItem value={TransactionType.Expense}>هزینه</SelectItem>
+                          </Select>
+                        ) : (
+                          <span className={`px-2 py-1 rounded-full text-xs ${transaction.transactionType === TransactionType.Income ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                            {transaction.transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="p-3 text-right whitespace-nowrap">
+                        <div className="flex gap-2 justify-end">
+                          {editingTransaction === transaction.id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleSaveEdit}
+                                disabled={isSaving}
+                                className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                              >
+                                <Save className="h-4 w-4" />
+                                <span className="sr-only">ذخیره</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleCancelEdit}
+                                disabled={isSaving}
+                                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                              >
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">انصراف</span>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleInlineEdit(transaction)}
+                                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                title="ویرایش سریع"
+                              >
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">ویرایش سریع</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditTransaction(transaction)}
+                                className="h-8 w-8 p-0"
+                                title="ویرایش کامل"
+                              >
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">ویرایش کامل</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteTransaction(transaction.id)}
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash className="h-4 w-4" />
+                                <span className="sr-only">حذف</span>
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                      هیچ تراکنشی یافت نشد.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        {/* Save Error Message */}
+        {saveError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {saveError}
+          </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (

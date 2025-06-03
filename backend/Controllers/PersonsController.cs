@@ -24,7 +24,7 @@ public class PersonsController : MyBaseController
     public async Task<ActionResult<APIResponse<List<PersonDTO>>>> GetAllPersons()
     {
         var persons = await _personService.GetAllPersonsAsync();
-        return Ok(persons);
+        return Ok(persons.OrderBy(x => x.PersonName));
     }
 
     [HttpGet("{id}")]
