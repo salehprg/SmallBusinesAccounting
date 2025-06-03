@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
 import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter, Save, X } from 'lucide-react';
 import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PersianDatePicker } from '@/components/ui/persian-date-picker';
 
 export default function FinancialReportPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'all' | 'income' | 'expense'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,6 +50,82 @@ export default function FinancialReportPage() {
   const [pageSize, setPageSize] = useState<number>(10);
 
   const itemsPerPage = pageSize; // Use dynamic page size instead of hardcoded value
+
+  // Load initial data from URL parameters
+  useEffect(() => {
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
+    const pageSizeParam = searchParams.get('pageSize');
+    const sortByParam = searchParams.get('sortBy');
+    const sortOrderParam = searchParams.get('sortOrder');
+    
+    if (startDateParam) {
+      setStartDate(startDateParam);
+    }
+    if (endDateParam) {
+      setEndDate(endDateParam);
+    }
+    if (pageSizeParam) {
+      setPageSize(parseInt(pageSizeParam));
+    }
+    if (sortByParam) {
+      setSortBy(sortByParam);
+    }
+    if (sortOrderParam) {
+      setSortOrder(sortOrderParam);
+    }
+  }, [searchParams]);
+
+  // Update URL when dates change
+  const updateDateInURL = (newStartDate: string, newEndDate: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (newStartDate) {
+      params.set('startDate', newStartDate);
+    } else {
+      params.delete('startDate');
+    }
+    
+    if (newEndDate) {
+      params.set('endDate', newEndDate);
+    } else {
+      params.delete('endDate');
+    }
+    
+    router.replace(`/financial-report?${params.toString()}`, { scroll: false });
+  };
+
+  // Update URL when page size changes
+  const updatePageSizeInURL = (newPageSize: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('pageSize', newPageSize.toString());
+    router.replace(`/financial-report?${params.toString()}`, { scroll: false });
+  };
+
+  // Update URL when sort changes
+  const updateSortInURL = (newSortBy: string, newSortOrder: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sortBy', newSortBy);
+    params.set('sortOrder', newSortOrder);
+    router.replace(`/financial-report?${params.toString()}`, { scroll: false });
+  };
+
+  // Custom setters that update URL
+  const handleStartDateChange = (date: string) => {
+    setStartDate(date);
+    updateDateInURL(date, endDate);
+  };
+
+  const handleEndDateChange = (date: string) => {
+    setEndDate(date);
+    updateDateInURL(startDate, date);
+  };
+
+  // Custom page size handler
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    updatePageSizeInURL(newPageSize);
+  };
 
   // Fetch initial data
   useEffect(() => {
@@ -149,12 +226,16 @@ export default function FinancialReportPage() {
 
   // Handle sorting
   const handleSort = (field: string) => {
+    let newSortOrder: string;
     if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      setSortBy(field);
-      setSortOrder('desc');
+      newSortOrder = 'desc';
     }
+    
+    setSortBy(field);
+    setSortOrder(newSortOrder);
+    updateSortInURL(field, newSortOrder);
   };
 
   // Get sort icon
@@ -171,6 +252,20 @@ export default function FinancialReportPage() {
     setEndDate('');
     setSearchQuery('');
     setCurrentPage(1);
+    
+    // Reset to defaults
+    setSortBy('date');
+    setSortOrder('desc');
+    setPageSize(10);
+    
+    // Clear URL parameters
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('startDate');
+    params.delete('endDate');
+    params.delete('sortBy');
+    params.delete('sortOrder');
+    params.delete('pageSize');
+    router.replace(`/financial-report?${params.toString()}`, { scroll: false });
   };
 
   // Delete transaction handler
@@ -203,7 +298,7 @@ export default function FinancialReportPage() {
   // Edit transaction handler
   const handleEditTransaction = (transaction: TransactionDTO) => {
     // Redirect to the appropriate page based on transaction type with transaction ID
-    router.push(`/add-transaction?edit=true&id=${transaction.id}`);
+    window.open(`/add-transaction?edit=true&id=${transaction.id}`, '_blank');
   };
 
   // Inline edit handlers
@@ -359,7 +454,7 @@ export default function FinancialReportPage() {
                 <label className="block text-sm font-medium mb-1">از تاریخ</label>
                 <PersianDatePicker
                   value={startDate}
-                  onChange={setStartDate}
+                  onChange={handleStartDateChange}
                   placeholder="انتخاب تاریخ شروع"
                 />
               </div>
@@ -367,7 +462,7 @@ export default function FinancialReportPage() {
                 <label className="block text-sm font-medium mb-1">تا تاریخ</label>
                 <PersianDatePicker
                   value={endDate}
-                  onChange={setEndDate}
+                  onChange={handleEndDateChange}
                   placeholder="انتخاب تاریخ پایان"
                 />
               </div>
@@ -478,11 +573,13 @@ export default function FinancialReportPage() {
                       {/* Date Column */}
                       <td className="p-3 text-right whitespace-nowrap">
                         {editingTransaction === transaction.id ? (
-                          <Input
-                            type="date"
+                          <PersianDatePicker
+                            id="date"
+                            name="date"
                             value={editingValues?.date || ''}
-                            onChange={(e) => handleEditValueChange('date', e.target.value)}
-                            className="w-32"
+                            onChange={(e) => handleEditValueChange('date', e)}
+                            placeholder="انتخاب تاریخ"
+                            required
                           />
                         ) : (
                           new Date(transaction.date).toLocaleDateString('fa-IR')
@@ -649,7 +746,7 @@ export default function FinancialReportPage() {
                 <label className="text-sm font-medium">تعداد در صفحه:</label>
                 <Select
                   value={pageSize.toString()}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
                 >
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="25">25</SelectItem>

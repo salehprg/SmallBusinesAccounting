@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { ComposedChart, Line, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { DailyIncomeDTO } from '@/lib/api';
 
 interface DailyIncomeChartProps {
@@ -53,7 +53,7 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
       </CardHeader>
       <CardContent className="px-2">
         <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={transformedData}>
+          <ComposedChart data={transformedData}>
             <XAxis 
               dataKey="day" 
               stroke="#888888" 
@@ -102,17 +102,17 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
               align="right"
               verticalAlign="top"
               height={36}
-              iconType="line"
+              iconType="rect"
               onClick={handleLegendClick}
               payload={[
                 {
                   value: 'income',
-                  type: 'line',
+                  type: 'rect',
                   color: visibleLines.income ? '#22c55e' : '#ccc'
                 },
                 {
                   value: 'expenses', 
-                  type: 'line',
+                  type: 'rect',
                   color: visibleLines.expenses ? '#ef4444' : '#ccc'
                 },
                 {
@@ -139,28 +139,22 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
               }}
               wrapperStyle={{ direction: 'rtl', textAlign: 'right' }}
             />
-            {/* Income line - Green */}
+            {/* Income bar - Green */}
             {visibleLines.income && (
-              <Line 
-                type="monotone" 
+              <Bar 
                 dataKey="income" 
-                stroke="#22c55e" 
-                strokeWidth={1} 
-                dot={false}
-                activeDot={{ r: 4, strokeWidth: 0 }}
+                fill="#22c55e" 
                 name="income"
+                radius={[2, 2, 0, 0]}
               />
             )}
-            {/* Expenses line - Red */}
+            {/* Expenses bar - Red */}
             {visibleLines.expenses && (
-              <Line 
-                type="monotone" 
+              <Bar 
                 dataKey="expenses" 
-                stroke="#ef4444" 
-                strokeWidth={1} 
-                dot={false}
-                activeDot={{ r: 4, strokeWidth: 0 }}
+                fill="#ef4444" 
                 name="expenses"
+                radius={[2, 2, 0, 0]}
               />
             )}
             {/* Cumulative Balance line - Blue (Primary) */}
@@ -175,7 +169,7 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
                 name="cumulativeBalance"
               />
             )}
-          </LineChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
