@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa">
+    <html lang="fa" style={{ overflow: 'hidden' }}>
       <body
         className={`${vazirmatn.variable} font-sans antialiased`}
       >

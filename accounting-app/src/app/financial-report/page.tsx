@@ -8,6 +8,7 @@ import { Select, SelectItem } from '@/components/ui/select';
 import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react';
 import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { PersianDatePicker } from '@/components/ui/persian-date-picker';
 
 export default function FinancialReportPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function FinancialReportPage() {
   const [transactionToDelete, setTransactionToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  
+
   // Filter and sort states
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
   const [persons, setPersons] = useState<PersonDTO[]>([]);
@@ -31,8 +32,11 @@ export default function FinancialReportPage() {
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<string>('desc');
   const [showFilters, setShowFilters] = useState(false);
-  
-  const itemsPerPage = 10;
+
+  // Add page size state
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  const itemsPerPage = pageSize; // Use dynamic page size instead of hardcoded value
 
   // Fetch initial data
   useEffect(() => {
@@ -55,17 +59,17 @@ export default function FinancialReportPage() {
     fetchInitialData();
   }, []);
 
-  // Reset current page when filters change
+  // Reset current page when filters change or page size changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, selectedCostType, selectedPerson, startDate, endDate, searchQuery]);
+  }, [activeTab, selectedCostType, selectedPerson, startDate, endDate, searchQuery, pageSize]);
 
   // Fetch transactions with filters and sorting
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         setIsLoading(true);
-        
+
         const queryParams: TransactionQueryDTO = {
           sortBy,
           sortOrder
@@ -114,21 +118,21 @@ export default function FinancialReportPage() {
   );
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredTransactions.length / pageSize); // Use pageSize instead of itemsPerPage
   const paginatedTransactions = filteredTransactions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    (currentPage - 1) * pageSize, // Use pageSize instead of itemsPerPage
+    currentPage * pageSize // Use pageSize instead of itemsPerPage
   );
 
   // Calculate financial summary
   const totalIncome = transactions
     .filter(t => t.transactionType === TransactionType.Income)
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const totalExpense = transactions
     .filter(t => t.transactionType === TransactionType.Expense)
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const balance = totalIncome - totalExpense;
 
   // Handle sorting
@@ -166,11 +170,11 @@ export default function FinancialReportPage() {
   // Confirm delete transaction
   const confirmDeleteTransaction = async () => {
     if (!transactionToDelete) return;
-    
+
     try {
       setIsDeleting(true);
       await TransactionsAPI.delete(transactionToDelete);
-      
+
       // Remove deleted transaction from state
       setTransactions(prev => prev.filter(t => t.id !== transactionToDelete));
       setDeleteError(null);
@@ -269,7 +273,7 @@ export default function FinancialReportPage() {
             فیلترها
           </Button>
         </div>
-        
+
         {/* Filters */}
         {showFilters && (
           <div className="bg-muted/50 p-4 rounded-lg mb-4 space-y-4">
@@ -277,21 +281,21 @@ export default function FinancialReportPage() {
               {/* Date Range */}
               <div>
                 <label className="block text-sm font-medium mb-1">از تاریخ</label>
-                <Input
-                  type="date"
+                <PersianDatePicker
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={setStartDate}
+                  placeholder="انتخاب تاریخ شروع"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">تا تاریخ</label>
-                <Input
-                  type="date"
+                <PersianDatePicker
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={setEndDate}
+                  placeholder="انتخاب تاریخ پایان"
                 />
               </div>
-              
+
               {/* Cost Type Filter */}
               <div>
                 <label className="block text-sm font-medium mb-1">دسته هزینه</label>
@@ -307,7 +311,7 @@ export default function FinancialReportPage() {
                   ))}
                 </Select>
               </div>
-              
+
               {/* Person Filter */}
               <div>
                 <label className="block text-sm font-medium mb-1">شخص</label>
@@ -324,7 +328,7 @@ export default function FinancialReportPage() {
                 </Select>
               </div>
             </div>
-            
+
             <div className="flex gap-2">
               <Button onClick={clearFilters} variant="outline">
                 پاک کردن فیلترها
@@ -332,7 +336,7 @@ export default function FinancialReportPage() {
             </div>
           </div>
         )}
-        
+
         {/* Search Bar */}
         <div className="relative mb-4">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -343,12 +347,13 @@ export default function FinancialReportPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        
+
         {/* Transactions Table */}
         <div className="border rounded-md overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b bg-muted/50">
+                <th className="p-3 text-right">ردیف</th>
                 <th className="p-3 text-right">
                   <button
                     className="flex items-center gap-1 hover:text-primary"
@@ -389,33 +394,33 @@ export default function FinancialReportPage() {
                   </td>
                 </tr>
               ) : paginatedTransactions.length > 0 ? (
-                paginatedTransactions.map((transaction) => (
+                paginatedTransactions.map((transaction, index) => (
                   <tr key={transaction.id} className="border-b hover:bg-muted/50">
+                    <td className="p-3 text-right">{pageSize * (currentPage - 1) + index + 1}</td>
                     <td className="p-3 text-right">{new Date(transaction.date).toLocaleDateString('fa-IR')}</td>
                     <td className="p-3 text-right">{transaction.name}</td>
                     <td className="p-3 text-right">{transaction.costTypeName}</td>
                     <td className="p-3 text-right">{new Intl.NumberFormat('fa-IR').format(transaction.amount)} ریال</td>
                     <td className="p-3 text-right">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        transaction.transactionType === TransactionType.Income ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${transaction.transactionType === TransactionType.Income ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {transaction.transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}
                       </span>
                     </td>
                     <td className="p-3 text-right">
                       <div className="flex gap-2 justify-end">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleEditTransaction(transaction)}
                           className="h-8 w-8 p-0"
                         >
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">ویرایش</span>
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDeleteTransaction(transaction.id)}
                           className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
                         >
@@ -436,12 +441,27 @@ export default function FinancialReportPage() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              نمایش {paginatedTransactions.length} از {filteredTransactions.length} تراکنش
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">
+                نمایش {paginatedTransactions.length} از {filteredTransactions.length} تراکنش
+              </div>
+              {/* Page Size Selector */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">تعداد در صفحه:</label>
+                <Select
+                  value={pageSize.toString()}
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                >
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </Select>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button
