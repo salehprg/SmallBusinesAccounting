@@ -42,13 +42,13 @@ function DashboardContent() {
 
   useEffect(() => {
     const today = new Date();
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-    setStartDate(threeMonthsAgo.toISOString());
+    setStartDate(oneMonthAgo.toISOString());
     setEndDate(today.toISOString());
 
-    fetchData(threeMonthsAgo.toISOString(), today.toISOString());
+    fetchData(oneMonthAgo.toISOString(), today.toISOString());
   }, []);
 
   const fetchData = async (startDate: string, endDate: string) => {

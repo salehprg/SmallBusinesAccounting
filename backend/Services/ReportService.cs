@@ -59,7 +59,9 @@ public class ReportService : IReportService
             .Where(t => t.Date >= startDate && t.Date <= endDate)
             .ToListAsync();
 
-        var days = (endDate - startDate).Days + 1; // Include both start and end dates
+        var days = Math.Min(45, (endDate - startDate).Days + 1); // Include both start and end dates
+
+        startDate = endDate.AddDays(-days);
 
         List<DailyIncomeDTO> dailyIncomeList = [];
 
@@ -69,7 +71,7 @@ public class ReportService : IReportService
             var persianMonth = _persianCalendar.GetMonth(date);
             var persianDay = _persianCalendar.GetDayOfMonth(date);
             var day = $"{persianMonth}/{persianDay}";
-            
+
             var todayTransactions = transactions.Where(t => t.Date.ToLocalTime().Date == date.Date).ToList();
 
             decimal income = todayTransactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => t.Amount);

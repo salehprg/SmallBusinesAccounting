@@ -29,7 +29,7 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDTO> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO)
     {
-        createTransactionDTO.Date = createTransactionDTO.Date.ToUniversalTime();
+        createTransactionDTO.Date = createTransactionDTO.Date.Date.ToUniversalTime();
         
         // Validate amount
         if (createTransactionDTO.Amount <= 0)
@@ -106,12 +106,12 @@ public class TransactionService : ITransactionService
         // Apply filters
         if (queryDTO.StartDate.HasValue)
         {
-            query = query.Where(t => t.Date >= queryDTO.StartDate.Value);
+            query = query.Where(t => t.Date.Date >= queryDTO.StartDate.Value.Date);
         }
 
         if (queryDTO.EndDate.HasValue)
         {
-            query = query.Where(t => t.Date <= queryDTO.EndDate.Value);
+            query = query.Where(t => t.Date.Date <= queryDTO.EndDate.Value.Date);
         }
 
         if (queryDTO.PersonId.HasValue)
