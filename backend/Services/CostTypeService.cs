@@ -72,7 +72,7 @@ public class CostTypeService : ICostTypeService
 
         // Check if there are transactions associated with this cost type
         var hasTransactions = await _transactionRepository.GetAll()
-            .AnyAsync(t => t.CostTypeId == id);
+            .AnyAsync(t => t.CostTypes.Any(c => c.CostTypeId == id));
 
         if (hasTransactions)
         {

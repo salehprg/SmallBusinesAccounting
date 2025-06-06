@@ -218,6 +218,13 @@ export enum TransactionType {
   Expense = 2
 }
 
+export interface TransactionCostTypeDTO {
+  id: number;
+  transactionId: number;
+  costTypeId: number;
+  costType: CostTypeDTO;
+}
+
 export interface TransactionDTO {
   id: number;
   name: string;
@@ -225,8 +232,7 @@ export interface TransactionDTO {
   amount: number;
   date: string;
   isCash: boolean;
-  costTypeId: number;
-  costTypeName: string;
+  costTypes: TransactionCostTypeDTO[];
   transactionType: TransactionType;
   personId?: number;
   personName?: string;
@@ -238,7 +244,7 @@ export interface CreateTransactionDTO {
   amount: number;
   date: string;
   isCash: boolean;
-  costTypeId?: number;
+  costTypes?: number[];
   transactionType: TransactionType;
   personId?: number;
 }
@@ -247,7 +253,7 @@ export interface TransactionQueryDTO {
   startDate?: string;
   endDate?: string;
   personId?: number;
-  costTypeId?: number;
+  costTypeIds?: number[];
   transactionType?: TransactionType;
   sortBy?: string;
   sortOrder?: string;

@@ -7,16 +7,9 @@ using System.Globalization;
 
 namespace backend.Services;
 
-public class ReportService : IReportService
+public class ReportService(IRepository<TransactionModel> transactionRepository, IRepository<CostType> costTypeRepository) : IReportService
 {
-    private readonly IRepository<TransactionModel> _transactionRepository;
-    private readonly PersianCalendar _persianCalendar;
-
-    public ReportService(IRepository<TransactionModel> transactionRepository)
-    {
-        _transactionRepository = transactionRepository;
-        _persianCalendar = new PersianCalendar();
-    }
+    private readonly PersianCalendar _persianCalendar = new PersianCalendar();
 
     public async Task<ReportSummaryDTO> GetReportSummaryAsync(ReportQueryDTO? queryDTO = null)
     {
@@ -36,7 +29,7 @@ public class ReportService : IReportService
 
     public async Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate)
     {
-        var query = _transactionRepository.GetAll().AsQueryable();
+        var query = transactionRepository.GetAll().AsQueryable();
 
         // Apply date filters if provided
         query = query.Where(t => t.Date >= startDate && t.Date <= endDate);
@@ -55,7 +48,7 @@ public class ReportService : IReportService
 
     public async Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateTime startDate, DateTime endDate)
     {
-        var transactions = await _transactionRepository.GetAll()
+        var transactions = await transactionRepository.GetAll()
             .Where(t => t.Date >= startDate && t.Date <= endDate)
             .ToListAsync();
 
@@ -93,29 +86,32 @@ public class ReportService : IReportService
 
     public async Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateTime startDate, DateTime endDate)
     {
-        var query = _transactionRepository.GetAll()
-            .Include(t => t.CostType)
+        var query = transactionRepository.GetAll()
+            .Include(t => t.CostTypes)
             .Where(t => t.TransactionType == TransactionType.Expense);
 
         // Apply date filters if provided
         query = query.Where(t => t.Date >= startDate && t.Date <= endDate);
+        var test = query.ToList();
 
-        var transactions = await query.ToListAsync();
+        var costTypes = await costTypeRepository.GetAll().ToListAsync();
+    
+        List<ExpensesByCategoryDTO> expensesByCategory = [];
 
-        // Group expenses by category
-        var expensesByCategory = transactions
-            .GroupBy(t => new
+        foreach (var costType in costTypes)
+        {
+            var temp = query
+                .Where(t => t.CostTypes.Any(c => c.CostTypeId == costType.Id));
+
+            var result = new ExpensesByCategoryDTO
             {
-                Category = t.CostType?.Name ?? "Uncategorized",
-                Label = t.CostType?.Name ?? "Uncategorized"
-            })
-            .Select(g => new ExpensesByCategoryDTO
-            {
-                Category = g.Key.Category,
-                Label = g.Key.Label,
-                Amount = g.Sum(t => t.Amount)
-            })
-            .ToList();
+                Category = costType.Name,
+                Label = costType.Name,
+                Amount = temp.Sum(t => t.Amount)
+            };
+
+            expensesByCategory.AddRange(result);
+        }
 
         return expensesByCategory;
     }

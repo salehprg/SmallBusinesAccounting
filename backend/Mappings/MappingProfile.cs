@@ -11,7 +11,6 @@ public class MappingProfile : Profile
     {
         // Transaction mappings
         CreateMap<TransactionModel, TransactionDTO>()
-            .ForMember(dest => dest.CostTypeName, opt => opt.MapFrom(src => src.CostType.Name))
             .ForMember(dest => dest.PersonName, opt => opt.MapFrom(src => src.Person != null ? src.Person.PersonName : null));
         CreateMap<CreateTransactionDTO, TransactionModel>();
 
@@ -22,6 +21,9 @@ public class MappingProfile : Profile
         // CostType mappings
         CreateMap<CostType, CostTypeDTO>();
         CreateMap<CreateCostTypeDTO, CostType>();
+
+        // TransactionCostType mappings
+        CreateMap<TransactionCostTypeModel, TransactionCostTypeDTO>();
         
         // User mappings
         CreateMap<UserModel, UserDTO>();

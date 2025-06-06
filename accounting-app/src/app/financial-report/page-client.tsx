@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
 import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter, Save, X } from 'lucide-react';
-import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO } from '@/lib/api';
+import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO, CreateTransactionDTO } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PersianDatePicker } from '@/components/ui/persian-date-picker';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 export default function FinancialReportPageClient() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function FinancialReportPageClient() {
     transactionType: TransactionType;
     name: string;
     date: string;
-    costTypeId: number;
+    costTypeIds: number[];
     amount: number;
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -68,7 +69,7 @@ export default function FinancialReportPageClient() {
     const pageSizeParam = searchParams.get('pageSize');
     const sortByParam = searchParams.get('sortBy');
     const sortOrderParam = searchParams.get('sortOrder');
-    
+
     if (startDateParam) {
       setStartDate(startDateParam);
     }
@@ -89,19 +90,19 @@ export default function FinancialReportPageClient() {
   // Update URL when dates change
   const updateDateInURL = (newStartDate: string, newEndDate: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (newStartDate) {
       params.set('startDate', newStartDate);
     } else {
       params.delete('startDate');
     }
-    
+
     if (newEndDate) {
       params.set('endDate', newEndDate);
     } else {
       params.delete('endDate');
     }
-    
+
     router.replace(`/financial-report?${params.toString()}`, { scroll: false });
   };
 
@@ -189,7 +190,7 @@ export default function FinancialReportPageClient() {
 
         // Add other filters
         if (selectedCostType) {
-          queryParams.costTypeId = selectedCostType;
+          queryParams.costTypeIds = [selectedCostType];
         }
         if (selectedPerson) {
           queryParams.personId = selectedPerson;
@@ -210,24 +211,21 @@ export default function FinancialReportPageClient() {
   // Filter transactions based on search query (client-side for text search)
   const filteredTransactions = transactions.filter(transaction =>
     transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    transaction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    transaction.amount.toString().includes(searchQuery) ||
-    (transaction.costTypeName && transaction.costTypeName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (transaction.personName && transaction.personName.toLowerCase().includes(searchQuery.toLowerCase()))
+    transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
   ).sort((a, b) => {
     // Add secondary sorting by ID when primary sort is by date
     if (sortBy === 'date') {
-      const dateComparison = sortOrder === 'asc' 
+      const dateComparison = sortOrder === 'asc'
         ? new Date(a.date).getTime() - new Date(b.date).getTime()
         : new Date(b.date).getTime() - new Date(a.date).getTime();
-      
+
       // If dates are equal, sort by ID as secondary criterion
       if (dateComparison === 0) {
         return sortOrder === 'asc' ? a.id - b.id : b.id - a.id;
       }
       return dateComparison;
     }
-    
+
     // For other sort fields, no additional client-side sorting needed
     // as the backend API handles the primary sorting
     return 0;
@@ -259,7 +257,7 @@ export default function FinancialReportPageClient() {
     } else {
       newSortOrder = 'desc';
     }
-    
+
     setSortBy(field);
     setSortOrder(newSortOrder);
     updateSortInURL(field, newSortOrder);
@@ -279,12 +277,12 @@ export default function FinancialReportPageClient() {
     setEndDate('');
     setSearchQuery('');
     setCurrentPage(1);
-    
+
     // Reset to defaults
     setSortBy('date');
     setSortOrder('desc');
     setPageSize(10);
-    
+
     // Clear URL parameters
     const params = new URLSearchParams(searchParams.toString());
     params.delete('startDate');
@@ -335,7 +333,7 @@ export default function FinancialReportPageClient() {
       transactionType: transaction.transactionType,
       name: transaction.name,
       date: transaction.date, // Convert to YYYY-MM-DD format for date input
-      costTypeId: transaction.costTypeId,
+      costTypeIds: transaction.costTypes.map(ct => ct.costTypeId),
       amount: transaction.amount
     });
     setSaveError(null);
@@ -359,18 +357,17 @@ export default function FinancialReportPageClient() {
       if (!originalTransaction) return;
 
       // Create updated transaction object
-      const updatedTransaction: TransactionDTO = {
+      const updatedTransactionRequest: CreateTransactionDTO = {
         ...originalTransaction,
         amount: editingValues.amount,
         transactionType: editingValues.transactionType,
         name: editingValues.name,
         date: new Date(editingValues.date).toISOString(),
-        costTypeId: editingValues.costTypeId,
-        costTypeName: costTypes.find(ct => ct.id === editingValues.costTypeId)?.name || originalTransaction.costTypeName
+        costTypes: editingValues.costTypeIds
       };
 
       // Update via API
-      await TransactionsAPI.update(editingTransaction, updatedTransaction);
+      const updatedTransaction = await TransactionsAPI.update(editingTransaction, updatedTransactionRequest);
 
       // Update local state
       setTransactions(prev => prev.map(t =>
@@ -641,19 +638,32 @@ export default function FinancialReportPageClient() {
                       {/* Category Column */}
                       <td className="p-3 text-right whitespace-nowrap">
                         {editingTransaction === transaction.id ? (
-                          <Select
-                            value={editingValues?.costTypeId?.toString() || ''}
-                            onChange={(e) => handleEditValueChange('costTypeId', Number(e.target.value))}
-                          >
-                            <SelectItem value="">انتخاب کنید...</SelectItem>
-                            {costTypes.map((costType) => (
-                              <SelectItem key={costType.id} value={costType.id.toString()}>
-                                {costType.name}
-                              </SelectItem>
-                            ))}
-                          </Select>
+                          <MultiSelect
+                            options={costTypes.map(ct => ({
+                              label: ct.name,
+                              value: ct.id.toString()
+                            }))}
+                            onValueChange={(value) => handleEditValueChange('costTypeIds', value.map(Number))}
+                            defaultValue={editingValues?.costTypeIds?.map(ct => ct.toString()) || []}
+                            placeholder="انتخاب دسته‌بندی"
+                            variant="inverted"
+                            maxCount={3}
+                          />
+
+                          // <Select
+                          //   multiple
+                          //   value={editingValues?.costTypeIds?.toString() || ''}
+                          //   onChange={(e) => handleEditValueChange('costTypeIds', e.target.value.split(',').map(Number))}
+                          // >
+                          //   <SelectItem value="">انتخاب کنید...</SelectItem>
+                          //   {costTypes.map((costType) => (
+                          //     <SelectItem key={costType.id} value={costType.id.toString()}>
+                          //       {costType.name}
+                          //     </SelectItem>
+                          //   ))}
+                          // </Select>
                         ) : (
-                          transaction.costTypeName
+                          transaction.costTypes.map(ct => ct.costType.name).join(', ')
                         )}
                       </td>
 

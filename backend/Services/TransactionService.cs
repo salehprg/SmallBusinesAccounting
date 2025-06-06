@@ -5,6 +5,7 @@ using backend.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using New_Back.DataAccess;
 using New_Back.Exceptions;
+using Omu.ValueInjecter;
 
 namespace backend.Services;
 
@@ -30,7 +31,7 @@ public class TransactionService : ITransactionService
     public async Task<TransactionDTO> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO)
     {
         createTransactionDTO.Date = createTransactionDTO.Date.Date.ToUniversalTime();
-        
+
         // Validate amount
         if (createTransactionDTO.Amount <= 0)
         {
@@ -38,12 +39,11 @@ public class TransactionService : ITransactionService
         }
 
         // Validate cost type existence
-        if (createTransactionDTO.CostTypeId.HasValue)
+        if (createTransactionDTO.CostTypes != null)
         {
-            var costType = await _costTypeRepository.GetById(createTransactionDTO.CostTypeId.Value).FirstOrDefaultAsync();
-            if (costType == null)
+            foreach (var costTypeId in createTransactionDTO.CostTypes)
             {
-                throw AppErrors.CostTypeNotFound;
+                var costType = await _costTypeRepository.GetById(costTypeId).FirstOrDefaultAsync() ?? throw AppErrors.CostTypeNotFound;
             }
         }
 
@@ -68,7 +68,7 @@ public class TransactionService : ITransactionService
     public async Task<TransactionDTO> GetTransactionByIdAsync(int id)
     {
         var transaction = await _transactionRepository.GetAll()
-            .Include(t => t.CostType)
+            .Include(t => t.CostTypes)
             .Include(t => t.Person)
             .FirstOrDefaultAsync(t => t.Id == id);
 
@@ -84,7 +84,7 @@ public class TransactionService : ITransactionService
     public async Task<List<TransactionDTO>> GetAllTransactionsAsync()
     {
         var transactions = await _transactionRepository.GetAll()
-            .Include(t => t.CostType)
+            .Include(t => t.CostTypes)
             .Include(t => t.Person)
             .ToListAsync();
 
@@ -99,7 +99,8 @@ public class TransactionService : ITransactionService
         }
 
         var query = _transactionRepository.GetAll()
-            .Include(t => t.CostType)
+            .Include(t => t.CostTypes)
+            .ThenInclude(x => x.CostType)
             .Include(t => t.Person)
             .AsQueryable();
 
@@ -119,9 +120,9 @@ public class TransactionService : ITransactionService
             query = query.Where(t => t.PersonId == queryDTO.PersonId.Value);
         }
 
-        if (queryDTO.CostTypeId.HasValue)
+        if (queryDTO.CostTypeIds != null && queryDTO.CostTypeIds.Count > 0)
         {
-            query = query.Where(t => t.CostTypeId == queryDTO.CostTypeId.Value);
+            query = query.Where(t => t.CostTypes.Any(c => queryDTO.CostTypeIds.Contains(c.CostTypeId)));
         }
 
         if (queryDTO.TransactionType.HasValue)
@@ -141,8 +142,8 @@ public class TransactionService : ITransactionService
         {
             query = queryDTO.SortOrder == "asc" ? query.OrderBy(t => t.Name) : query.OrderByDescending(t => t.Name);
         }
-        
-        
+
+
         var transactions = await query.ToListAsync();
         return _mapper.Map<List<TransactionDTO>>(transactions);
     }
@@ -151,7 +152,7 @@ public class TransactionService : ITransactionService
     {
         updateTransactionDTO.Date = updateTransactionDTO.Date.ToUniversalTime();
 
-        var transaction = await _transactionRepository.GetById(id).FirstOrDefaultAsync();
+        var transaction = await _transactionRepository.GetById(id).Include(x => x.CostTypes).FirstOrDefaultAsync();
         if (transaction == null)
         {
             throw AppErrors.TransactionNotFound;
@@ -164,12 +165,11 @@ public class TransactionService : ITransactionService
         }
 
         // Validate cost type existence
-        if (updateTransactionDTO.CostTypeId.HasValue)
+        if (updateTransactionDTO.CostTypes != null && updateTransactionDTO.CostTypes.Count > 0)
         {
-            var costType = await _costTypeRepository.GetById(updateTransactionDTO.CostTypeId.Value).FirstOrDefaultAsync();
-            if (costType == null)
+            foreach (var costTypeId in updateTransactionDTO.CostTypes)
             {
-                throw AppErrors.CostTypeNotFound;
+                var costType = await _costTypeRepository.GetById(costTypeId).FirstOrDefaultAsync() ?? throw AppErrors.CostTypeNotFound;
             }
         }
 
@@ -182,8 +182,29 @@ public class TransactionService : ITransactionService
                 throw AppErrors.PersonNotFound;
             }
         }
-    
-        _mapper.Map(updateTransactionDTO, transaction);
+
+        var list = transaction.CostTypes.ToList();
+        foreach (var oldCostType in list)
+        {
+            if (!updateTransactionDTO.CostTypes.Any(x => x == oldCostType.CostTypeId))
+            {
+                transaction.CostTypes.Remove(oldCostType);
+            }
+        }
+
+        foreach (var newCostType in updateTransactionDTO.CostTypes)
+        {
+            if (!transaction.CostTypes.Any(x => x.CostTypeId == newCostType))
+            {
+                transaction.CostTypes.Add(new TransactionCostTypeModel
+                {
+                    TransactionId = transaction.Id,
+                    CostTypeId = newCostType
+                });
+            }
+        }
+
+        transaction.InjectFrom(updateTransactionDTO);
 
         transaction.UpdateDate = DateTime.UtcNow;
         _transactionRepository.Edit(transaction);
@@ -218,7 +239,8 @@ public class TransactionService : ITransactionService
     {
         var transactions = await _transactionRepository.GetAll()
             .Where(t => t.TransactionType == transactionType)
-            .Include(t => t.CostType)
+            .Include(t => t.CostTypes)
+            .ThenInclude(x => x.CostType)
             .OrderByDescending(t => t.SubmitDate)
             .Take(count)
             .ToListAsync();

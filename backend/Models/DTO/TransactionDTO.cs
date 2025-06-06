@@ -9,7 +9,7 @@ public class CreateTransactionDTO
     public decimal Amount { get; set; }
     public bool IsCash { get; set; }
     public DateTime Date { get; set; }
-    public int? CostTypeId { get; set; }
+    public List<int> CostTypes { get; set; } = [];
     public TransactionType TransactionType { get; set; }
     public int? PersonId { get; set; } // Optional
 }
@@ -23,8 +23,7 @@ public class TransactionDTO
     public bool IsCash { get; set; }
     public DateTime SubmitDate { get; set; }
     public DateTime Date { get; set; }
-    public int? CostTypeId { get; set; }
-    public string CostTypeName { get; set; } = string.Empty;
+    public List<TransactionCostTypeDTO> CostTypes { get; set; } = [];
     public TransactionType TransactionType { get; set; }
     public int? PersonId { get; set; }
     public string? PersonName { get; set; }
@@ -35,8 +34,8 @@ public class TransactionQueryDTO
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public int? PersonId { get; set; }
-    public int? CostTypeId { get; set; }
+    public List<int> CostTypeIds { get; set; } = [];
     public TransactionType? TransactionType { get; set; }
     public string? SortBy { get; set; }
     public string? SortOrder { get; set; }
-} 
+}

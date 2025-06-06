@@ -58,7 +58,7 @@ public class PersonService : IPersonService
         }
 
         var transactions = await _transactionRepository.GetAll()
-            .Include(t => t.CostType)
+            .Include(t => t.CostTypes)
             .Where(t => t.PersonId == id)
             .ToListAsync();
 
@@ -89,7 +89,7 @@ public class PersonService : IPersonService
         }
 
         var query = _transactionRepository.GetAll()
-            .Include(t => t.CostType)
+            .Include(t => t.CostTypes)
             .Where(t => t.PersonId == id);
 
         if (startDate.HasValue)

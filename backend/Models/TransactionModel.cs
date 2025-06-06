@@ -13,14 +13,14 @@ public class TransactionModel : BaseEntity
     public DateTime? UpdateDate { get; set; }
     public DateTime SubmitDate { get; set; }
     public DateTime Date { get; set; }
-    public int? CostTypeId { get; set; }
-    [ForeignKey("CostTypeId")]
-    public CostType? CostType { get; set; }
     public TransactionType TransactionType { get; set; }
     
     // Optional reference to a person
     public int? PersonId { get; set; }
     [ForeignKey("PersonId")]
     public PersonModel? Person { get; set; }
+
+    public virtual ICollection<TransactionCostTypeModel> CostTypes { get; set; } = [];
+    
 }
 

@@ -15,6 +15,7 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
     public DbSet<TransactionModel> Transactions { get; set; }
     public DbSet<PersonModel> Persons { get; set; }
     public DbSet<CostType> CostTypes { get; set; }
+    public DbSet<TransactionCostTypeModel> TransactionCostTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -28,5 +29,11 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
         builder.Entity<RolePermissionModel>()
             .HasIndex(rp => new { rp.RoleId, rp.PermissionId })
             .IsUnique();
+
+
+        builder.Entity<TransactionModel>()
+            .HasMany(x => x.CostTypes)
+            .WithOne(x => x.Transaction)
+            .HasForeignKey(x => x.TransactionId);
     }
 }

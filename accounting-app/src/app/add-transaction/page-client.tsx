@@ -20,6 +20,7 @@ import {
 } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/ui/toast';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 export default function AddTransactionPageClient() {
   // Ensure user is authenticated
@@ -36,11 +37,11 @@ export default function AddTransactionPageClient() {
     const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
     const persianNumerals = '۰۱۲۳۴۵۶۷۸۹';
     const latinNumerals = '0123456789';
-    
+
     return str.replace(/[٠-٩۰-۹]/g, (char) => {
       const arabicIndex = arabicNumerals.indexOf(char);
       const persianIndex = persianNumerals.indexOf(char);
-      
+
       if (arabicIndex !== -1) {
         return latinNumerals[arabicIndex];
       } else if (persianIndex !== -1) {
@@ -96,7 +97,7 @@ export default function AddTransactionPageClient() {
                 description: transactionData.description,
                 amount: transactionData.amount,
                 date: transactionData.date,
-                costTypeId: transactionData.costTypeId,
+                costTypes: transactionData.costTypes.map(ct => ct.costTypeId),
                 transactionType: transactionData.transactionType,
                 personId: transactionData.personId,
                 isCash: transactionData.isCash
@@ -105,7 +106,7 @@ export default function AddTransactionPageClient() {
               nameInputRef.current?.focus();
 
               // Show advanced section if any advanced fields have values
-              if (transactionData.personId || transactionData.costTypeId || transactionData.description) {
+              if (transactionData.personId || transactionData.costTypes.length > 0 || transactionData.description) {
                 setShowAdvanced(true);
               }
             } catch (error) {
@@ -220,7 +221,7 @@ export default function AddTransactionPageClient() {
 
   const handleTransactionTypeChange = (newType: TransactionType) => {
     setTransactionType(newType);
-    
+
     if (isEditMode) {
       // In edit mode, just update the transaction type without resetting other fields
       setTransaction(prev => ({ ...prev, transactionType: newType }));
@@ -256,6 +257,10 @@ export default function AddTransactionPageClient() {
     setTransaction(prev => ({ ...prev, [name]: value ? parseInt(value, 10) : null }));
   };
 
+  const handleSelectCategoryChange = (value: string[]) => {
+    setTransaction(prev => ({ ...prev, costTypes: value.map(Number) }));
+  };
+
   const handleDateChange = (date: string) => {
     setTransaction(prev => ({ ...prev, date }));
   };
@@ -274,7 +279,7 @@ export default function AddTransactionPageClient() {
         description: transaction.description || '',
         amount: transaction.amount || 0,
         date: transaction.date || "",
-        costTypeId: transaction.costTypeId,
+        costTypes: transaction.costTypes,
         transactionType: transactionType,
         personId: transaction.personId,
         isCash: transaction.isCash
@@ -398,28 +403,26 @@ export default function AddTransactionPageClient() {
         <h1 className="text-2xl font-bold">
           {isEditMode ? `ویرایش ${isIncome ? 'درآمد' : 'هزینه'}` : 'ثبت تراکنش'}
         </h1>
-        
+
         {/* Transaction Type Switch */}
         <div className="flex items-center bg-gray-100 rounded-lg p-1 border">
           <button
             type="button"
             onClick={() => handleTransactionTypeChange(TransactionType.Expense)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 ${
-              !isIncome
-                ? 'bg-white text-red-600 shadow-sm border border-red-200'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-            }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 ${!isIncome
+              ? 'bg-white text-red-600 shadow-sm border border-red-200'
+              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
           >
             هزینه
           </button>
           <button
             type="button"
             onClick={() => handleTransactionTypeChange(TransactionType.Income)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 ${
-              isIncome
-                ? 'bg-white text-green-600 shadow-sm border border-green-200'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-            }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 ${isIncome
+              ? 'bg-white text-green-600 shadow-sm border border-green-200'
+              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
           >
             درآمد
           </button>
@@ -433,7 +436,7 @@ export default function AddTransactionPageClient() {
             <PersianDatePicker
               id="date"
               name="date"
-              value={transaction.date || ''}
+              value={transaction.date.split("T")[0]}
               onChange={handleDateChange}
               placeholder="انتخاب تاریخ"
               required
@@ -602,19 +605,30 @@ export default function AddTransactionPageClient() {
 
               <div className="space-y-2">
                 <label htmlFor="costTypeId" className="block">دسته‌بندی</label>
-                <Select
+                <MultiSelect
+                  options={costTypes.map(ct => ({
+                    label: ct.name,
+                    value: ct.id.toString()
+                  }))}
+                  onValueChange={handleSelectCategoryChange}
+                  defaultValue={transaction.costTypes?.map(ct => ct.toString()) || []}
+                  placeholder="انتخاب دسته‌بندی"
+                  variant="inverted"
+                  maxCount={3}
+                />
+                {/* <Select
+                  multiple
                   id="costTypeId"
                   name="costTypeId"
-                  value={transaction.costTypeId?.toString() || ''}
                   onChange={handleSelectChange}
                 >
                   <SelectItem value="">انتخاب کنید</SelectItem>
                   {costTypes.map((costType) => (
-                    <SelectItem key={costType.id} value={costType.id.toString()}>
+                    <SelectItem key={costType.id} value={costType.name}>
                       {costType.name}
                     </SelectItem>
                   ))}
-                </Select>
+                </Select> */}
               </div>
             </div>
 
@@ -681,7 +695,7 @@ export default function AddTransactionPageClient() {
                       {new Intl.NumberFormat('fa-IR').format(transactionData.amount)} ریال
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
-                      {transactionData.costTypeName || '-'}
+                      {transactionData.costTypes.map(ct => ct.costType.name).join(', ') || '-'}
                     </td>
                     <td className="border border-gray-300 p-3 text-right">
                       <span className={`px-2 py-1 rounded-full text-xs ${transactionData.isCash ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
