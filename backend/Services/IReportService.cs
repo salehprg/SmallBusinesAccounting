@@ -5,7 +5,7 @@ namespace backend.Services;
 public interface IReportService
 {
     Task<ReportSummaryDTO> GetReportSummaryAsync(ReportQueryDTO? queryDTO = null);
-    Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate);
-    Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateTime startDate, DateTime endDate);
-    Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateTime startDate, DateTime endDate);
+    Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateOnly startDate, DateOnly endDate);
+    Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateOnly startDate, DateOnly endDate);
+    Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateOnly startDate, DateOnly endDate);
 } 

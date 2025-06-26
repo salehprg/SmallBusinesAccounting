@@ -10,6 +10,7 @@ import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PersianDatePicker } from '@/components/ui/persian-date-picker';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 
 export default function FinancialReportPageClient() {
   const router = useRouter();
@@ -39,13 +40,13 @@ export default function FinancialReportPageClient() {
   // Filter and sort states
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
   const [persons, setPersons] = useState<PersonDTO[]>([]);
-  const [selectedCostType, setSelectedCostType] = useState<number | undefined>(undefined);
+  const [selectedCostTypes, setSelectedCostTypes] = useState<number[]>([]);
   const [selectedPerson, setSelectedPerson] = useState<number | undefined>(undefined);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<string>('desc');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
 
   // Add page size state
   const [pageSize, setPageSize] = useState<number>(25);
@@ -162,7 +163,7 @@ export default function FinancialReportPageClient() {
   // Reset current page when filters change or page size changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, selectedCostType, selectedPerson, startDate, endDate, searchQuery, pageSize]);
+  }, [activeTab, selectedCostTypes, selectedPerson, startDate, endDate, searchQuery, pageSize]);
 
   // Fetch transactions with filters and sorting
   useEffect(() => {
@@ -182,15 +183,15 @@ export default function FinancialReportPageClient() {
 
         // Add date filters
         if (startDate) {
-          queryParams.startDate = new Date(startDate).toISOString();
+          queryParams.startDate = new Date(startDate).toISOString().split("T")[0];
         }
         if (endDate) {
-          queryParams.endDate = new Date(endDate).toISOString();
+          queryParams.endDate = new Date(endDate).toISOString().split("T")[0];
         }
 
         // Add other filters
-        if (selectedCostType) {
-          queryParams.costTypeIds = [selectedCostType];
+        if (selectedCostTypes.length > 0) {
+          queryParams.costTypeIds = selectedCostTypes;
         }
         if (selectedPerson) {
           queryParams.personId = selectedPerson;
@@ -206,7 +207,7 @@ export default function FinancialReportPageClient() {
     };
 
     fetchTransactions();
-  }, [activeTab, selectedCostType, selectedPerson, startDate, endDate, sortBy, sortOrder]);
+  }, [activeTab, selectedCostTypes, selectedPerson, startDate, endDate, sortBy, sortOrder]);
 
   // Filter transactions based on search query (client-side for text search)
   const filteredTransactions = transactions.filter(transaction =>
@@ -239,11 +240,11 @@ export default function FinancialReportPageClient() {
   );
 
   // Calculate financial summary
-  const totalIncome = transactions
+  const totalIncome = filteredTransactions
     .filter(t => t.transactionType === TransactionType.Income)
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpense = transactions
+  const totalExpense = filteredTransactions
     .filter(t => t.transactionType === TransactionType.Expense)
     .reduce((sum, t) => sum + t.amount, 0);
 
@@ -271,7 +272,7 @@ export default function FinancialReportPageClient() {
 
   // Clear filters
   const clearFilters = () => {
-    setSelectedCostType(undefined);
+    setSelectedCostTypes([]);
     setSelectedPerson(undefined);
     setStartDate('');
     setEndDate('');
@@ -362,7 +363,7 @@ export default function FinancialReportPageClient() {
         amount: editingValues.amount,
         transactionType: editingValues.transactionType,
         name: editingValues.name,
-        date: new Date(editingValues.date).toISOString(),
+        date: new Date(editingValues.date).toISOString().split("T")[0],
         costTypes: editingValues.costTypeIds
       };
 
@@ -502,33 +503,32 @@ export default function FinancialReportPageClient() {
               {/* Cost Type Filter */}
               <div>
                 <label className="block text-sm font-medium mb-1">دسته هزینه</label>
-                <Select
-                  value={selectedCostType?.toString() || ''}
-                  onChange={(e) => setSelectedCostType(e.target.value ? Number(e.target.value) : undefined)}
-                >
-                  <SelectItem value="">همه دسته‌ها</SelectItem>
-                  {costTypes.map((costType) => (
-                    <SelectItem key={costType.id} value={costType.id.toString()}>
-                      {costType.name}
-                    </SelectItem>
-                  ))}
-                </Select>
+                <MultiSelect
+                  options={costTypes.map((costType) => ({
+                    label: costType.name,
+                    value: costType.id.toString()
+                  }))}
+                  onValueChange={(values) => setSelectedCostTypes(values.map(Number))}
+                  defaultValue={selectedCostTypes.map(id => id.toString())}
+                  placeholder="انتخاب دسته‌ها"
+                  variant="inverted"
+                  maxCount={3}
+                />
               </div>
 
               {/* Person Filter */}
               <div>
                 <label className="block text-sm font-medium mb-1">شخص</label>
-                <Select
+                <SearchableSelect
+                  options={persons.map((person) => ({
+                    value: person.id.toString(),
+                    label: `${person.personName} (${person.accountNumber})`
+                  }))}
                   value={selectedPerson?.toString() || ''}
-                  onChange={(e) => setSelectedPerson(e.target.value ? Number(e.target.value) : undefined)}
-                >
-                  <SelectItem value="">همه اشخاص</SelectItem>
-                  {persons.map((person) => (
-                    <SelectItem key={person.id} value={person.id.toString()}>
-                      {person.personName}
-                    </SelectItem>
-                  ))}
-                </Select>
+                  onChange={(e) => setSelectedPerson(e ? Number(e) : undefined)}
+                  placeholder="انتخاب کنید"
+                  searchPlaceholder="جستجو در لیست..."
+                />
               </div>
             </div>
 

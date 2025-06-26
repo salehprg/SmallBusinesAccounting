@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Textarea } from '@/components/ui/textarea';
 import { PersianDatePicker } from '@/components/ui/persian-date-picker';
 import { Edit, Trash } from 'lucide-react';
@@ -255,6 +256,10 @@ export default function AddTransactionPageClient() {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setTransaction(prev => ({ ...prev, [name]: value ? parseInt(value, 10) : null }));
+  };
+
+  const handlePersonSelectChange = (value: string) => {
+    setTransaction(prev => ({ ...prev, personId: value ? parseInt(value, 10) : undefined }));
   };
 
   const handleSelectCategoryChange = (value: string[]) => {
@@ -588,19 +593,16 @@ export default function AddTransactionPageClient() {
                 <label htmlFor="personId" className="block">
                   {isIncome ? 'مشتری' : 'فروشنده'}
                 </label>
-                <Select
-                  id="personId"
-                  name="personId"
+                <SearchableSelect
+                  options={persons.map((person) => ({
+                    value: person.id.toString(),
+                    label: `${person.personName} (${person.accountNumber})`
+                  }))}
                   value={transaction.personId?.toString() || ''}
-                  onChange={handleSelectChange}
-                >
-                  <SelectItem value="">انتخاب کنید</SelectItem>
-                  {persons.map((person) => (
-                    <SelectItem key={person.id} value={person.id.toString()}>
-                      {person.personName}
-                    </SelectItem>
-                  ))}
-                </Select>
+                  onChange={handlePersonSelectChange}
+                  placeholder="انتخاب کنید"
+                  searchPlaceholder="جستجو در لیست..."
+                />
               </div>
 
               <div className="space-y-2">

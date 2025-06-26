@@ -12,7 +12,8 @@ public class MappingProfile : Profile
         // Transaction mappings
         CreateMap<TransactionModel, TransactionDTO>()
             .ForMember(dest => dest.PersonName, opt => opt.MapFrom(src => src.Person != null ? src.Person.PersonName : null));
-        CreateMap<CreateTransactionDTO, TransactionModel>();
+            
+        CreateMap<CreateTransactionDTO, TransactionModel>().ReverseMap();
 
         // Person mappings
         CreateMap<PersonModel, PersonDTO>();

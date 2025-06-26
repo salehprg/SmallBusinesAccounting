@@ -8,7 +8,7 @@ public class CreateTransactionDTO
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public bool IsCash { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public List<int> CostTypes { get; set; } = [];
     public TransactionType TransactionType { get; set; }
     public int? PersonId { get; set; } // Optional
@@ -22,7 +22,7 @@ public class TransactionDTO
     public decimal Amount { get; set; }
     public bool IsCash { get; set; }
     public DateTime SubmitDate { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public List<TransactionCostTypeDTO> CostTypes { get; set; } = [];
     public TransactionType TransactionType { get; set; }
     public int? PersonId { get; set; }
@@ -31,8 +31,8 @@ public class TransactionDTO
 
 public class TransactionQueryDTO
 {
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public DateOnly? StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
     public int? PersonId { get; set; }
     public List<int> CostTypeIds { get; set; } = [];
     public TransactionType? TransactionType { get; set; }

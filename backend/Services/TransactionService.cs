@@ -30,8 +30,6 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDTO> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO)
     {
-        createTransactionDTO.Date = createTransactionDTO.Date.Date.ToUniversalTime();
-
         // Validate amount
         if (createTransactionDTO.Amount <= 0)
         {
@@ -57,10 +55,29 @@ public class TransactionService : ITransactionService
             }
         }
 
-        var transaction = _mapper.Map<TransactionModel>(createTransactionDTO);
+        TransactionModel transaction = new()
+        {
+            Amount = createTransactionDTO.Amount,
+            Date = createTransactionDTO.Date,
+            Name = createTransactionDTO.Name,
+            TransactionType = createTransactionDTO.TransactionType,
+            PersonId = createTransactionDTO.PersonId,
+            Description = createTransactionDTO.Description,
+            IsCash = createTransactionDTO.IsCash
+        };
 
         transaction.SubmitDate = DateTime.UtcNow;
         _transactionRepository.Add(transaction);
+
+        foreach (var newCostType in createTransactionDTO.CostTypes)
+        {
+            transaction.CostTypes.Add(new TransactionCostTypeModel
+            {
+                TransactionId = transaction.Id,
+                CostTypeId = newCostType
+            });
+        }
+        _transactionRepository.Edit(transaction);
 
         return await GetTransactionByIdAsync(transaction.Id);
     }
@@ -107,12 +124,12 @@ public class TransactionService : ITransactionService
         // Apply filters
         if (queryDTO.StartDate.HasValue)
         {
-            query = query.Where(t => t.Date.Date >= queryDTO.StartDate.Value.Date);
+            query = query.Where(t => t.Date >= queryDTO.StartDate.Value);
         }
 
         if (queryDTO.EndDate.HasValue)
         {
-            query = query.Where(t => t.Date.Date <= queryDTO.EndDate.Value.Date);
+            query = query.Where(t => t.Date <= queryDTO.EndDate.Value);
         }
 
         if (queryDTO.PersonId.HasValue)
@@ -150,8 +167,6 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDTO> UpdateTransactionAsync(int id, CreateTransactionDTO updateTransactionDTO)
     {
-        updateTransactionDTO.Date = updateTransactionDTO.Date.ToUniversalTime();
-
         var transaction = await _transactionRepository.GetById(id).Include(x => x.CostTypes).FirstOrDefaultAsync();
         if (transaction == null)
         {
@@ -246,5 +261,12 @@ public class TransactionService : ITransactionService
             .ToListAsync();
 
         return _mapper.Map<List<TransactionDTO>>(transactions);
+    }
+
+    public async Task FixTransactionDateTime()
+    {
+        // This method is no longer needed since we're using DateOnly which doesn't store time information
+        // Previously used for migrating DateTime values to remove time components
+        await Task.CompletedTask;
     }
 }

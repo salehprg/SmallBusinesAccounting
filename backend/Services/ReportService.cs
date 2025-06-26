@@ -27,7 +27,7 @@ public class ReportService(IRepository<TransactionModel> transactionRepository, 
         };
     }
 
-    public async Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate)
+    public async Task<FinancialSummaryDTO> GetFinancialSummaryAsync(DateOnly startDate, DateOnly endDate)
     {
         var query = transactionRepository.GetAll().AsQueryable();
 
@@ -46,13 +46,13 @@ public class ReportService(IRepository<TransactionModel> transactionRepository, 
         };
     }
 
-    public async Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateTime startDate, DateTime endDate)
+    public async Task<List<DailyIncomeDTO>> GetDailyIncomeDataAsync(DateOnly startDate, DateOnly endDate)
     {
         var transactions = await transactionRepository.GetAll()
             .Where(t => t.Date >= startDate && t.Date <= endDate)
             .ToListAsync();
 
-        var days = Math.Min(45, (endDate - startDate).Days + 1); // Include both start and end dates
+        var days = Math.Min(45, (endDate.DayNumber - startDate.DayNumber) + 1); // Include both start and end dates
 
         startDate = endDate.AddDays(-days);
 
@@ -60,18 +60,19 @@ public class ReportService(IRepository<TransactionModel> transactionRepository, 
 
         for (int i = 0; i < days; i++)
         {
-            var date = startDate.AddDays(i).Date; // Use .Date to get just the date part without time
-            var persianMonth = _persianCalendar.GetMonth(date);
-            var persianDay = _persianCalendar.GetDayOfMonth(date);
+            var date = startDate.AddDays(i);
+            var dateTime = date.ToDateTime(TimeOnly.MinValue); // Convert to DateTime for Persian calendar
+            var persianMonth = _persianCalendar.GetMonth(dateTime);
+            var persianDay = _persianCalendar.GetDayOfMonth(dateTime);
             var day = $"{persianMonth}/{persianDay}";
 
-            var todayTransactions = transactions.Where(t => t.Date.ToLocalTime().Date == date.Date).ToList();
+            var todayTransactions = transactions.Where(t => t.Date == date).ToList();
 
             decimal income = todayTransactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => t.Amount);
             decimal expenses = todayTransactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => t.Amount);
             DailyIncomeDTO dailyIncome = new DailyIncomeDTO
             {
-                Date = date,
+                Date = dateTime,
                 Day = day,
                 Income = income,
                 Expenses = expenses,
@@ -84,7 +85,7 @@ public class ReportService(IRepository<TransactionModel> transactionRepository, 
         return dailyIncomeList;
     }
 
-    public async Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateTime startDate, DateTime endDate)
+    public async Task<List<ExpensesByCategoryDTO>> GetExpensesByCategoryAsync(DateOnly startDate, DateOnly endDate)
     {
         var query = transactionRepository.GetAll()
             .Include(t => t.CostTypes)

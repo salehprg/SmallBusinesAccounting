@@ -411,11 +411,11 @@ export const ReportsAPI = {
     const params = new URLSearchParams();
     
     if (startDate) {
-      params.append('StartDate', startDate.toISOString());
+      params.append('StartDate', startDate.toISOString().split("T")[0]);
     }
     
     if (endDate) {
-      params.append('EndDate', endDate.toISOString());
+      params.append('EndDate', endDate.toISOString().split("T")[0]);
     }
     
     

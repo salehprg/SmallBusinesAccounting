@@ -12,7 +12,7 @@ public class TransactionModel : BaseEntity
     public bool IsCash { get; set; }
     public DateTime? UpdateDate { get; set; }
     public DateTime SubmitDate { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public TransactionType TransactionType { get; set; }
     
     // Optional reference to a person

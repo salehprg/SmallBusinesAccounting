@@ -157,6 +157,9 @@ using (var scope = app.Services.CreateScope())
     
     // Seed default data
     await SeedData.SeedDefaultData(app.Services);
+
+    var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
+    await transactionService.FixTransactionDateTime();
 }
 
 app.UseMiddleware<ErrorHandlerMiddleware>();

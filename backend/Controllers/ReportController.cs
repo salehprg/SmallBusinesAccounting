@@ -32,7 +32,10 @@ public class ReportController(IReportService reportService) : MyBaseController
         startDate ??= DateTime.Now.AddDays(-7);
         endDate ??= DateTime.Now;
 
-        var financialSummary = await _reportService.GetFinancialSummaryAsync(startDate.Value, endDate.Value);
+        var startDateOnly = DateOnly.FromDateTime(startDate.Value);
+        var endDateOnly = DateOnly.FromDateTime(endDate.Value);
+
+        var financialSummary = await _reportService.GetFinancialSummaryAsync(startDateOnly, endDateOnly);
         return Ok(financialSummary);
     }
 
@@ -40,8 +43,10 @@ public class ReportController(IReportService reportService) : MyBaseController
     [Authorize(Policy = "Permission:ViewTransactions")]
     public async Task<ActionResult<APIResponse<List<DailyIncomeDTO>>>> GetDailyIncome([FromQuery] int days = 7)
     {
-        var date = DateTime.Now.AddDays(-days);
-        var dailyIncome = await _reportService.GetDailyIncomeDataAsync(date, DateTime.Now);
+        var startDate = DateOnly.FromDateTime(DateTime.Now.AddDays(-days));
+        var endDate = DateOnly.FromDateTime(DateTime.Now);
+        
+        var dailyIncome = await _reportService.GetDailyIncomeDataAsync(startDate, endDate);
         return Ok(dailyIncome);
     }
 
@@ -54,7 +59,10 @@ public class ReportController(IReportService reportService) : MyBaseController
         startDate ??= DateTime.Now.AddDays(-7);
         endDate ??= DateTime.Now;
 
-        var expensesByCategory = await _reportService.GetExpensesByCategoryAsync(startDate.Value, endDate.Value);
+        var startDateOnly = DateOnly.FromDateTime(startDate.Value);
+        var endDateOnly = DateOnly.FromDateTime(endDate.Value);
+
+        var expensesByCategory = await _reportService.GetExpensesByCategoryAsync(startDateOnly, endDateOnly);
         return Ok(expensesByCategory);
     }
 } 

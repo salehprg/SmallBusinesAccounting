@@ -44,7 +44,7 @@ public class CostTypeService : ICostTypeService
 
     public async Task<List<CostTypeDTO>> GetAllCostTypesAsync()
     {
-        var costTypes = await _costTypeRepository.GetAll().ToListAsync();
+        var costTypes = await _costTypeRepository.GetAll().OrderByDescending(x => x.Id).ToListAsync();
         return _mapper.Map<List<CostTypeDTO>>(costTypes);
     }
 

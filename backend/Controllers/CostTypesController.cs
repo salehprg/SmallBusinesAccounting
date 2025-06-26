@@ -40,7 +40,7 @@ public class CostTypesController : MyBaseController
     public async Task<ActionResult<APIResponse<CostTypeDTO>>> CreateCostType([FromBody] CreateCostTypeDTO createCostTypeDTO)
     {
         var costType = await _costTypeService.CreateCostTypeAsync(createCostTypeDTO);
-        return CreatedAtAction(nameof(GetCostTypeById), new { id = costType.Id }, costType);
+        return Ok(true);
     }
 
     [HttpPut("{id}")]
@@ -56,6 +56,6 @@ public class CostTypesController : MyBaseController
     public async Task<ActionResult> DeleteCostType(int id)
     {
         await _costTypeService.DeleteCostTypeAsync(id);
-        return Ok();
+        return Ok(true);
     }
 } 

@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PersonsAPI, CreatePersonDTO, CostTypeDTO, CostTypesAPI, CreateCostTypeDTO } from '@/lib/api';
 import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 
-export default function AddCostTypePage () {
+export default function AddCostTypePage() {
   const [formData, setFormData] = useState({
     name: '',
     description: ''
@@ -16,14 +17,17 @@ export default function AddCostTypePage () {
   // Table state
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortField, setSortField] = useState<'id' | 'name'>('id');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [costTypeToDelete, setCostTypeToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingCostType, setEditingCostType] = useState<CostTypeDTO | null>(null);
 
+  const { addToast } = useToast();
   const itemsPerPage = 10;
 
   // Fetch cost types
@@ -58,25 +62,49 @@ export default function AddCostTypePage () {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!formData.name.trim()) {
+      addToast({
+        type: 'error',
+        message: 'نام نوع هزینه الزامی است'
+      });
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
       const costTypeDTO: CreateCostTypeDTO = {
-        name: formData.name,
+        name: formData.name.trim(),
       };
-      
+
       if (editingCostType) {
         // Update existing cost type
         await CostTypesAPI.update(editingCostType.id, costTypeDTO);
         setEditingCostType(null);
+        addToast({
+          type: 'success',
+          message: 'نوع هزینه با موفقیت بروزرسانی شد'
+        });
       } else {
         // Create new cost type
         await CostTypesAPI.create(costTypeDTO);
+        addToast({
+          type: 'success',
+          message: 'نوع هزینه با موفقیت ثبت شد'
+        });
       }
-      
+
       // Reset form and refresh list
       setFormData({ name: '', description: '' });
       await fetchCostTypes();
     } catch (error) {
       console.error("Failed to save cost type:", error);
+      addToast({
+        type: 'error',
+        message: editingCostType ? 'خطا در بروزرسانی نوع هزینه' : 'خطا در ثبت نوع هزینه'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -86,7 +114,12 @@ export default function AddCostTypePage () {
       costType.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => {
-      const comparison = a.name.localeCompare(b.name, 'fa');
+      let comparison = 0;
+      if (sortField === 'id') {
+        comparison = a.id - b.id;
+      } else {
+        comparison = a.name.localeCompare(b.name, 'fa');
+      }
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
@@ -98,12 +131,20 @@ export default function AddCostTypePage () {
   );
 
   // Handle sorting
-  const handleSort = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  const handleSort = (field: 'id' | 'name') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
   };
 
   // Get sort icon
-  const getSortIcon = () => {
+  const getSortIcon = (field: 'id' | 'name') => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4" />;
+    }
     return sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
@@ -130,8 +171,16 @@ export default function AddCostTypePage () {
         await fetchCostTypes();
         setShowDeleteConfirm(false);
         setCostTypeToDelete(null);
+        addToast({
+          type: 'success',
+          message: 'نوع هزینه با موفقیت حذف شد'
+        });
       } catch (error) {
         console.error("Failed to delete cost type:", error);
+        addToast({
+          type: 'error',
+          message: 'خطا در حذف نوع هزینه'
+        });
       } finally {
         setIsDeleting(false);
       }
@@ -156,7 +205,7 @@ export default function AddCostTypePage () {
             <label htmlFor="name" className="block text-right text-sm font-medium">
               نوع هزینه
             </label>
-            <Input 
+            <Input
               id="name"
               name="name"
               placeholder="نام را وارد کنید"
@@ -169,11 +218,22 @@ export default function AddCostTypePage () {
           </div>
         </div>
         <div className="flex justify-start gap-2">
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-            {editingCostType ? 'بروزرسانی نوع هزینه' : 'ثبت نوع هزینه'}
+          <Button 
+            type="submit" 
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {editingCostType ? 'در حال بروزرسانی...' : 'در حال ثبت...'}
+              </div>
+            ) : (
+              editingCostType ? 'بروزرسانی نوع هزینه' : 'ثبت نوع هزینه'
+            )}
           </Button>
           {editingCostType && (
-            <Button type="button" variant="outline" onClick={cancelEdit}>
+            <Button type="button" variant="outline" onClick={cancelEdit} disabled={isSubmitting}>
               لغو ویرایش
             </Button>
           )}
@@ -185,7 +245,7 @@ export default function AddCostTypePage () {
         <div className="flex justify-end items-center">
           <h2 className="text-xl font-semibold">لیست انواع هزینه</h2>
         </div>
-        
+
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -197,72 +257,82 @@ export default function AddCostTypePage () {
             dir="rtl"
           />
         </div>
-        
+
         {/* Cost Types Table */}
         <div className="border rounded-md overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="p-3 text-right">شناسه</th>
-                <th className="p-3 text-right flex justify-end">
-                  <button
-                    className="flex items-center gap-1 hover:text-primary"
-                    onClick={handleSort}
-                  >
-                    نام نوع هزینه
-                    {getSortIcon()}
-                  </button>
-                </th>
-                <th className="p-3 text-right">عملیات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={3} className="p-6 text-center">
-                    در حال بارگذاری...
-                  </td>
+          <div className="min-w-full">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="p-3 text-right">
+                    <button
+                      className="flex items-center gap-1 hover:text-primary justify-end w-full"
+                      onClick={() => handleSort('id')}
+                    >
+                      شناسه
+                      {getSortIcon('id')}
+                    </button>
+                  </th>
+                  <th className="p-3 text-right">
+                    <button
+                      className="flex items-center gap-1 hover:text-primary justify-end w-full"
+                      onClick={() => handleSort('name')}
+                    >
+                      نام نوع هزینه
+                      {getSortIcon('name')}
+                    </button>
+                  </th>
+                  <th className="p-3 text-right">عملیات</th>
                 </tr>
-              ) : paginatedCostTypes.length > 0 ? (
-                paginatedCostTypes.map((costType) => (
-                  <tr key={costType.id} className="border-b hover:bg-muted/50">
-                    <td className="p-3 text-right">{costType.id}</td>
-                    <td className="p-3 text-right">{costType.name}</td>
-                    <td className="p-3 text-right">
-                      <div className="flex gap-2 justify-end">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleEdit(costType)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">ویرایش</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleDelete(costType.id)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">حذف</span>
-                        </Button>
-                      </div>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={3} className="p-6 text-center">
+                      در حال بارگذاری...
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={3} className="p-6 text-center text-muted-foreground">
-                    هیچ نوع هزینه‌ای یافت نشد.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                ) : paginatedCostTypes.length > 0 ? (
+                  paginatedCostTypes.map((costType) => (
+                    <tr key={costType.id} className="border-b hover:bg-muted/50">
+                      <td className="p-3 text-right">{costType.id}</td>
+                      <td className="p-3 text-right">{costType.name}</td>
+                      <td className="p-3 text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(costType)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">ویرایش</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(costType.id)}
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">حذف</span>
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="p-6 text-center text-muted-foreground">
+                      هیچ نوع هزینه‌ای یافت نشد.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-        
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between">

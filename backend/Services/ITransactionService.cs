@@ -14,4 +14,5 @@ public interface ITransactionService
     Task<TransactionDTO> UpdateTransactionAsync(int id, CreateTransactionDTO updateTransactionDTO);
     Task DeleteTransactionAsync(int id);
     Task<List<TransactionDTO>> GetLastTransactionsAsync(TransactionType? transactionType, int count);
+    Task FixTransactionDateTime();
 } 

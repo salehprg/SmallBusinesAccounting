@@ -47,8 +47,8 @@ public class PersonsController : MyBaseController
     [Authorize(Policy = "Permission:ViewPersons")]
     public async Task<ActionResult<APIResponse<PersonBalanceDTO>>> GetPersonTransactions(
         int id, 
-        [FromQuery] DateTime? startDate, 
-        [FromQuery] DateTime? endDate)
+        [FromQuery] DateOnly? startDate, 
+        [FromQuery] DateOnly? endDate)
     {
         var personTransactions = await _personService.GetPersonTransactionsAsync(id, startDate, endDate);
         return Ok(personTransactions);

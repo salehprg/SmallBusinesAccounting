@@ -75,7 +75,7 @@ public class PersonService : IPersonService
         return personBalanceDTO;
     }
 
-    public async Task<PersonBalanceDTO> GetPersonTransactionsAsync(int id, DateTime? startDate, DateTime? endDate)
+    public async Task<PersonBalanceDTO> GetPersonTransactionsAsync(int id, DateOnly? startDate, DateOnly? endDate)
     {
         var person = await _personRepository.GetById(id).FirstOrDefaultAsync();
         if (person == null)
