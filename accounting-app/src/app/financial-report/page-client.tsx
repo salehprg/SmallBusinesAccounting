@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
-import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter, Save, X } from 'lucide-react';
+import { Search, Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown, Filter, Save, X, CheckSquare, Square, Users } from 'lucide-react';
 import { TransactionsAPI, TransactionDTO, TransactionType, TransactionQueryDTO, CostTypesAPI, CostTypeDTO, PersonsAPI, PersonDTO, CreateTransactionDTO } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PersianDatePicker } from '@/components/ui/persian-date-picker';
@@ -25,6 +25,15 @@ export default function FinancialReportPageClient() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  // Bulk selection states
+  const [selectedTransactions, setSelectedTransactions] = useState<Set<number>>(new Set());
+  const [showBulkCategoryModal, setShowBulkCategoryModal] = useState(false);
+  const [bulkSelectedCostTypes, setBulkSelectedCostTypes] = useState<number[]>([]);
+  const [showBulkNameModal, setShowBulkNameModal] = useState(false);
+  const [bulkName, setBulkName] = useState<string>('');
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [bulkUpdateError, setBulkUpdateError] = useState<string | null>(null);
+
   // Inline editing states
   const [editingTransaction, setEditingTransaction] = useState<number | null>(null);
   const [editingValues, setEditingValues] = useState<{
@@ -33,6 +42,7 @@ export default function FinancialReportPageClient() {
     date: string;
     costTypeIds: number[];
     amount: number;
+    isCash: boolean;
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -41,9 +51,12 @@ export default function FinancialReportPageClient() {
   const [costTypes, setCostTypes] = useState<CostTypeDTO[]>([]);
   const [persons, setPersons] = useState<PersonDTO[]>([]);
   const [selectedCostTypes, setSelectedCostTypes] = useState<number[]>([]);
+  const [selectedNonCostType, setSelectedNonCostType] = useState<boolean>(false);
   const [selectedPerson, setSelectedPerson] = useState<number | undefined>(undefined);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [minAmount, setMinAmount] = useState<string>('');
+  const [maxAmount, setMaxAmount] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<string>('desc');
   const [showFilters, setShowFilters] = useState(true);
@@ -163,7 +176,7 @@ export default function FinancialReportPageClient() {
   // Reset current page when filters change or page size changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, selectedCostTypes, selectedPerson, startDate, endDate, searchQuery, pageSize]);
+  }, [activeTab, selectedCostTypes, selectedNonCostType, selectedPerson, startDate, endDate, minAmount, maxAmount, searchQuery, pageSize]);
 
   // Fetch transactions with filters and sorting
   useEffect(() => {
@@ -173,7 +186,8 @@ export default function FinancialReportPageClient() {
 
         const queryParams: TransactionQueryDTO = {
           sortBy,
-          sortOrder
+          sortOrder,
+          nonCostType: selectedNonCostType
         };
 
         // Add filters based on active tab
@@ -190,11 +204,17 @@ export default function FinancialReportPageClient() {
         }
 
         // Add other filters
-        if (selectedCostTypes.length > 0) {
+        if (!selectedNonCostType && selectedCostTypes.length > 0) {
           queryParams.costTypeIds = selectedCostTypes;
         }
         if (selectedPerson) {
           queryParams.personId = selectedPerson;
+        }
+        if (minAmount) {
+          queryParams.minAmount = parseInt(minAmount);
+        }
+        if (maxAmount) {
+          queryParams.maxAmount = parseInt(maxAmount);
         }
 
         const data = await TransactionsAPI.query(queryParams);
@@ -207,7 +227,7 @@ export default function FinancialReportPageClient() {
     };
 
     fetchTransactions();
-  }, [activeTab, selectedCostTypes, selectedPerson, startDate, endDate, sortBy, sortOrder]);
+  }, [activeTab, selectedCostTypes, selectedNonCostType, selectedPerson, startDate, endDate, minAmount, maxAmount, sortBy, sortOrder]);
 
   // Filter transactions based on search query (client-side for text search)
   const filteredTransactions = transactions.filter(transaction =>
@@ -270,12 +290,30 @@ export default function FinancialReportPageClient() {
     return sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
+  // Handle cost type selection with special "no category" option
+  const handleCostTypeChange = (values: string[]) => {
+    const nonCostTypeValue = 'no-category';
+    
+    if (values.includes(nonCostTypeValue)) {
+      // If "بدون دسته بندی" is selected, clear other selections and set nonCostType to true
+      setSelectedCostTypes([]);
+      setSelectedNonCostType(true);
+    } else {
+      // Normal cost type selection
+      setSelectedCostTypes(values.map(Number));
+      setSelectedNonCostType(false);
+    }
+  };
+
   // Clear filters
   const clearFilters = () => {
     setSelectedCostTypes([]);
+    setSelectedNonCostType(false);
     setSelectedPerson(undefined);
     setStartDate('');
     setEndDate('');
+    setMinAmount('');
+    setMaxAmount('');
     setSearchQuery('');
     setCurrentPage(1);
 
@@ -292,6 +330,126 @@ export default function FinancialReportPageClient() {
     params.delete('sortOrder');
     params.delete('pageSize');
     router.replace(`/financial-report?${params.toString()}`, { scroll: false });
+  };
+
+  // Bulk selection handlers
+  const handleSelectTransaction = (transactionId: number) => {
+    const newSelected = new Set(selectedTransactions);
+    if (newSelected.has(transactionId)) {
+      newSelected.delete(transactionId);
+    } else {
+      newSelected.add(transactionId);
+    }
+    setSelectedTransactions(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedTransactions.size === paginatedTransactions.length) {
+      setSelectedTransactions(new Set());
+    } else {
+      setSelectedTransactions(new Set(paginatedTransactions.map(t => t.id)));
+    }
+  };
+
+  const handleBulkAssignCategory = () => {
+    if (selectedTransactions.size === 0) return;
+    setBulkSelectedCostTypes([]);
+    setBulkUpdateError(null);
+    setShowBulkCategoryModal(true);
+  };
+
+  const handleBulkAssignName = () => {
+    if (selectedTransactions.size === 0) return;
+    setBulkName('');
+    setBulkUpdateError(null);
+    setShowBulkNameModal(true);
+  };
+
+  const handleBulkCategoryUpdate = async () => {
+    if (bulkSelectedCostTypes.length === 0) {
+      setBulkUpdateError('لطفاً حداقل یک دسته‌بندی انتخاب کنید');
+      return;
+    }
+
+    try {
+      setIsBulkUpdating(true);
+      setBulkUpdateError(null);
+
+      // Update each selected transaction
+      const updatePromises = Array.from(selectedTransactions).map(async (transactionId) => {
+        const transaction = transactions.find(t => t.id === transactionId);
+        if (!transaction) return null;
+
+        const updatedTransactionRequest: CreateTransactionDTO = {
+          ...transaction,
+          costTypes: bulkSelectedCostTypes
+        };
+
+        return TransactionsAPI.update(transactionId, updatedTransactionRequest);
+      });
+
+      const updatedTransactions = await Promise.all(updatePromises);
+
+      // Update local state
+      setTransactions(prev => prev.map(t => {
+        const updated = updatedTransactions.find(ut => ut && ut.id === t.id);
+        return updated || t;
+      }));
+
+      // Reset states
+      setSelectedTransactions(new Set());
+      setShowBulkCategoryModal(false);
+      setBulkSelectedCostTypes([]);
+    } catch (error) {
+      console.error("Error updating transactions:", error);
+      setBulkUpdateError("به‌روزرسانی دسته‌بندی‌ها با خطا مواجه شد");
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
+  const handleBulkNameUpdate = async () => {
+    if (!bulkName.trim()) {
+      setBulkUpdateError('لطفاً نام جدید را وارد کنید');
+      return;
+    }
+
+    try {
+      setIsBulkUpdating(true);
+      setBulkUpdateError(null);
+
+      // Update each selected transaction
+      const updatePromises = Array.from(selectedTransactions).map(async (transactionId) => {
+        const transaction = transactions.find(t => t.id === transactionId);
+        if (!transaction) return null;
+
+        const updatedTransactionRequest: CreateTransactionDTO = {
+          ...transaction,
+          name: bulkName.trim(),
+          costTypes: transaction.costTypes.map(ct => ct.costTypeId)
+        };
+
+        return TransactionsAPI.update(transactionId, updatedTransactionRequest);
+      });
+
+      const updatedTransactions = await Promise.all(updatePromises);
+
+      // Update local state
+      setTransactions(prev => prev.map(t => {
+        const updated = updatedTransactions.find(ut => ut && ut.id === t.id);
+        return updated || t;
+      }));
+
+      // Reset states
+      setSelectedTransactions(new Set());
+      setShowBulkNameModal(false);
+      setBulkName('');
+    } catch (error) {
+      console.error("Error updating transaction names:", error);
+      setBulkUpdateError("به‌روزرسانی نام‌ها با خطا مواجه شد");
+    } finally {
+      setIsBulkUpdating(false);
+    }
   };
 
   // Delete transaction handler
@@ -335,7 +493,8 @@ export default function FinancialReportPageClient() {
       name: transaction.name,
       date: transaction.date, // Convert to YYYY-MM-DD format for date input
       costTypeIds: transaction.costTypes.map(ct => ct.costTypeId),
-      amount: transaction.amount
+      amount: transaction.amount,
+      isCash: transaction.isCash
     });
     setSaveError(null);
   };
@@ -364,7 +523,8 @@ export default function FinancialReportPageClient() {
         transactionType: editingValues.transactionType,
         name: editingValues.name,
         date: new Date(editingValues.date).toISOString().split("T")[0],
-        costTypes: editingValues.costTypeIds
+        costTypes: editingValues.costTypeIds,
+        isCash: editingValues.isCash
       };
 
       // Update via API
@@ -504,12 +664,15 @@ export default function FinancialReportPageClient() {
               <div>
                 <label className="block text-sm font-medium mb-1">دسته هزینه</label>
                 <MultiSelect
-                  options={costTypes.map((costType) => ({
-                    label: costType.name,
-                    value: costType.id.toString()
-                  }))}
-                  onValueChange={(values) => setSelectedCostTypes(values.map(Number))}
-                  defaultValue={selectedCostTypes.map(id => id.toString())}
+                  options={[
+                    { label: 'بدون دسته بندی', value: 'no-category' },
+                    ...costTypes.map((costType) => ({
+                      label: costType.name,
+                      value: costType.id.toString()
+                    }))
+                  ]}
+                  onValueChange={handleCostTypeChange}
+                  defaultValue={selectedNonCostType ? ['no-category'] : selectedCostTypes.map(id => id.toString())}
                   placeholder="انتخاب دسته‌ها"
                   variant="inverted"
                   maxCount={3}
@@ -532,10 +695,71 @@ export default function FinancialReportPageClient() {
               </div>
             </div>
 
+            {/* Amount Range Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">حداقل مبلغ (ریال)</label>
+                <Input
+                  type="number"
+                  value={minAmount}
+                  onChange={(e) => setMinAmount(e.target.value)}
+                  placeholder="حداقل مبلغ..."
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">حداکثر مبلغ (ریال)</label>
+                <Input
+                  type="number"
+                  value={maxAmount}
+                  onChange={(e) => setMaxAmount(e.target.value)}
+                  placeholder="حداکثر مبلغ..."
+                  className="w-full"
+                />
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <Button onClick={clearFilters} variant="outline">
                 پاک کردن فیلترها
               </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Actions */}
+        {selectedTransactions.size > 0 && (
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">
+                  {selectedTransactions.size} تراکنش انتخاب شده
+                </span>
+              </div>
+                             <div className="flex gap-2">
+                 <Button
+                   onClick={handleBulkAssignCategory}
+                   className="bg-blue-600 hover:bg-blue-700"
+                   size="sm"
+                 >
+                   تخصیص دسته‌بندی
+                 </Button>
+                 <Button
+                   onClick={handleBulkAssignName}
+                   className="bg-green-600 hover:bg-green-700"
+                   size="sm"
+                 >
+                   تنظیم نام
+                 </Button>
+                 <Button
+                   onClick={() => setSelectedTransactions(new Set())}
+                   variant="outline"
+                   size="sm"
+                 >
+                   لغو انتخاب
+                 </Button>
+               </div>
             </div>
           </div>
         )}
@@ -557,6 +781,18 @@ export default function FinancialReportPageClient() {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-muted/50">
+                  <th className="p-3 text-right w-12">
+                    <button
+                      onClick={handleSelectAll}
+                      className="flex items-center justify-center w-5 h-5 hover:bg-gray-200 rounded"
+                    >
+                      {selectedTransactions.size === paginatedTransactions.length && paginatedTransactions.length > 0 ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </button>
+                  </th>
                   <th className="p-3 text-right">ردیف</th>
                   <th className="p-3 text-right">
                     <button
@@ -572,10 +808,11 @@ export default function FinancialReportPageClient() {
                       className="flex items-center gap-1 hover:text-primary"
                       onClick={() => handleSort('name')}
                     >
-                      شرح
+                      نام
                       {getSortIcon('name')}
                     </button>
                   </th>
+                  <th className="p-3 text-right">توضیحات</th>
                   <th className="p-3 text-right">دسته</th>
                   <th className="p-3 text-right">
                     <button
@@ -587,19 +824,34 @@ export default function FinancialReportPageClient() {
                     </button>
                   </th>
                   <th className="p-3 text-right">نوع</th>
+                  <th className="p-3 text-right">نقدی/غیرنقدی</th>
                   <th className="p-3 text-right">عملیات</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="p-6 text-center">
+                    <td colSpan={10} className="p-6 text-center">
                       در حال بارگذاری...
                     </td>
                   </tr>
                 ) : paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => (
                     <tr key={transaction.id} className="border-b hover:bg-muted/50">
+                      {/* Selection Checkbox */}
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={() => handleSelectTransaction(transaction.id)}
+                          className="flex items-center justify-center w-5 h-5 hover:bg-gray-200 rounded"
+                        >
+                          {selectedTransactions.has(transaction.id) ? (
+                            <CheckSquare className="h-4 w-4 text-blue-600" />
+                          ) : (
+                            <Square className="h-4 w-4" />
+                          )}
+                        </button>
+                      </td>
+
                       <td className="p-3 text-right whitespace-nowrap">{pageSize * (currentPage - 1) + index + 1}</td>
 
                       {/* Date Column */}
@@ -635,6 +887,15 @@ export default function FinancialReportPageClient() {
                         )}
                       </td>
 
+                      {/* Description Column */}
+                      <td className="p-3 text-right">
+                        <div className="max-w-32 truncate" title={transaction.description}>
+                          {transaction.description.length > 20 
+                            ? `${transaction.description.substring(0, 20)}...` 
+                            : transaction.description}
+                        </div>
+                      </td>
+
                       {/* Category Column */}
                       <td className="p-3 text-right whitespace-nowrap">
                         {editingTransaction === transaction.id ? (
@@ -649,19 +910,6 @@ export default function FinancialReportPageClient() {
                             variant="inverted"
                             maxCount={3}
                           />
-
-                          // <Select
-                          //   multiple
-                          //   value={editingValues?.costTypeIds?.toString() || ''}
-                          //   onChange={(e) => handleEditValueChange('costTypeIds', e.target.value.split(',').map(Number))}
-                          // >
-                          //   <SelectItem value="">انتخاب کنید...</SelectItem>
-                          //   {costTypes.map((costType) => (
-                          //     <SelectItem key={costType.id} value={costType.id.toString()}>
-                          //       {costType.name}
-                          //     </SelectItem>
-                          //   ))}
-                          // </Select>
                         ) : (
                           transaction.costTypes.map(ct => ct.costType.name).join(', ')
                         )}
@@ -697,6 +945,24 @@ export default function FinancialReportPageClient() {
                           <span className={`px-2 py-1 rounded-full text-xs ${transaction.transactionType === TransactionType.Income ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                             }`}>
                             {transaction.transactionType === TransactionType.Income ? 'درآمد' : 'هزینه'}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Cash/Non-Cash Column */}
+                      <td className="p-3 text-right whitespace-nowrap">
+                        {editingTransaction === transaction.id ? (
+                          <Select
+                            value={editingValues?.isCash ? 'true' : 'false'}
+                            onChange={(e) => handleEditValueChange('isCash', e.target.value === 'true')}
+                          >
+                            <SelectItem value="true">نقدی</SelectItem>
+                            <SelectItem value="false">غیرنقدی</SelectItem>
+                          </Select>
+                        ) : (
+                          <span className={`px-2 py-1 rounded-full text-xs ${transaction.isCash ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                            }`}>
+                            {transaction.isCash ? 'نقدی' : 'غیرنقدی'}
                           </span>
                         )}
                       </td>
@@ -765,7 +1031,7 @@ export default function FinancialReportPageClient() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                    <td colSpan={10} className="p-6 text-center text-muted-foreground">
                       هیچ تراکنشی یافت نشد.
                     </td>
                   </tr>
@@ -835,6 +1101,115 @@ export default function FinancialReportPageClient() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Bulk Category Assignment Modal */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${showBulkCategoryModal ? '' : 'hidden'}`}
+        onClick={() => !isBulkUpdating && setShowBulkCategoryModal(false)}
+      >
+        <div
+          className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4 rtl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-semibold mb-4">تخصیص دسته‌بندی به تراکنش‌های انتخاب شده</h2>
+          <p className="text-gray-600 mb-4">
+            {selectedTransactions.size} تراکنش انتخاب شده است. دسته‌بندی‌های جدید را انتخاب کنید:
+          </p>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">دسته‌بندی‌ها</label>
+            <MultiSelect
+              options={costTypes.map(ct => ({
+                label: ct.name,
+                value: ct.id.toString()
+              }))}
+              onValueChange={(value) => setBulkSelectedCostTypes(value.map(Number))}
+              defaultValue={bulkSelectedCostTypes.map(ct => ct.toString())}
+              placeholder="انتخاب دسته‌بندی‌ها"
+              variant="inverted"
+              maxCount={5}
+            />
+          </div>
+
+          {bulkUpdateError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {bulkUpdateError}
+            </div>
+          )}
+
+          <div className="flex justify-between gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowBulkCategoryModal(false)}
+              disabled={isBulkUpdating}
+            >
+              انصراف
+            </Button>
+            <Button
+              onClick={handleBulkCategoryUpdate}
+              disabled={isBulkUpdating}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isBulkUpdating ? 'در حال به‌روزرسانی...' : 'اعمال تغییرات'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Bulk Name Assignment Modal */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${showBulkNameModal ? '' : 'hidden'}`}
+        onClick={() => !isBulkUpdating && setShowBulkNameModal(false)}
+      >
+        <div
+          className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4 rtl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-semibold mb-4">تنظیم نام برای تراکنش‌های انتخاب شده</h2>
+          <p className="text-gray-600 mb-4">
+            {selectedTransactions.size} تراکنش انتخاب شده است. نام جدید را وارد کنید:
+          </p>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">نام جدید</label>
+            <Input
+              value={bulkName}
+              onChange={(e) => setBulkName(e.target.value)}
+              placeholder="نام جدید را وارد کنید..."
+              className="w-full"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleBulkNameUpdate();
+                }
+              }}
+            />
+          </div>
+
+          {bulkUpdateError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {bulkUpdateError}
+            </div>
+          )}
+
+          <div className="flex justify-between gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowBulkNameModal(false)}
+              disabled={isBulkUpdating}
+            >
+              انصراف
+            </Button>
+            <Button
+              onClick={handleBulkNameUpdate}
+              disabled={isBulkUpdating}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isBulkUpdating ? 'در حال به‌روزرسانی...' : 'اعمال تغییرات'}
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}

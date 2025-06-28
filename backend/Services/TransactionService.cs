@@ -142,9 +142,24 @@ public class TransactionService : ITransactionService
             query = query.Where(t => t.CostTypes.Any(c => queryDTO.CostTypeIds.Contains(c.CostTypeId)));
         }
 
+        if (queryDTO.NonCostType)
+        {
+            query = query.Where(t => t.CostTypes.Count == 0);
+        }
+
         if (queryDTO.TransactionType.HasValue)
         {
             query = query.Where(t => t.TransactionType == queryDTO.TransactionType.Value);
+        }
+
+        if (queryDTO.MinAmount.HasValue)
+        {
+            query = query.Where(t => t.Amount >= queryDTO.MinAmount.Value);
+        }
+
+        if (queryDTO.MaxAmount.HasValue)
+        {
+            query = query.Where(t => t.Amount <= queryDTO.MaxAmount.Value);
         }
 
         if (queryDTO.SortBy == "date")

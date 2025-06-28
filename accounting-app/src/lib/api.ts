@@ -253,6 +253,9 @@ export interface TransactionQueryDTO {
   startDate?: string;
   endDate?: string;
   personId?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  nonCostType: boolean;
   costTypeIds?: number[];
   transactionType?: TransactionType;
   sortBy?: string;
