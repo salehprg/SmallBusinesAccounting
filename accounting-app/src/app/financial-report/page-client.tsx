@@ -57,6 +57,7 @@ export default function FinancialReportPageClient() {
   const [endDate, setEndDate] = useState<string>('');
   const [minAmount, setMinAmount] = useState<string>('');
   const [maxAmount, setMaxAmount] = useState<string>('');
+  const [selectedCashType, setSelectedCashType] = useState<string>('all'); // 'all', 'cash', 'non-cash'
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<string>('desc');
   const [showFilters, setShowFilters] = useState(true);
@@ -176,7 +177,7 @@ export default function FinancialReportPageClient() {
   // Reset current page when filters change or page size changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, selectedCostTypes, selectedNonCostType, selectedPerson, startDate, endDate, minAmount, maxAmount, searchQuery, pageSize]);
+  }, [activeTab, selectedCostTypes, selectedNonCostType, selectedPerson, startDate, endDate, minAmount, maxAmount, selectedCashType, searchQuery, pageSize]);
 
   // Fetch transactions with filters and sorting
   useEffect(() => {
@@ -216,6 +217,9 @@ export default function FinancialReportPageClient() {
         if (maxAmount) {
           queryParams.maxAmount = parseInt(maxAmount);
         }
+        if (selectedCashType !== 'all') {
+          queryParams.isCash = selectedCashType === 'cash';
+        }
 
         const data = await TransactionsAPI.query(queryParams);
         setTransactions(data);
@@ -227,7 +231,7 @@ export default function FinancialReportPageClient() {
     };
 
     fetchTransactions();
-  }, [activeTab, selectedCostTypes, selectedNonCostType, selectedPerson, startDate, endDate, minAmount, maxAmount, sortBy, sortOrder]);
+  }, [activeTab, selectedCostTypes, selectedNonCostType, selectedPerson, startDate, endDate, minAmount, maxAmount, selectedCashType, sortBy, sortOrder]);
 
   // Filter transactions based on search query (client-side for text search)
   const filteredTransactions = transactions.filter(transaction =>
@@ -314,6 +318,7 @@ export default function FinancialReportPageClient() {
     setEndDate('');
     setMinAmount('');
     setMaxAmount('');
+    setSelectedCashType('all');
     setSearchQuery('');
     setCurrentPage(1);
 
@@ -641,23 +646,26 @@ export default function FinancialReportPageClient() {
         {/* Filters */}
         {showFilters && (
           <div className="bg-muted/50 p-4 rounded-lg mb-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* First Row: Date Range, Cost Type, Person */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {/* Date Range */}
-              <div>
-                <label className="block text-sm font-medium mb-1">از تاریخ</label>
-                <PersianDatePicker
-                  value={startDate}
-                  onChange={handleStartDateChange}
-                  placeholder="انتخاب تاریخ شروع"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">تا تاریخ</label>
-                <PersianDatePicker
-                  value={endDate}
-                  onChange={handleEndDateChange}
-                  placeholder="انتخاب تاریخ پایان"
-                />
+              <div className="sm:col-span-2 lg:col-span-2 xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">از تاریخ</label>
+                  <PersianDatePicker
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    placeholder="انتخاب تاریخ شروع"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">تا تاریخ</label>
+                  <PersianDatePicker
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    placeholder="انتخاب تاریخ پایان"
+                  />
+                </div>
               </div>
 
               {/* Cost Type Filter */}
@@ -695,8 +703,9 @@ export default function FinancialReportPageClient() {
               </div>
             </div>
 
-            {/* Amount Range Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Second Row: Amount Range and Cash Type */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Amount Range Filters */}
               <div>
                 <label className="block text-sm font-medium mb-1">حداقل مبلغ (ریال)</label>
                 <Input
@@ -716,6 +725,19 @@ export default function FinancialReportPageClient() {
                   placeholder="حداکثر مبلغ..."
                   className="w-full"
                 />
+              </div>
+
+              {/* Cash Type Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-1">نوع پرداخت</label>
+                <Select
+                  value={selectedCashType}
+                  onChange={(e) => setSelectedCashType(e.target.value)}
+                >
+                  <SelectItem value="all">همه</SelectItem>
+                  <SelectItem value="cash">نقدی</SelectItem>
+                  <SelectItem value="non-cash">غیرنقدی</SelectItem>
+                </Select>
               </div>
             </div>
 

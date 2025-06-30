@@ -236,9 +236,9 @@ export default function AddTransactionPageClient() {
         amount: 0,
         date: currentDate,
         transactionType: newType,
-        isCash: currentIsCash
+        isCash: currentIsCash,
+        costTypes: transaction.costTypes
       });
-      setShowAdvanced(false);
       nameInputRef.current?.focus();
     }
   };
@@ -283,7 +283,7 @@ export default function AddTransactionPageClient() {
         name: transaction.name || '',
         description: transaction.description || '',
         amount: transaction.amount || 0,
-        date: transaction.date || "",
+        date: transaction.date.split('T')[0] || "",
         costTypes: transaction.costTypes,
         transactionType: transactionType,
         personId: transaction.personId,
@@ -312,11 +312,11 @@ export default function AddTransactionPageClient() {
         name: '',
         description: '',
         amount: 0,
-        date: currentDate,
+        date: currentDate.split('T')[0],
         transactionType: transactionType,
-        isCash: currentIsCash
+        isCash: currentIsCash,
+        costTypes: transaction.costTypes
       });
-      setShowAdvanced(false);
 
       // Redirect back to add transaction mode after successful edit
       setTimeout(() => {

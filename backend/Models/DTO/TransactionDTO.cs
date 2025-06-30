@@ -35,6 +35,7 @@ public class TransactionQueryDTO
     public DateOnly? EndDate { get; set; }
     public int? PersonId { get; set; }
     public List<int> CostTypeIds { get; set; } = [];
+    public bool? IsCash { get; set; }
     public bool NonCostType { get; set; } = false;
     public TransactionType? TransactionType { get; set; }
     public decimal? MinAmount { get; set; }

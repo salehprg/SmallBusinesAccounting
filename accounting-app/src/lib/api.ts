@@ -258,6 +258,7 @@ export interface TransactionQueryDTO {
   nonCostType: boolean;
   costTypeIds?: number[];
   transactionType?: TransactionType;
+  isCash?: boolean;
   sortBy?: string;
   sortOrder?: string;
 }

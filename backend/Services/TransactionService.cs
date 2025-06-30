@@ -122,6 +122,11 @@ public class TransactionService : ITransactionService
             .AsQueryable();
 
         // Apply filters
+        if (queryDTO.IsCash.HasValue)
+        {
+            query = query.Where(t => t.IsCash == queryDTO.IsCash.Value);
+        }
+
         if (queryDTO.StartDate.HasValue)
         {
             query = query.Where(t => t.Date >= queryDTO.StartDate.Value);
