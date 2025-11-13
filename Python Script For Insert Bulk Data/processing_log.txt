@@ -1,0 +1,414 @@
+
+=== New Processing Session Started at: 2025-06-26 18:52:41 ===
+FAILED | Could not fetch persons: 502 Server Error: Bad Gateway for url: http://localhost:5159//api/Persons
+
+=== New Processing Session Started at: 2025-06-26 18:53:29 ===
+FAILED | Could not fetch persons: 502 Server Error: Bad Gateway for url: http://localhost:5159//api/Persons
+
+=== New Processing Session Started at: 2025-06-26 18:54:19 ===
+FAILED | Could not fetch persons: 502 Server Error: Bad Gateway for url: http://localhost:5159/api/Persons
+
+=== New Processing Session Started at: 2025-06-26 18:54:46 ===
+FAILED | Could not fetch persons: 502 Server Error: Bad Gateway for url: http://localhost:5159/api/Persons
+
+=== New Processing Session Started at: 2025-06-26 18:55:25 ===
+FAILED | Could not fetch persons: 502 Server Error: Bad Gateway for url: http://localhost:5159/api/Persons
+
+=== New Processing Session Started at: 2025-06-26 18:56:49 ===
+SUCCESS | Fetched 79 persons from API
+1 | SUCCESS | Transaction added for nan - amount: 12145909
+2 | SUCCESS | Transaction added for nan - amount: 38000080
+3 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+4 | SUCCESS | Transaction added for nan - amount: 7000000
+5 | SUCCESS | Transaction added for nan - amount: 1950000
+6 | SUCCESS | Transaction added for nan - amount: 250000
+7 | SUCCESS | Transaction added for nan - amount: 200000
+8 | SUCCESS | Transaction added for nan - amount: 900000
+9 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+10 | SUCCESS | Transaction added for nan - amount: 2200000
+11 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12000000
+12 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+13 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+14 | SUCCESS | Transaction added for nan - amount: 18792000
+15 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+16 | SUCCESS | Transaction added for nan - amount: 11178000
+17 | SUCCESS | Transaction added for علي ابراهيميان - amount: 13000000
+18 | SUCCESS | Transaction added for nan - amount: 100000000
+19 | SUCCESS | Transaction added for nan - amount: 96000000
+20 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+21 | SUCCESS | Transaction added for nan - amount: 2050000
+22 | SUCCESS | Transaction added for nan - amount: 1350000
+23 | SUCCESS | Transaction added for nan - amount: 550000
+24 | SUCCESS | Transaction added for nan - amount: 2350000
+25 | SUCCESS | Transaction added for حسين ميربلوک - amount: 500000
+26 | SUCCESS | Transaction added for nan - amount: 850000
+27 | SUCCESS | Transaction added for بهمن شايان آذر - amount: 600000
+28 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+29 | SUCCESS | Transaction added for nan - amount: 20000000
+30 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+31 | SUCCESS | Transaction added for nan - amount: 17035920
+32 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+33 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+34 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15400
+35 | SUCCESS | Transaction added for محسن خانگاه - amount: 27180000
+36 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+37 | SUCCESS | Transaction added for nan - amount: 1892880
+38 | SUCCESS | Transaction added for nan - amount: 126000000
+39 | SUCCESS | Transaction added for nan - amount: 1100000
+40 | SUCCESS | Transaction added for nan - amount: 1000000
+41 | SUCCESS | Transaction added for nan - amount: 850000
+42 | SUCCESS | Transaction added for nan - amount: 1050000
+43 | SUCCESS | Transaction added for nan - amount: 550000
+44 | SUCCESS | Transaction added for علي ابراهيميان - amount: 800000
+45 | SUCCESS | Transaction added for علي ابراهيميان - amount: 50052600
+46 | SUCCESS | Transaction added for nan - amount: 20000000
+47 | SUCCESS | Transaction added for nan - amount: 750000
+48 | SUCCESS | Transaction added for علي ابراهيميان - amount: 28200
+49 | SUCCESS | Transaction added for محسن خانگاه - amount: 67600000
+50 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+51 | SUCCESS | Transaction added for nan - amount: 18990000
+52 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+53 | SUCCESS | Transaction added for nan - amount: 118000000
+54 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+55 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15400
+56 | SUCCESS | Transaction added for nan - amount: 20570400
+57 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+58 | SUCCESS | Transaction added for nan - amount: 7885000
+59 | SUCCESS | Transaction added for علي ابراهيميان - amount: 25000
+60 | SUCCESS | Transaction added for محمد نجفيزاده - amount: 55000000
+61 | SUCCESS | Transaction added for nan - amount: 250000
+62 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+63 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12000000
+64 | SUCCESS | Transaction added for علي ابراهيميان - amount: 500000
+65 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600000
+66 | SUCCESS | Transaction added for nan - amount: 106000000
+67 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+68 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+69 | SUCCESS | Transaction added for nan - amount: 550000
+70 | SUCCESS | Transaction added for nan - amount: 950000
+71 | SUCCESS | Transaction added for حسين ميربلوک - amount: 550000
+72 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+73 | SUCCESS | Transaction added for علي ابراهيميان - amount: 13250000
+74 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+75 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18600
+76 | SUCCESS | Transaction added for nan - amount: 38000000
+77 | SUCCESS | Transaction added for حجت عابدي - amount: 50000000
+78 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18600
+79 | SUCCESS | Transaction added for nan - amount: 35000000
+80 | SUCCESS | Transaction added for nan - amount: 82000000
+81 | SUCCESS | Transaction added for nan - amount: 8500000
+82 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+83 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+84 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+85 | SUCCESS | Transaction added for حسين ميربلوک - amount: 1100000
+86 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15400
+87 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 21920000
+88 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+89 | SUCCESS | Transaction added for محمد کريمي - amount: 18892800
+90 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800000
+91 | SUCCESS | Transaction added for nan - amount: 95000000
+92 | SUCCESS | Transaction added for علي ابراهيميان - amount: 30600000
+93 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+94 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600000
+95 | SUCCESS | Transaction added for nan - amount: 33000000
+96 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18600
+97 | SUCCESS | Transaction added for محسن خانگاه - amount: 34900000
+98 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+99 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+100 | SUCCESS | Transaction added for جواد ابراهيميان - amount: 3000000
+101 | SUCCESS | Transaction added for nan - amount: 34000000
+102 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+103 | SUCCESS | Transaction added for nan - amount: 1100000
+104 | SUCCESS | Transaction added for علي ابراهيميان - amount: 2900000
+105 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18600
+106 | SUCCESS | Transaction added for محمد کريمي - amount: 31694400
+107 | SUCCESS | Transaction added for علي ابراهيميان - amount: 100000000
+108 | SUCCESS | Transaction added for nan - amount: 135000000
+109 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+110 | SUCCESS | Transaction added for علي ابراهيميان - amount: 13000000
+111 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+112 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+113 | SUCCESS | Transaction added for nan - amount: 7000000
+114 | SUCCESS | Transaction added for حسين ميربلوک - amount: 550000
+115 | SUCCESS | Transaction added for علي ابراهيميان - amount: 9000
+116 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+117 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+118 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 17670000
+119 | SUCCESS | Transaction added for علي ابراهيميان - amount: 21800
+120 | SUCCESS | Transaction added for محسن خانگاه - amount: 48550000
+121 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15400
+122 | SUCCESS | Transaction added for nan - amount: 22800000
+123 | SUCCESS | Transaction added for nan - amount: 113000000
+124 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+125 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+126 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+127 | SUCCESS | Transaction added for nan - amount: 1850000
+128 | SUCCESS | Transaction added for nan - amount: 500000
+129 | SUCCESS | Transaction added for nan - amount: 800000
+130 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+131 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15400
+132 | SUCCESS | Transaction added for nan - amount: 30000000
+133 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15400
+134 | SUCCESS | Transaction added for محسن خانگاه - amount: 20940000
+135 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12200
+136 | SUCCESS | Transaction added for محمد کريمي - amount: 19576800
+137 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1800
+138 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1122000
+139 | SUCCESS | Transaction added for علي ابراهيميان - amount: 145000
+140 | SUCCESS | Transaction added for علي ابراهيميان - amount: 11600000
+141 | SUCCESS | Transaction added for علي ابراهيميان - amount: 2000000
+142 | SUCCESS | Transaction added for علي ابراهيميان - amount: 13000000
+143 | SUCCESS | Transaction added for nan - amount: 41500000
+144 | SUCCESS | Transaction added for nan - amount: 64500000
+145 | SUCCESS | Transaction added for nan - amount: 850000
+146 | SUCCESS | Transaction added for nan - amount: 1450000
+147 | SUCCESS | Transaction added for nan - amount: 500000
+148 | SUCCESS | Transaction added for nan - amount: 500000
+149 | SUCCESS | Transaction added for علي ابراهيميان - amount: 3500000
+150 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+151 | SUCCESS | Transaction added for حسين ميربلوک - amount: 850000
+152 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+153 | SUCCESS | Transaction added for محسن خانگاه - amount: 10000000
+154 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+155 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 9100000
+156 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+157 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+158 | SUCCESS | Transaction added for nan - amount: 41000000
+159 | SUCCESS | Transaction added for nan - amount: 63000000
+160 | SUCCESS | Transaction added for nan - amount: 600000
+161 | SUCCESS | Transaction added for nan - amount: 1100000
+162 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+163 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+164 | SUCCESS | Transaction added for محسن خانگاه - amount: 20090000
+165 | SUCCESS | Transaction added for علي ابراهيميان - amount: 24000
+166 | SUCCESS | Transaction added for nan - amount: 67300000
+167 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+168 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600000
+169 | SUCCESS | Transaction added for nan - amount: 96000000
+170 | SUCCESS | Transaction added for علي ابراهيميان - amount: 2600000
+171 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600
+172 | SUCCESS | Transaction added for محمد کريمي - amount: 32623200
+173 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+174 | SUCCESS | Transaction added for علي ابراهيميان - amount: 5400000
+175 | SUCCESS | Transaction added for nan - amount: 1200000
+176 | SUCCESS | Transaction added for nan - amount: 600000
+177 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+178 | SUCCESS | Transaction added for nan - amount: 500000
+179 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+180 | SUCCESS | Transaction added for مهدي ابراهيميان - amount: 5000000
+181 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+182 | SUCCESS | Transaction added for عليرضا سيد ابادي - amount: 5900000
+183 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+184 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+185 | SUCCESS | Transaction added for nan - amount: 500000
+186 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+187 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+188 | SUCCESS | Transaction added for nan - amount: 15000000
+189 | SUCCESS | Transaction added for nan - amount: 2859
+190 | SUCCESS | Transaction added for nan - amount: 49500000
+191 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7800000
+192 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+193 | SUCCESS | Transaction added for nan - amount: 25000000
+194 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+195 | SUCCESS | Transaction added for nan - amount: 10150000
+196 | SUCCESS | Transaction added for علي ابراهيميان - amount: 21200
+197 | SUCCESS | Transaction added for محسن خانگاه - amount: 51530000
+198 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+199 | SUCCESS | Transaction added for محمد کريمي - amount: 18295200
+200 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+201 | SUCCESS | Transaction added for عليرضا سيد ابادي - amount: 20000000
+202 | SUCCESS | Transaction added for nan - amount: 350000
+203 | SUCCESS | Transaction added for nan - amount: 1650000
+204 | SUCCESS | Transaction added for nan - amount: 500000
+205 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+206 | SUCCESS | Transaction added for nan - amount: 135000000
+207 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+208 | SUCCESS | Transaction added for nan - amount: 1600000
+209 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+210 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+211 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+212 | SUCCESS | Transaction added for علي ابراهيميان - amount: 26830000
+213 | SUCCESS | Transaction added for علي ابراهيميان - amount: 11700000
+214 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+215 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+216 | SUCCESS | Transaction added for محمد کوچکي - amount: 10400000
+217 | SUCCESS | Transaction added for nan - amount: 1450000
+218 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600
+219 | SUCCESS | Transaction added for گلثومه برمهاني - amount: 34459200
+220 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600
+221 | SUCCESS | Transaction added for محمد کريمي - amount: 36360000
+222 | SUCCESS | Transaction added for nan - amount: 106000000
+223 | SUCCESS | Transaction added for nan - amount: 9000000
+224 | SUCCESS | Transaction added for nan - amount: 850000
+225 | SUCCESS | Transaction added for nan - amount: 1600000
+226 | SUCCESS | Transaction added for nan - amount: 1100000
+227 | SUCCESS | Transaction added for حسين ميربلوک - amount: 550000
+228 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+229 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+230 | SUCCESS | Transaction added for طاهره برمهاني - amount: 11700000
+231 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+232 | SUCCESS | Transaction added for گلثومه برمهاني - amount: 20000000
+233 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+234 | SUCCESS | Transaction added for محسن عاملي - amount: 50000000
+235 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+236 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 15905000
+237 | SUCCESS | Transaction added for علي ابراهيميان - amount: 11600000
+238 | SUCCESS | Transaction added for nan - amount: 115000000
+239 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+240 | SUCCESS | Transaction added for nan - amount: 550000
+241 | SUCCESS | Transaction added for nan - amount: 1750000
+242 | SUCCESS | Transaction added for nan - amount: 950000
+243 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600000
+244 | SUCCESS | Transaction added for nan - amount: 31730000
+245 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+246 | SUCCESS | Transaction added for محسن عاملي - amount: 25000000
+247 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+248 | SUCCESS | Transaction added for محمد کريمي - amount: 19850000
+249 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+250 | SUCCESS | Transaction added for محسن خانگاه - amount: 46830000
+251 | SUCCESS | Transaction added for nan - amount: 80000000
+252 | SUCCESS | Transaction added for nan - amount: 56000000
+253 | SUCCESS | Transaction added for محمد سيدآبادي - amount: 550000
+254 | SUCCESS | Transaction added for nan - amount: 1700000
+255 | SUCCESS | Transaction added for nan - amount: 297000
+256 | SUCCESS | Transaction added for nan - amount: 450000
+257 | SUCCESS | Transaction added for nan - amount: 550000
+258 | SUCCESS | Transaction added for nan - amount: 9600000
+259 | SUCCESS | Transaction added for حسين ميربلوک - amount: 550000
+260 | SUCCESS | Transaction added for nan - amount: 550000
+261 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+262 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+263 | SUCCESS | Transaction added for محسن عاملي - amount: 50000000
+264 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+265 | SUCCESS | Transaction added for عليرضا سيد ابادي - amount: 26550000
+266 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+267 | SUCCESS | Transaction added for nan - amount: 9000000
+268 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+269 | SUCCESS | Transaction added for nan - amount: 9000000
+270 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+271 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+272 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+273 | SUCCESS | Transaction added for nan - amount: 4920000
+274 | SUCCESS | Transaction added for علي ابراهيميان - amount: 2750000
+275 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1200000
+276 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7680000
+277 | SUCCESS | Transaction added for nan - amount: 104000000
+278 | SUCCESS | Transaction added for علي ابراهيميان - amount: 50000000
+279 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+280 | SUCCESS | Transaction added for nan - amount: 600000
+281 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+282 | SUCCESS | Transaction added for محسن خانگاه - amount: 21210000
+283 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+284 | SUCCESS | Transaction added for محمد کريمي - amount: 20332800
+285 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+286 | SUCCESS | Transaction added for محمد کوچکي - amount: 15600000
+287 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+288 | SUCCESS | Transaction added for علي ابراهيميان - amount: 16810000
+289 | SUCCESS | Transaction added for nan - amount: 1600000
+290 | SUCCESS | Transaction added for nan - amount: 109000000
+291 | SUCCESS | Transaction added for nan - amount: 900000
+292 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+293 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 6870000
+294 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+295 | SUCCESS | Transaction added for nan - amount: 700000
+296 | SUCCESS | Transaction added for nan - amount: 1200000
+297 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+298 | SUCCESS | Transaction added for محسن خانگاه - amount: 29270000
+299 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+300 | SUCCESS | Transaction added for nan - amount: 7800000
+301 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+302 | SUCCESS | Transaction added for سعيد نيرآبادي - amount: 50000000
+303 | SUCCESS | Transaction added for nan - amount: 104000000
+304 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+305 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+306 | SUCCESS | Transaction added for محمد کريمي - amount: 19688400
+307 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+308 | SUCCESS | Transaction added for nan - amount: 700000
+309 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+310 | SUCCESS | Transaction added for nan - amount: 10000000
+311 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+312 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+313 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 13455000
+314 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+315 | SUCCESS | Transaction added for محسن خانگاه - amount: 21350000
+316 | SUCCESS | Transaction added for nan - amount: 20000000
+317 | SUCCESS | Transaction added for علي ابراهيميان - amount: 11600000
+318 | SUCCESS | Transaction added for علي ابراهيميان - amount: 13000000
+319 | SUCCESS | Transaction added for nan - amount: 99000000
+320 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+321 | SUCCESS | Transaction added for علي ابراهيميان - amount: 2800000
+322 | SUCCESS | Transaction added for علي ابراهيميان - amount: 50000000
+323 | SUCCESS | Transaction added for nan - amount: 1400000
+324 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+325 | SUCCESS | Transaction added for nan - amount: 1550000
+326 | SUCCESS | Transaction added for علي ابراهيميان - amount: 5200000
+327 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1607000
+328 | SUCCESS | Transaction added for علي ابراهيميان - amount: 16452000
+329 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+330 | SUCCESS | Transaction added for nan - amount: 1140000
+331 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600
+332 | SUCCESS | Transaction added for محسن خانگاه - amount: 30540000
+333 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+334 | SUCCESS | Transaction added for مجيد شجاع پور - amount: 19230000
+335 | SUCCESS | Transaction added for nan - amount: 114000000
+336 | SUCCESS | Transaction added for nan - amount: 17000000
+337 | SUCCESS | Transaction added for nan - amount: 1100000
+338 | SUCCESS | Transaction added for nan - amount: 1100000
+339 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+340 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+341 | SUCCESS | Transaction added for محمد کريمي - amount: 44712000
+342 | SUCCESS | Transaction added for nan - amount: 500000
+343 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+344 | SUCCESS | Transaction added for nan - amount: 150000
+345 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+346 | SUCCESS | Transaction added for سيدمحمدعلي حامدحيدري - amount: 12000000
+347 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+348 | SUCCESS | Transaction added for nan - amount: 15000000
+349 | SUCCESS | Transaction added for سيدمحمدعلي حامدحيدري - amount: 100000000
+350 | SUCCESS | Transaction added for nan - amount: 94000000
+351 | SUCCESS | Transaction added for nan - amount: 48000000
+352 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+353 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
+354 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600
+355 | SUCCESS | Transaction added for محسن خانگاه - amount: 37360000
+356 | SUCCESS | Transaction added for nan - amount: 1700000
+357 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+358 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+359 | SUCCESS | Transaction added for محمد کوچکي - amount: 9700000
+360 | SUCCESS | Transaction added for nan - amount: 1800000
+361 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+362 | SUCCESS | Transaction added for nan - amount: 900000
+363 | SUCCESS | Transaction added for علي ابراهيميان - amount: 23500000
+364 | SUCCESS | Transaction added for علي ابراهيميان - amount: 23000000
+365 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+366 | SUCCESS | Transaction added for مهدي ابراهيميان - amount: 5000000
+367 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7200
+368 | SUCCESS | Transaction added for nan - amount: 9600000
+369 | SUCCESS | Transaction added for علي ابراهيميان - amount: 12800
+370 | SUCCESS | Transaction added for محسن خانگاه - amount: 28510000
+371 | SUCCESS | Transaction added for علي ابراهيميان - amount: 10000
+372 | SUCCESS | Transaction added for nan - amount: 20000000
+373 | SUCCESS | Transaction added for nan - amount: 137000000
+374 | SUCCESS | Transaction added for nan - amount: 9000000
+375 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+376 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1850000
+377 | SUCCESS | Transaction added for علي ابراهيميان - amount: 700000
+378 | SUCCESS | Transaction added for علي ابراهيميان - amount: 1440
+379 | SUCCESS | Transaction added for nan - amount: 350000
+380 | SUCCESS | Transaction added for علي ابراهيميان - amount: 7760000
+381 | SUCCESS | Transaction added for علي ابراهيميان - amount: 15600
+382 | SUCCESS | Transaction added for محمد کريمي - amount: 33494600
+383 | SUCCESS | Transaction added for علي ابراهيميان - amount: 18400
+384 | SUCCESS | Transaction added for محسن واسعي - amount: 50000000
+385 | SUCCESS | Transaction added for nan - amount: 600000
+386 | SUCCESS | Transaction added for nan - amount: 600000
+387 | SUCCESS | Transaction added for nan - amount: 42000000
+388 | SUCCESS | Transaction added for nan - amount: 94000000
+
+=== Session Summary ===
+Total rows in Excel: 388
+Previously processed (skipped): 0
+Newly processed: 388
+Successful: 388
+Failed: 0
+Processing completed at: 2025-06-26 18:58:59
