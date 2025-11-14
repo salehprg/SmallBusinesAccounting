@@ -43,3 +43,11 @@ public class TransactionQueryDTO
     public string? SortBy { get; set; }
     public string? SortOrder { get; set; }
 }
+
+public class ApplyCostTypesByDescriptionDTO
+{
+    public List<string> Keywords { get; set; } = [];
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
+    public List<int> CostTypeIds { get; set; } = [];
+}

@@ -55,6 +55,19 @@ public class TransactionsController(ITransactionService transactionService) : My
         return Ok(transactions);
     }
 
+    [HttpPost("admin/apply-cost-types-by-description")]
+    [Authorize(Policy = "Permission:EditTransaction")]
+    public async Task<ActionResult<APIResponse<List<TransactionDTO>>>> ApplyCostTypesByDescription([FromBody] ApplyCostTypesByDescriptionDTO body)
+    {
+        var result = await _transactionService.ApplyCostTypesByDescriptionAsync(
+            body.Keywords,
+            body.StartDate,
+            body.EndDate,
+            body.CostTypeIds
+        );
+        return Ok(result);
+    }
+
     [HttpPost]
     [Authorize(Policy = "Permission:CreateTransaction")]
     public async Task<ActionResult<APIResponse<TransactionDTO>>> CreateTransaction([FromBody] CreateTransactionDTO createTransactionDTO)

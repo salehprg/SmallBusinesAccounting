@@ -15,4 +15,7 @@ public interface ITransactionService
     Task DeleteTransactionAsync(int id);
     Task<List<TransactionDTO>> GetLastTransactionsAsync(TransactionType? transactionType, int count);
     Task FixTransactionDateTime();
+
+    // Admin: filter by description keywords and date range, then apply cost types
+    Task<List<TransactionDTO>> ApplyCostTypesByDescriptionAsync(List<string> keywords, DateOnly startDate, DateOnly endDate, List<int> costTypeIds);
 } 

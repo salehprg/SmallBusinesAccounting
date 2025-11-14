@@ -7,7 +7,42 @@ from decimal import Decimal, ROUND_HALF_UP
 
 # Config
 API_BASE = "http://localhost:5159"  # ← change this to your actual API base URL
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiODJmZGI5YTktZDA4Zi00YTg3LTkwOTYtMTJhOWJlMmNkNjhkIiwidW5pcXVlX25hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsIlBlcm1pc3Npb24iOlsiVmlld1RyYW5zYWN0aW9ucyIsIkNyZWF0ZVRyYW5zYWN0aW9uIiwiRWRpdFRyYW5zYWN0aW9uIiwiRGVsZXRlVHJhbnNhY3Rpb24iLCJWaWV3UGVyc29ucyIsIkNyZWF0ZVBlcnNvbiIsIkVkaXRQZXJzb24iLCJEZWxldGVQZXJzb24iLCJWaWV3Q29zdFR5cGVzIiwiQ3JlYXRlQ29zdFR5cGUiLCJFZGl0Q29zdFR5cGUiLCJEZWxldGVDb3N0VHlwZSIsIlZpZXdVc2VycyIsIkNyZWF0ZVVzZXIiLCJFZGl0VXNlciIsIkRlbGV0ZVVzZXIiLCJWaWV3Um9sZXMiLCJDcmVhdGVSb2xlIiwiRWRpdFJvbGUiLCJEZWxldGVSb2xlIiwiTWFuYWdlUGVybWlzc2lvbnMiLCJTeXN0ZW1TZXR0aW5ncyJdLCJuYmYiOjE3NTA5NTE1MTAsImV4cCI6MTc1MTU1NjMxMCwiaWF0IjoxNzUwOTUxNTEwfQ.fcgXsQj7QVJrXdQGlAHJYO1zDZ5eECdWXk0-HQP79nQ"  # ← replace with a valid token
+# Credentials (can be overridden via environment variables)
+USERNAME = os.getenv("API_USERNAME", "admin")
+PASSWORD = os.getenv("API_PASSWORD", "Admin@123")
+
+def login_and_get_token():
+    """
+    Authenticate against the API and return a JWT token.
+    Tries to handle both JSON and plain-text token responses.
+    """
+    try:
+        url = f"{API_BASE}/api/Auth/login"
+        resp = requests.post(
+            url,
+            json={"username": USERNAME, "password": PASSWORD},
+            headers={"accept": "text/plain", "Content-Type": "application/json"},
+            timeout=20
+        )
+        resp.raise_for_status()
+
+        token = None
+
+        data = resp.json().get("data", {})
+        # Common possible fields that may contain the token
+        token = data.get("token") or data.get("access_token") or data.get("jwt")
+
+        return token
+    except Exception as e:
+        print(f"ERROR: Failed to login and obtain JWT token: {e}")
+        raise
+
+# Perform login at startup and build headers dynamically
+try:
+    TOKEN = login_and_get_token()
+except Exception:
+    # If login fails, stop the script
+    exit(1)
 
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
@@ -15,7 +50,7 @@ HEADERS = {
 }
 
 # Load Excel
-df = pd.read_excel("Bill.Statement.Report_1403_03.xlsx", sheet_name="Final Data")  # ← replace with your Excel file path
+df = pd.read_excel("Bill.Statement.Report_1403_04.xlsx", sheet_name="Final_Data")  # ← replace with your Excel file path
 
 # Rename Persian headers to simpler English ones
 df.columns = ["row", "date", "description", "card_holder", "deposit", "withdrawal", "card_number"]

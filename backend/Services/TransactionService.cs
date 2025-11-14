@@ -289,4 +289,98 @@ public class TransactionService : ITransactionService
         // Previously used for migrating DateTime values to remove time components
         await Task.CompletedTask;
     }
+
+    // Admin function: filter by description keywords and date range, then apply cost types
+    public async Task<List<TransactionDTO>> ApplyCostTypesByDescriptionAsync(
+        List<string> keywords,
+        DateOnly startDate,
+        DateOnly endDate,
+        List<int> costTypeIds)
+    {
+        if (startDate > endDate)
+        {
+            throw AppErrors.InvalidDateRange;
+        }
+
+        keywords ??= [];
+        costTypeIds ??= [];
+
+        // Normalize keywords: trim and remove empties
+        var normalizedKeywords = keywords
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+            .Select(k => k.Trim())
+            .ToList();
+
+        // Validate cost types exist
+        if (costTypeIds.Count > 0)
+        {
+            var existingCostTypeIds = await _costTypeRepository.GetAll()
+                .Where(ct => costTypeIds.Contains(ct.Id))
+                .Select(ct => ct.Id)
+                .ToListAsync();
+
+            if (existingCostTypeIds.Count != costTypeIds.Count)
+            {
+                throw AppErrors.CostTypeNotFound;
+            }
+        }
+
+        var query = _transactionRepository.GetAll()
+            .Include(t => t.CostTypes)
+            .ThenInclude(x => x.CostType)
+            .Where(t => t.Date >= startDate && t.Date <= endDate)
+            .AsQueryable();
+
+        // Apply "contains all keywords" on Description (vacuous truth if no keywords)
+        foreach (var kw in normalizedKeywords)
+        {
+            var current = kw; // avoid modified closure
+            query = query.Where(t =>
+                t.Description != null
+                && EF.Functions.Like(t.Description, $"%{current}%")
+            );
+        }
+
+        var matchedTransactions = await query.ToListAsync();
+
+        if (matchedTransactions.Count == 0 || costTypeIds.Count == 0)
+        {
+            // Nothing to update; just return matched transactions
+            return _mapper.Map<List<TransactionDTO>>(matchedTransactions);
+        }
+
+        var updatedTransactions = new List<TransactionModel>();
+
+        foreach (var transaction in matchedTransactions)
+        {
+            var existingIds = transaction.CostTypes.Select(ct => ct.CostTypeId).ToHashSet();
+            var addedAny = false;
+
+            foreach (var ctId in costTypeIds)
+            {
+                if (!existingIds.Contains(ctId))
+                {
+                    transaction.CostTypes.Add(new TransactionCostTypeModel
+                    {
+                        TransactionId = transaction.Id,
+                        CostTypeId = ctId,
+                    });
+                    addedAny = true;
+                }
+            }
+
+            if (addedAny)
+            {
+                transaction.UpdateDate = DateTime.UtcNow;
+                updatedTransactions.Add(transaction);
+            }
+        }
+
+        if (updatedTransactions.Count > 0)
+        {
+            _transactionRepository.UpdateRange(updatedTransactions);
+        }
+
+        return _mapper.Map<List<TransactionDTO>>(matchedTransactions);
+    }
 }
