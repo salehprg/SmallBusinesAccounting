@@ -54,26 +54,26 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
       <CardContent className="px-2">
         <ResponsiveContainer width="100%" height={350}>
           <ComposedChart data={transformedData}>
-            <XAxis 
-              dataKey="day" 
-              stroke="#888888" 
-              fontSize={12} 
-              axisLine={false} 
+            <XAxis
+              dataKey="day"
+              stroke="#888888"
+              fontSize={12}
+              axisLine={false}
               tickLine={false}
               tick={{ transform: 'translate(0, 6)' }}
             />
-            <YAxis 
-              stroke="#888888" 
-              fontSize={12} 
-              axisLine={false} 
+            <YAxis
+              stroke="#888888"
+              fontSize={12}
+              axisLine={false}
               tickLine={false}
-              tickFormatter={(value) => new Intl.NumberFormat('fa-IR', { 
-                notation: 'compact', 
-                compactDisplay: 'short' 
+              tickFormatter={(value) => new Intl.NumberFormat('fa-IR', {
+                notation: 'compact',
+                compactDisplay: 'short'
               }).format(value)}
               width={40}
             />
-            <Tooltip 
+            <Tooltip
               formatter={(value: any, name: string) => {
                 const formattedValue = new Intl.NumberFormat('fa-IR').format(value);
                 if (name === 'cumulativeBalance') return [formattedValue, 'تراز تجمعی'];
@@ -98,29 +98,12 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
                 return null;
               }}
             />
-            <Legend 
+            <Legend
               align="right"
               verticalAlign="top"
               height={36}
               iconType="rect"
               onClick={handleLegendClick}
-              payload={[
-                {
-                  value: 'income',
-                  type: 'rect',
-                  color: visibleLines.income ? '#22c55e' : '#ccc'
-                },
-                {
-                  value: 'expenses', 
-                  type: 'rect',
-                  color: visibleLines.expenses ? '#ef4444' : '#ccc'
-                },
-                {
-                  value: 'balance',
-                  type: 'line', 
-                  color: visibleLines.balance ? '#3b82f6' : '#ccc'
-                }
-              ]}
               formatter={(value) => {
                 const isVisible = visibleLines[value as keyof typeof visibleLines];
                 let label = value;
@@ -128,7 +111,7 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
                 if (value === 'expenses') label = 'هزینه';
                 if (value === 'balance') label = 'تراز تجمعی';
                 return (
-                  <span style={{ 
+                  <span style={{
                     color: isVisible ? 'inherit' : '#ccc',
                     textDecoration: isVisible ? 'none' : 'line-through',
                     cursor: 'pointer'
@@ -140,35 +123,30 @@ export function DailyIncomeChart({ data }: DailyIncomeChartProps) {
               wrapperStyle={{ direction: 'rtl', textAlign: 'right' }}
             />
             {/* Income bar - Green */}
-            {visibleLines.income && (
-              <Bar 
-                dataKey="income" 
-                fill="#22c55e" 
-                name="income"
-                radius={[2, 2, 0, 0]}
-              />
-            )}
+            <Bar
+              dataKey="income"
+              fill={visibleLines.income ? "#96c982ff" : "#6666661f"}
+              name="income"
+              type='rect'
+              radius={[2, 2, 0, 0]}
+            />
             {/* Expenses bar - Red */}
-            {visibleLines.expenses && (
-              <Bar 
-                dataKey="expenses" 
-                fill="#ef4444" 
-                name="expenses"
-                radius={[2, 2, 0, 0]}
-              />
-            )}
+            <Bar
+              dataKey="expenses"
+              fill={visibleLines.expenses ? "#ef4444" : "#6666661f"}
+              name="expenses"
+              radius={[2, 2, 0, 0]}
+            />
             {/* Cumulative Balance line - Blue (Primary) */}
-            {visibleLines.balance && (
-              <Line 
-                type="monotone" 
-                dataKey="cumulativeBalance" 
-                stroke="#3b82f6" 
-                strokeWidth={2} 
-                dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-                name="cumulativeBalance"
-              />
-            )}
+            <Line
+              type="monotone"
+              dataKey="balance"
+              stroke={visibleLines.balance ? "#3b82f6" : "#6666661f"}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 6, strokeWidth: 0 }}
+              name="balance"
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </CardContent>
