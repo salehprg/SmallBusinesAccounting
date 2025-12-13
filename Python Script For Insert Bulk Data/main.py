@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+import re
 from datetime import datetime
 import os
 import jdatetime
@@ -50,10 +51,10 @@ HEADERS = {
 }
 
 # Load Excel
-df = pd.read_excel("Bill.Statement.Report_1403_04.xlsx", sheet_name="Final_Data")  # ← replace with your Excel file path
+df = pd.read_excel("Bill.Statement.Report_1403_08.xls", skiprows=8, usecols="A:G")  # ← replace with your Excel file path
 
 # Rename Persian headers to simpler English ones
-df.columns = ["row", "date", "description", "card_holder", "deposit", "withdrawal", "card_number"]
+df.columns = ["row", "date", "time", "action", "description", "deposit", "withdrawal"]
 
 # Convert Persian/Excel date to Gregorian date
 def parse_date(val):
@@ -153,7 +154,11 @@ success_count = 0
 failed_count = 0
 
 for _, row in df.iterrows():
-    row_id = row['row']
+
+    if pd.isna(row['row']):
+        break
+
+    row_id = int(row['row'])
     
     # Skip if this row was already successfully processed
     if row_id in processed_row_ids:
@@ -163,8 +168,11 @@ for _, row in df.iterrows():
     
     processed_count += 1
     person = None
-    if pd.notna(row['card_number']) and row['card_number'] != "":
-        card_number = str(int(row['card_number'])).strip()
+    
+    # Extract card number from description using regex
+    match = re.search(r"ک\s(\d{16})", str(row['description']))
+    if match:
+        card_number = match.group(1)
         person = next((p for p in persons if p.get("accountNumber") == card_number), None)
 
     transaction_type = 1 if row["deposit"] > 0 else 2 if row["withdrawal"] > 0 else None
@@ -178,7 +186,7 @@ for _, row in df.iterrows():
         continue
 
     payload = {
-        "name": row["card_holder"] if pd.notna(row["card_holder"]) and row["card_holder"] != "" else row['description'],
+        "name": person["personName"] if person and person.get("personName") else row['description'],
         "description": row["description"],
         "amount": str(amount),
         "isCash": False,
@@ -200,7 +208,8 @@ for _, row in df.iterrows():
             
             # Check if transaction was successful based on API response
             if api_success and (api_code == 200 or api_code == 201):
-                message = f"Transaction added for {row['card_holder']} - amount: {amount}"
+                name_display = person["personName"] if person and person.get("personName") else row['description']
+                message = f"Transaction added for {name_display} - amount: {amount}"
                 print(message)
                 log_file.write(f"{row_id} | SUCCESS | {message}\n")
                 success_count += 1
@@ -214,14 +223,16 @@ for _, row in df.iterrows():
                 if api_dev_message:
                     error_detail += f", Dev Message: {api_dev_message}"
                 
-                message = f"Failed to add transaction for {row['card_holder']}: {error_detail}"
+                name_display = person["personName"] if person and person.get("personName") else row['description']
+                message = f"Failed to add transaction for {name_display}: {error_detail}"
                 print(message)
                 log_file.write(f"{row_id} | FAILED | {message}\n")
                 failed_count += 1
                 
         except ValueError as json_error:
             # If response is not valid JSON
-            message = f"Failed to parse API response for {row['card_holder']}: HTTP {post_resp.status_code}, Response: {post_resp.text[:200]}"
+            name_display = person["personName"] if person and person.get("personName") else row['description']
+            message = f"Failed to parse API response for {name_display}: HTTP {post_resp.status_code}, Response: {post_resp.text[:200]}"
             print(message)
             log_file.write(f"{row_id} | FAILED | {message}\n")
             failed_count += 1
