@@ -291,12 +291,13 @@ public class TransactionService : ITransactionService
     }
 
     // Admin function: filter by description keywords and date range, then apply cost types
-    public async Task<List<TransactionDTO>> ApplyCostTypesByDescriptionAsync(
-        List<string> keywords,
-        DateOnly startDate,
-        DateOnly endDate,
-        List<int> costTypeIds)
+    public async Task<List<TransactionDTO>> ApplyCostTypesByDescriptionAsync(ApplyCostTypesByDescriptionDTO applyCostTypes)
     {
+        var keywords = applyCostTypes.Keywords;
+        var startDate = applyCostTypes.StartDate;
+        var endDate = applyCostTypes.EndDate;
+        var costTypeIds = applyCostTypes.CostTypeIds;
+
         if (startDate > endDate)
         {
             throw AppErrors.InvalidDateRange;
@@ -328,7 +329,7 @@ public class TransactionService : ITransactionService
         var query = _transactionRepository.GetAll()
             .Include(t => t.CostTypes)
             .ThenInclude(x => x.CostType)
-            .Where(t => t.Date >= startDate && t.Date <= endDate)
+            .Where(t => t.Date >= startDate && t.Date <= endDate && applyCostTypes.TransactionTypes.Contains(t.TransactionType))
             .AsQueryable();
 
         // Apply "contains all keywords" on Description (vacuous truth if no keywords)

@@ -1,382 +1,111 @@
 
-=== New Processing Session Started at: 2025-11-14 14:03:47 ===
+=== New Processing Session Started at: 2026-01-03 10:39:31 ===
 SUCCESS | Fetched 79 persons from API
-1 | SUCCESS | Transaction added for nan - amount: 173000000
-2 | SUCCESS | Transaction added for nan - amount: 19512000
-3 | SUCCESS | Transaction added for nan - amount: 12200
-4 | SUCCESS | Transaction added for nan - amount: 15238000
-5 | SUCCESS | Transaction added for nan - amount: 12200
-6 | SUCCESS | Transaction added for محسن خانگاه - amount: 40070000
-7 | SUCCESS | Transaction added for nan - amount: 21800
-8 | SUCCESS | Transaction added for nan - amount: 15600000
-9 | SUCCESS | Transaction added for نيره منتظري - amount: 30000000
-10 | SUCCESS | Transaction added for حجت عابدي - amount: 30000000
-11 | SUCCESS | Transaction added for nan - amount: 23050000
-12 | SUCCESS | Transaction added for nan - amount: 450000
-13 | SUCCESS | Transaction added for nan - amount: 1200000
-14 | SUCCESS | Transaction added for nan - amount: 181000000
-15 | SUCCESS | Transaction added for nan - amount: 2000000
-16 | SUCCESS | Transaction added for nan - amount: 15600000
-17 | SUCCESS | Transaction added for nan - amount: 33874000
-18 | SUCCESS | Transaction added for nan - amount: 1800
-19 | SUCCESS | Transaction added for nan - amount: 3600000
-20 | SUCCESS | Transaction added for nan - amount: 9000
-21 | SUCCESS | Transaction added for nan - amount: 18882000
-22 | SUCCESS | Transaction added for nan - amount: 12200
-23 | SUCCESS | Transaction added for nan - amount: 13340000
-24 | SUCCESS | Transaction added for nan - amount: 12200
-25 | SUCCESS | Transaction added for محسن خانگاه - amount: 36260000
-26 | SUCCESS | Transaction added for nan - amount: 18600
-27 | SUCCESS | Transaction added for nan - amount: 9600000
-28 | SUCCESS | Transaction added for nan - amount: 9000
-29 | SUCCESS | Transaction added for nan - amount: 1800
-30 | SUCCESS | Transaction added for جواد ابراهيميان - amount: 30000000
-31 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
-32 | SUCCESS | Transaction added for nan - amount: 9000
-33 | SUCCESS | Transaction added for nan - amount: 137000000
-34 | SUCCESS | Transaction added for محسن خانگاه - amount: 32380000
-35 | SUCCESS | Transaction added for nan - amount: 18600
-36 | SUCCESS | Transaction added for nan - amount: 19461600
-37 | SUCCESS | Transaction added for nan - amount: 12200
-38 | SUCCESS | Transaction added for nan - amount: 18010000
-39 | SUCCESS | Transaction added for nan - amount: 12200
-40 | SUCCESS | Transaction added for محمد کوچکي - amount: 13000000
-41 | SUCCESS | Transaction added for nan - amount: 12200
-42 | SUCCESS | Transaction added for nan - amount: 26400000
-43 | SUCCESS | Transaction added for nan - amount: 500000
-44 | SUCCESS | Transaction added for nan - amount: 10909000
-45 | SUCCESS | Transaction added for nan - amount: 1800
-46 | SUCCESS | Transaction added for nan - amount: 5000000
-47 | SUCCESS | Transaction added for nan - amount: 2350000
-48 | SUCCESS | Transaction added for nan - amount: 20000000
-49 | SUCCESS | Transaction added for nan - amount: 23000000
-50 | SUCCESS | Transaction added for nan - amount: 120000000
-51 | SUCCESS | Transaction added for جواد ابراهيميان - amount: 15000000
-52 | SUCCESS | Transaction added for nan - amount: 12200
-53 | SUCCESS | Transaction added for nan - amount: 19411200
-54 | SUCCESS | Transaction added for nan - amount: 12200
-55 | SUCCESS | Transaction added for محسن خانگاه - amount: 29990000
-56 | SUCCESS | Transaction added for nan - amount: 15400
-57 | SUCCESS | Transaction added for nan - amount: 8400000
-58 | SUCCESS | Transaction added for nan - amount: 1600000
-59 | SUCCESS | Transaction added for nan - amount: 1800
-60 | SUCCESS | Transaction added for nan - amount: 550000
-61 | SUCCESS | Transaction added for nan - amount: 117000000
-62 | SUCCESS | Transaction added for nan - amount: 15600000
-63 | SUCCESS | Transaction added for nan - amount: 2000000
-64 | SUCCESS | Transaction added for nan - amount: 1550000
-65 | SUCCESS | Transaction added for nan - amount: 12000000
-66 | SUCCESS | Transaction added for nan - amount: 1300000
-67 | SUCCESS | Transaction added for nan - amount: 250000
-68 | SUCCESS | Transaction added for nan - amount: 42320000
-69 | SUCCESS | Transaction added for nan - amount: 3750000
-70 | SUCCESS | Transaction added for nan - amount: 26009550
-71 | SUCCESS | Transaction added for nan - amount: 15400
-72 | SUCCESS | Transaction added for عليرضا سيد ابادي - amount: 55000000
-73 | SUCCESS | Transaction added for nan - amount: 25000
-74 | SUCCESS | Transaction added for nan - amount: 500000
-75 | SUCCESS | Transaction added for nan - amount: 90000000
-76 | SUCCESS | Transaction added for nan - amount: 20000000
-77 | SUCCESS | Transaction added for nan - amount: 100000000
-78 | SUCCESS | Transaction added for nan - amount: 23000000
-79 | SUCCESS | Transaction added for nan - amount: 8740000
-80 | SUCCESS | Transaction added for nan - amount: 9000
-81 | SUCCESS | Transaction added for nan - amount: 19000800
-82 | SUCCESS | Transaction added for nan - amount: 12200
-83 | SUCCESS | Transaction added for nan - amount: 5200000
-84 | SUCCESS | Transaction added for nan - amount: 5000000
-85 | SUCCESS | Transaction added for nan - amount: 1800
-86 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
-87 | SUCCESS | Transaction added for nan - amount: 9000
-88 | SUCCESS | Transaction added for nan - amount: 1800
-89 | SUCCESS | Transaction added for nan - amount: 169000000
-90 | SUCCESS | Transaction added for nan - amount: 1800
-91 | SUCCESS | Transaction added for محسن خانگاه - amount: 37730000
-92 | SUCCESS | Transaction added for nan - amount: 18600
-93 | SUCCESS | Transaction added for nan - amount: 19616400
-94 | SUCCESS | Transaction added for nan - amount: 12200
-95 | SUCCESS | Transaction added for محمد کوچکي - amount: 15600000
-96 | SUCCESS | Transaction added for nan - amount: 12200
-97 | SUCCESS | Transaction added for nan - amount: 1450000
-98 | SUCCESS | Transaction added for nan - amount: 1800
-99 | SUCCESS | Transaction added for nan - amount: 100000000
-100 | SUCCESS | Transaction added for nan - amount: 1800
-101 | SUCCESS | Transaction added for nan - amount: 12650000
-102 | SUCCESS | Transaction added for nan - amount: 12200
-103 | SUCCESS | Transaction added for nan - amount: 1800
-104 | SUCCESS | Transaction added for nan - amount: 131000000
-105 | SUCCESS | Transaction added for nan - amount: 1800
-106 | SUCCESS | Transaction added for محسن خانگاه - amount: 32630000
-107 | SUCCESS | Transaction added for nan - amount: 18600
-108 | SUCCESS | Transaction added for nan - amount: 19152000
-109 | SUCCESS | Transaction added for nan - amount: 12200
-110 | SUCCESS | Transaction added for nan - amount: 23528000
-111 | SUCCESS | Transaction added for nan - amount: 15400
-112 | SUCCESS | Transaction added for nan - amount: 250000
-113 | SUCCESS | Transaction added for nan - amount: 15600000
-114 | SUCCESS | Transaction added for nan - amount: 1800
-115 | SUCCESS | Transaction added for nan - amount: 1800000
-116 | SUCCESS | Transaction added for nan - amount: 1650000
-117 | SUCCESS | Transaction added for nan - amount: 30000000
-118 | SUCCESS | Transaction added for nan - amount: 20000000
-119 | SUCCESS | Transaction added for nan - amount: 243000
-120 | SUCCESS | Transaction added for nan - amount: 1800
-121 | SUCCESS | Transaction added for nan - amount: 30000000
-122 | SUCCESS | Transaction added for nan - amount: 20000000
-123 | SUCCESS | Transaction added for nan - amount: 156000000
-124 | SUCCESS | Transaction added for nan - amount: 1800
-125 | SUCCESS | Transaction added for nan - amount: 120000000
-126 | SUCCESS | Transaction added for nan - amount: 24000
-127 | SUCCESS | Transaction added for nan - amount: 1100000
-128 | SUCCESS | Transaction added for nan - amount: 5000000
-129 | SUCCESS | Transaction added for nan - amount: 550000
-130 | SUCCESS | Transaction added for nan - amount: 1150000
-131 | SUCCESS | Transaction added for nan - amount: 13000000
-132 | SUCCESS | Transaction added for nan - amount: 12000000
-133 | SUCCESS | Transaction added for nan - amount: 1800
-134 | SUCCESS | Transaction added for nan - amount: 600000
-135 | SUCCESS | Transaction added for nan - amount: 30400000
-136 | SUCCESS | Transaction added for nan - amount: 1300000
-137 | SUCCESS | Transaction added for nan - amount: 1800
-138 | SUCCESS | Transaction added for nan - amount: 7000000
-139 | SUCCESS | Transaction added for nan - amount: 9000
-140 | SUCCESS | Transaction added for nan - amount: 148000000
-141 | SUCCESS | Transaction added for nan - amount: 38926800
-142 | SUCCESS | Transaction added for nan - amount: 18600
-143 | SUCCESS | Transaction added for محسن خانگاه - amount: 58550000
-144 | SUCCESS | Transaction added for nan - amount: 25000
-145 | SUCCESS | Transaction added for nan - amount: 17000000
-146 | SUCCESS | Transaction added for nan - amount: 1800
-147 | SUCCESS | Transaction added for nan - amount: 250000
-148 | SUCCESS | Transaction added for nan - amount: 550000
-149 | SUCCESS | Transaction added for nan - amount: 800000
-150 | SUCCESS | Transaction added for nan - amount: 1800
-151 | SUCCESS | Transaction added for nan - amount: 148850000
-152 | SUCCESS | Transaction added for nan - amount: 128500000
-153 | SUCCESS | Transaction added for nan - amount: 25700
-154 | SUCCESS | Transaction added for nan - amount: 1800
-155 | SUCCESS | Transaction added for nan - amount: 34419600
-156 | SUCCESS | Transaction added for nan - amount: 18600
-157 | SUCCESS | Transaction added for محسن خانگاه - amount: 37630000
-158 | SUCCESS | Transaction added for nan - amount: 18600
-159 | SUCCESS | Transaction added for nan - amount: 1800
-160 | SUCCESS | Transaction added for nan - amount: 13000000
-161 | SUCCESS | Transaction added for nan - amount: 47000000
-162 | SUCCESS | Transaction added for nan - amount: 15600000
-163 | SUCCESS | Transaction added for nan - amount: 850000
-164 | SUCCESS | Transaction added for nan - amount: 1700000
-165 | SUCCESS | Transaction added for nan - amount: 1800
-166 | SUCCESS | Transaction added for nan - amount: 5000000
-167 | SUCCESS | Transaction added for nan - amount: 1084000
-168 | SUCCESS | Transaction added for nan - amount: 5000000
-169 | SUCCESS | Transaction added for nan - amount: 9000
-170 | SUCCESS | Transaction added for nan - amount: 9000
-171 | SUCCESS | Transaction added for nan - amount: 5000000
-172 | SUCCESS | Transaction added for nan - amount: 5000000
-173 | SUCCESS | Transaction added for nan - amount: 9000
-174 | SUCCESS | Transaction added for nan - amount: 750000
-175 | SUCCESS | Transaction added for nan - amount: 350000
-176 | SUCCESS | Transaction added for nan - amount: 5000000
-177 | SUCCESS | Transaction added for nan - amount: 9000
-178 | SUCCESS | Transaction added for nan - amount: 4000000
-179 | SUCCESS | Transaction added for nan - amount: 87000000
-180 | SUCCESS | Transaction added for nan - amount: 37000000
-181 | SUCCESS | Transaction added for nan - amount: 15600000
-182 | SUCCESS | Transaction added for nan - amount: 850000
-183 | SUCCESS | Transaction added for nan - amount: 1150000
-184 | SUCCESS | Transaction added for nan - amount: 19634400
-185 | SUCCESS | Transaction added for nan - amount: 12200
-186 | SUCCESS | Transaction added for محسن خانگاه - amount: 28440000
-187 | SUCCESS | Transaction added for nan - amount: 15400
-188 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
-189 | SUCCESS | Transaction added for nan - amount: 9000
-190 | SUCCESS | Transaction added for nan - amount: 40000000
-191 | SUCCESS | Transaction added for nan - amount: 18600
-192 | SUCCESS | Transaction added for nan - amount: 1800
-193 | SUCCESS | Transaction added for nan - amount: 2450000
-194 | SUCCESS | Transaction added for nan - amount: 4950000
-195 | SUCCESS | Transaction added for nan - amount: 9000
-196 | SUCCESS | Transaction added for nan - amount: 1150000
-197 | SUCCESS | Transaction added for nan - amount: 122500000
-198 | SUCCESS | Transaction added for nan - amount: 100000000
-199 | SUCCESS | Transaction added for nan - amount: 37800
-200 | SUCCESS | Transaction added for nan - amount: 1100000
-201 | SUCCESS | Transaction added for nan - amount: 900000
-202 | SUCCESS | Transaction added for nan - amount: 15600000
-203 | SUCCESS | Transaction added for nan - amount: 12000000
-204 | SUCCESS | Transaction added for nan - amount: 800000
-205 | SUCCESS | Transaction added for nan - amount: 1800
-206 | SUCCESS | Transaction added for nan - amount: 500000
-207 | SUCCESS | Transaction added for nan - amount: 750000
-208 | SUCCESS | Transaction added for nan - amount: 1400000
-209 | SUCCESS | Transaction added for nan - amount: 1800
-210 | SUCCESS | Transaction added for nan - amount: 9500000
-211 | SUCCESS | Transaction added for nan - amount: 30150000
-212 | SUCCESS | Transaction added for nan - amount: 19050000
-213 | SUCCESS | Transaction added for nan - amount: 1800
-214 | SUCCESS | Transaction added for nan - amount: 110000000
-215 | SUCCESS | Transaction added for nan - amount: 1800
-216 | SUCCESS | Transaction added for محسن خانگاه - amount: 32540000
-217 | SUCCESS | Transaction added for nan - amount: 18600
-218 | SUCCESS | Transaction added for nan - amount: 20239200
-219 | SUCCESS | Transaction added for nan - amount: 15400
-220 | SUCCESS | Transaction added for نيره منتظري - amount: 40000000
-221 | SUCCESS | Transaction added for nan - amount: 18600
-222 | SUCCESS | Transaction added for nan - amount: 1800
-223 | SUCCESS | Transaction added for nan - amount: 1800
-224 | SUCCESS | Transaction added for nan - amount: 35400000
-225 | SUCCESS | Transaction added for nan - amount: 350000
-226 | SUCCESS | Transaction added for nan - amount: 500000
-227 | SUCCESS | Transaction added for nan - amount: 1800
-228 | SUCCESS | Transaction added for nan - amount: 550000
-229 | SUCCESS | Transaction added for nan - amount: 900000
-230 | SUCCESS | Transaction added for nan - amount: 63000000
-231 | SUCCESS | Transaction added for nan - amount: 57000000
-232 | SUCCESS | Transaction added for nan - amount: 5000000
-233 | SUCCESS | Transaction added for nan - amount: 9000
-234 | SUCCESS | Transaction added for nan - amount: 15600000
-235 | SUCCESS | Transaction added for nan - amount: 1800000
-236 | SUCCESS | Transaction added for nan - amount: 1750000
-237 | SUCCESS | Transaction added for nan - amount: 1800
-238 | SUCCESS | Transaction added for nan - amount: 21355000
-239 | SUCCESS | Transaction added for nan - amount: 15400
-240 | SUCCESS | Transaction added for محسن خانگاه - amount: 32450000
-241 | SUCCESS | Transaction added for nan - amount: 18600
-242 | SUCCESS | Transaction added for nan - amount: 19612800
-243 | SUCCESS | Transaction added for nan - amount: 12200
-244 | SUCCESS | Transaction added for nan - amount: 118000000
-245 | SUCCESS | Transaction added for nan - amount: 500000
-246 | SUCCESS | Transaction added for nan - amount: 1500000
-247 | SUCCESS | Transaction added for nan - amount: 15600000
-248 | SUCCESS | Transaction added for nan - amount: 550000
-249 | SUCCESS | Transaction added for nan - amount: 1800
-250 | SUCCESS | Transaction added for nan - amount: 7600000
-251 | SUCCESS | Transaction added for nan - amount: 9000
-252 | SUCCESS | Transaction added for nan - amount: 20030400
-253 | SUCCESS | Transaction added for nan - amount: 15400
-254 | SUCCESS | Transaction added for محسن خانگاه - amount: 32600000
-255 | SUCCESS | Transaction added for nan - amount: 18600
-256 | SUCCESS | Transaction added for nan - amount: 1800
-257 | SUCCESS | Transaction added for nan - amount: 47672000
-258 | SUCCESS | Transaction added for nan - amount: 125000000
-259 | SUCCESS | Transaction added for nan - amount: 1800000
-260 | SUCCESS | Transaction added for nan - amount: 12000000
-261 | SUCCESS | Transaction added for nan - amount: 26000000
-262 | SUCCESS | Transaction added for nan - amount: 3400000
-263 | SUCCESS | Transaction added for nan - amount: 9000
-264 | SUCCESS | Transaction added for محسن خانگاه - amount: 29310000
-265 | SUCCESS | Transaction added for nan - amount: 15400
-266 | SUCCESS | Transaction added for nan - amount: 15590000
-267 | SUCCESS | Transaction added for nan - amount: 12200
-268 | SUCCESS | Transaction added for nan - amount: 600000
-269 | SUCCESS | Transaction added for nan - amount: 1000000
-270 | SUCCESS | Transaction added for nan - amount: 1100000
-271 | SUCCESS | Transaction added for nan - amount: 1700000
-272 | SUCCESS | Transaction added for nan - amount: 1000000
-273 | SUCCESS | Transaction added for nan - amount: 1100000
-274 | SUCCESS | Transaction added for nan - amount: 1800
-275 | SUCCESS | Transaction added for nan - amount: 19980000
-276 | SUCCESS | Transaction added for nan - amount: 12200
-277 | SUCCESS | Transaction added for nan - amount: 34800000
-278 | SUCCESS | Transaction added for nan - amount: 57000000
-279 | SUCCESS | Transaction added for محمد کوچکي - amount: 15600000
-280 | SUCCESS | Transaction added for nan - amount: 12200
-281 | SUCCESS | Transaction added for nan - amount: 1800
-282 | SUCCESS | Transaction added for nan - amount: 100000000
-283 | SUCCESS | Transaction added for nan - amount: 1650000
-284 | SUCCESS | Transaction added for nan - amount: 91000000
-285 | SUCCESS | Transaction added for nan - amount: 750000
-286 | SUCCESS | Transaction added for nan - amount: 750000
-287 | SUCCESS | Transaction added for nan - amount: 19587600
-288 | SUCCESS | Transaction added for nan - amount: 12200
-289 | SUCCESS | Transaction added for محسن خانگاه - amount: 29380000
-290 | SUCCESS | Transaction added for nan - amount: 15400
-291 | SUCCESS | Transaction added for محمد مومني - amount: 3500000
-292 | SUCCESS | Transaction added for nan - amount: 9000
-293 | SUCCESS | Transaction added for nan - amount: 40000000
-294 | SUCCESS | Transaction added for nan - amount: 18600
-295 | SUCCESS | Transaction added for nan - amount: 1800
-296 | SUCCESS | Transaction added for nan - amount: 7000000
-297 | SUCCESS | Transaction added for nan - amount: 9000
-298 | SUCCESS | Transaction added for nan - amount: 500000
-299 | SUCCESS | Transaction added for nan - amount: 1800
-300 | SUCCESS | Transaction added for nan - amount: 4750000
-301 | SUCCESS | Transaction added for nan - amount: 8700000
-302 | SUCCESS | Transaction added for nan - amount: 3450000
-303 | SUCCESS | Transaction added for nan - amount: 2250000
-304 | SUCCESS | Transaction added for nan - amount: 1800
-305 | SUCCESS | Transaction added for nan - amount: 1800000
-306 | SUCCESS | Transaction added for nan - amount: 1800
-307 | SUCCESS | Transaction added for nan - amount: 9375000
-308 | SUCCESS | Transaction added for nan - amount: 118000000
-309 | SUCCESS | Transaction added for nan - amount: 550000
-310 | SUCCESS | Transaction added for nan - amount: 1100000
-311 | SUCCESS | Transaction added for nan - amount: 1800000
-312 | SUCCESS | Transaction added for nan - amount: 1200000
-313 | SUCCESS | Transaction added for nan - amount: 1650000
-314 | SUCCESS | Transaction added for nan - amount: 500000
-315 | SUCCESS | Transaction added for nan - amount: 1100000
-316 | SUCCESS | Transaction added for محمد کوچکي - amount: 15600000
-317 | SUCCESS | Transaction added for nan - amount: 12200
-318 | SUCCESS | Transaction added for nan - amount: 23995200
-319 | SUCCESS | Transaction added for nan - amount: 15400
-320 | SUCCESS | Transaction added for محسن خانگاه - amount: 30000000
-321 | SUCCESS | Transaction added for nan - amount: 15400
-322 | SUCCESS | Transaction added for nan - amount: 8000000
-323 | SUCCESS | Transaction added for nan - amount: 9000
-324 | SUCCESS | Transaction added for nan - amount: 1800
-325 | SUCCESS | Transaction added for nan - amount: 1100000
-326 | SUCCESS | Transaction added for nan - amount: 1200000
-327 | SUCCESS | Transaction added for nan - amount: 1050000
-328 | SUCCESS | Transaction added for nan - amount: 65000000
-329 | SUCCESS | Transaction added for nan - amount: 44000000
-330 | SUCCESS | Transaction added for nan - amount: 1200000
-331 | SUCCESS | Transaction added for nan - amount: 50052600
-332 | SUCCESS | Transaction added for nan - amount: 800000
-333 | SUCCESS | Transaction added for nan - amount: 19195200
-334 | SUCCESS | Transaction added for nan - amount: 12200
-335 | SUCCESS | Transaction added for محسن خانگاه - amount: 36380000
-336 | SUCCESS | Transaction added for nan - amount: 18600
-337 | SUCCESS | Transaction added for nan - amount: 1800
-338 | SUCCESS | Transaction added for nan - amount: 50000000
-339 | SUCCESS | Transaction added for nan - amount: 50000000
-340 | SUCCESS | Transaction added for nan - amount: 1800000
-341 | SUCCESS | Transaction added for nan - amount: 1100000
-342 | SUCCESS | Transaction added for جواد پيرکماجي - amount: 1000000
-343 | SUCCESS | Transaction added for nan - amount: 58000000
-344 | SUCCESS | Transaction added for nan - amount: 46000000
-345 | SUCCESS | Transaction added for nan - amount: 15600000
-346 | SUCCESS | Transaction added for nan - amount: 100000000
-347 | SUCCESS | Transaction added for nan - amount: 360000
-348 | SUCCESS | Transaction added for nan - amount: 800000
-349 | SUCCESS | Transaction added for nan - amount: 1800
-350 | SUCCESS | Transaction added for nan - amount: 1800
-351 | SUCCESS | Transaction added for nan - amount: 450000
-352 | SUCCESS | Transaction added for nan - amount: 1800
-353 | SUCCESS | Transaction added for nan - amount: 1550000
-354 | SUCCESS | Transaction added for nan - amount: 19756800
-355 | SUCCESS | Transaction added for nan - amount: 12200
-356 | SUCCESS | Transaction added for محسن خانگاه - amount: 28440000
-357 | SUCCESS | Transaction added for nan - amount: 15400
-358 | SUCCESS | Transaction added for nan - amount: 1800
-359 | SUCCESS | Transaction added for nan - amount: 59000000
-360 | SUCCESS | Transaction added for nan - amount: 47000000
-361 | SUCCESS | Transaction added for nan - amount: 1800
-362 | SUCCESS | Transaction added for محسن خانگاه - amount: 29100000
-363 | SUCCESS | Transaction added for nan - amount: 15400
-364 | SUCCESS | Transaction added for nan - amount: 50000000
-365 | SUCCESS | Transaction added for nan - amount: 21800
-366 | SUCCESS | Transaction added for nan - amount: 1700000
-367 | SUCCESS | Transaction added for شايسته عسکرآبادي - amount: 800000
-368 | SUCCESS | Transaction added for nan - amount: 2750000
-369 | SUCCESS | Transaction added for nan - amount: 130000
-370 | SUCCESS | Transaction added for nan - amount: 19987200
-371 | SUCCESS | Transaction added for nan - amount: 12200
+1 | SUCCESS | Transaction added for کارمزد مانده حساب از پايانه فروش 02263389 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85759584 - amount: 1800.0
+2 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001767192407999113 - محمود ابراهيميان - amount: 32320000.0
+3 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 13164502 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85758463 - amount: 2490000.0
+4 | SUCCESS | Transaction added for انتقال از اينترنت 17592030 ملي از ک 6037991791158300 ش م 640639084157 ش پ 575130 - amount: 1100000.0
+5 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 33576242 پرداخت الکترونيک سداد 2 از ک 6219861085979838 ش م 32147871 - amount: 7000000.0
+6 | SUCCESS | Transaction added for انتقال از اينترنت I000MP01 تجارت - بين 2 از ک 5859831168886793 ش م 926071334505 ش پ 795418 - amount: 1400000.0
+7 | SUCCESS | Transaction added for انتقال از اينترنت 00000035 پارسيان از ک 6221061254884176 ش م 766727237596 ش پ 291485 - amount: 10000000.0
+8 | SUCCESS | Transaction added for انتقال از اينترنت 00019001 سپه از ک 5892101713910848 ش م 536418653869 ش پ 653869 - amount: 400000.0
+9 | SUCCESS | Transaction added for انتقال از اينترنت 224      قرض الحسنه رسالت از ک 5041721244453958 ش م 031273310065 ش پ 259735 - amount: 1250000.0
+10 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 130089113256 ش پ 113256 - amount: 9000.0
+11 | SUCCESS | Transaction added for جواد ابراهيميان - amount: 3000000.0
+12 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 130088947930 ش پ 947930 - amount: 15400.0
+13 | SUCCESS | Transaction added for انتقال از اينترنت 00019041 سامان به ک 5859831103338371 ش م 130088947930 ش پ 947930 - amount: 30000000.0
+14 | SUCCESS | Transaction added for کارمزد انتقال از خودپرداز 31317172 سپه از ک 6219861085979838 ش م 536411545847 ش پ 000088 - amount: 18600.0
+15 | SUCCESS | Transaction added for انتقال از خودپرداز 31317172 سپه به ک 5894631178646402 ش م 536411545847 ش پ 000088 - amount: 40000000.0
+16 | SUCCESS | Transaction added for کارمزد مانده حساب از پايانه فروش 02263389 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85755391 - amount: 1800.0
+17 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 06475498 به پرداخت ملت از ک 6219861085979838 ش م 331548186297 ش پ 1 - amount: 39300000.0
+18 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 30338902 پرداخت نوين آرين از ک 6219861085979838 ش م 514417690978 ش  - amount: 11300000.0
+19 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 31143271 پرداخت نوين آرين از ک 6219861085979838 ش م 514417511280 ش  - amount: 14600000.0
+20 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.800.1512735.2 ش.پ 00001767078721908955 - علي ابراهيميان - amount: 5000000.0
+21 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 10409379 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85755057 - amount: 13500000.0
+22 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 31171365 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85755051 - amount: 22020000.0
+23 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001767057385597690 - محمود ابراهيميان - amount: 52500000.0
+24 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 13291411 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85754543 - amount: 1000000.0
+25 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766971338760749 - محمود ابراهيميان - amount: 72500000.0
+26 | SUCCESS | Transaction added for انتقال از اينترنت 17592030 ملي از ک 6037998212173610 ش م 429702644530 ش پ 255138 - amount: 1100000.0
+27 | SUCCESS | Transaction added for کارمزد انتقال از خودپرداز 31317172 سپه از ک 6219861085979838 ش م 536211141809 ش پ 005471 - amount: 21800.0
+28 | SUCCESS | Transaction added for انتقال از خودپرداز 31317172 سپه به ک 6037701642636788 ش م 536211141809 ش پ 005471 - amount: 40640000.0
+29 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.800.1512735.1 ش.پ 00001766908755047454 - علي ابراهيميان - amount: 77025000.0
+30 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1512735.1 ش.پ 00001766908719078542-علي ابراهيميان - amount: 77025000.0
+31 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 130084906630 ش پ 906630 - amount: 15400.0
+32 | SUCCESS | Transaction added for محمد کوچکي - amount: 22020000.0
+33 | SUCCESS | Transaction added for کارمزد مانده حساب از پايانه فروش 02263389 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85749851 - amount: 1800.0
+34 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766888996309561 - محمود ابراهيميان - amount: 62500000.0
+35 | SUCCESS | Transaction added for انتقال وجه بلو بانک از شبا IR630560611828005859952101 ش.پ 14044852614727 - زهره سادات رضوي - amount: 55000.0
+36 | SUCCESS | Transaction added for انتقال از اينترنت I000MP01 تجارت - بين 2 از ک 5859831026410273 ش م 195264881882 ش پ 697191 - amount: 1100000.0
+37 | SUCCESS | Transaction added for انتقال از اينترنت 00000200 ملت از ک 6104337510401514 ش م 171865225422 ش پ 225422 - amount: 1800000.0
+38 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 99188666 پرداخت الکترونيک سپهر از ک 6219861085979838 ش م 1293260016 - amount: 1100000.0
+39 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 02851909 به پرداخت ملت از ک 6219861085979838 ش م 331216517440 ش پ 5 - amount: 2500000.0
+40 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766764441200771 - محمود ابراهيميان - amount: 57500000.0
+41 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 535919352453 ش پ 352453 - amount: 9000.0
+42 | SUCCESS | Transaction added for انتقال از اينترنت 00019041 سامان به ک 5859831103338371 ش م 535919352453 ش پ 352453 - amount: 5000000.0
+43 | SUCCESS | Transaction added for کارمزد مانده حساب از پايانه فروش 02263389 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85743612 - amount: 1800.0
+44 | SUCCESS | Transaction added for انتقال وجه بلو بانک از شبا IR800560611828006531007301 ش.پ 14044813079003 - ميلاد الاجه گردي - amount: 1000000.0
+45 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 06475498 به پرداخت ملت از ک 6219861085979838 ش م 331090419565 ش پ 4 - amount: 2300000.0
+46 | SUCCESS | Transaction added for کارمزد انتقال از خودپرداز 31317172 سپه از ک 6219861085979838 ش م 535918274450 ش پ 005068 - amount: 18600.0
+47 | SUCCESS | Transaction added for انتقال از خودپرداز 31317172 سپه به ک 6274121206316580 ش م 535918274450 ش پ 005068 - amount: 30300000.0
+48 | SUCCESS | Transaction added for انتقال از اينترنت 05053317 ملت از ک 6104338907441246 ش م 171781112554 ش پ 112554 - amount: 550000.0
+49 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 45005796 تجارت الکترونيک پارسيان از ک 6219861085979838 ش م 74881263 - amount: 13500000.0
+50 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 31171365 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85741636 - amount: 18350000.0
+51 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766625588144033 - محمود ابراهيميان - amount: 57500000.0
+52 | SUCCESS | Transaction added for انتقال از اينترنت 115      قرض الحسنه رسالت از ک 5041721203944559 ش م 031180420160 ش پ 736878 - amount: 600000.0
+53 | SUCCESS | Transaction added for انتقال از اينترنت 07770023 کشاورزي از ک 6037701409549455 ش م 122418297163 ش پ 297163 - amount: 1200000.0
+54 | SUCCESS | Transaction added for پرداخت قبوض از پايانه فروش 02263389 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 857393567308 ش - amount: 821000.0
+55 | SUCCESS | Transaction added for دريافت کارمزد بابت انتقال وجه از کانال هاي مدرن به شيوه لايت  از سپرده 9316.888.1512735.1-کارمزد دستور پرداخت سامانه پل - amount: 8000.0
+56 | SUCCESS | Transaction added for انتقال وجه آني به شباIR730550183180007227364001به محسن خانگاه ش.پ140410030563106776452 - amount: 40000000.0
+57 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1589675.1 ش.پ 00001766567755672451-امير حسين ابراهيميان - amount: 40000000.0
+58 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 535812722901 ش پ 722901 - amount: 9000.0
+59 | SUCCESS | Transaction added for انتقال از اينترنت 00019041 سامان به ک 6037997381658112 ش م 535812722901 ش پ 722901 - amount: 9600000.0
+60 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 535812733564 ش پ 733564 - amount: 15400.0
+61 | SUCCESS | Transaction added for انتقال از اينترنت 00019041 سامان به ک 6037997452281877 ش م 535812733564 ش پ 733564 - amount: 27930000.0
+62 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 535812731425 ش پ 731425 - amount: 15400.0
+63 | SUCCESS | Transaction added for انتقال از اينترنت 00019041 سامان به ک 5894631178646402 ش م 535812731425 ش پ 731425 - amount: 28566000.0
+64 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 535811514315 ش پ 514315 - amount: 9000.0
+65 | SUCCESS | Transaction added for انتقال از اينترنت 00019041 سامان به ک 6037697090166072 ش م 535811514315 ش پ 514315 - amount: 5000000.0
+66 | SUCCESS | Transaction added for کارمزد انتقال از اينترنت 00019041 سامان از ک 6219861085979838 ش م 535810487563 ش پ 487563 - amount: 15400.0
+67 | SUCCESS | Transaction added for محمد کوچکي - amount: 22020000.0
+68 | SUCCESS | Transaction added for دريافت کارمزد بابت انتقال وجه از کانال هاي مدرن به شيوه لايت  از سپرده 9316.888.1512735.1-کارمزد دستور پرداخت سامانه پل - amount: 40000.0
+69 | SUCCESS | Transaction added for انتقال وجه آني به شباIR670190000000206235804005به ‌ارسلان‌ بياتي‌ ش.پ140410030563106771380 - amount: 200000000.0
+70 | SUCCESS | Transaction added for دريافت کارمزد بابت انتقال وجه از کانال هاي مدرن به شيوه لايت  از سپرده 9316.888.1512735.1-کارمزد دستور پرداخت سامانه پل - amount: 40000.0
+71 | SUCCESS | Transaction added for انتقال وجه آني به شباIR680170000000204929596007به ‌علي‌ ‌اصغر ‌اولادي‌ ش.پ140410030563106771258 - amount: 200000000.0
+72 | SUCCESS | Transaction added for بابت واريز پايا  140410030172068039از صندوق  قرض  الحسنه  پس  انداز انصا القايم  نيشابور از حسابIR210170000000216121119002GPAC- - amount: 500000000.0
+73 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766539411109312 - محمود ابراهيميان - amount: 53500000.0
+74 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 99085527 پرداخت الکترونيک سپهر از ک 6219861085979838 ش م 1293180053 - amount: 30000000.0
+75 | SUCCESS | Transaction added for انتقال وجه آني از شباIR940160000000000866911101از اتنا لساني ش.پ14041002016303030632196751 - amount: 1600000.0
+76 | SUCCESS | Transaction added for انتقال از اينترنت 00019001 سپه از ک 5892101519395434 ش م 535712229982 ش پ 229982 - amount: 1250000.0
+77 | SUCCESS | Transaction added for دريافت کارمزد بابت انتقال وجه از کانال هاي مدرن به شيوه لايت  از سپرده 9316.888.1512735.1-کارمزد دستور پرداخت سامانه پل - amount: 26000.0
+78 | SUCCESS | Transaction added for انتقال وجه آني به شباIR660120010000001523463677به محسن عاملي ش.پ140410020563106744745 - amount: 130000000.0
+79 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.700.2465114.1 ش.پ 00001766476930295117-سيدمحمدعلي حامدحيدري - amount: 100000000.0
+80 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1512735.1 ش.پ 00001766476732829228-علي ابراهيميان - amount: 150000000.0
+81 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1512735.1 ش.پ 00001766476479102871-علي ابراهيميان - amount: 120000000.0
+82 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1512735.1 ش.پ 00001766476346139348-علي ابراهيميان - amount: 230000000.0
+83 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1512735.1 ش.پ 00001766476191612944-علي ابراهيميان - amount: 200000000.0
+84 | SUCCESS | Transaction added for انتقال وجه موبايلت به سپرده 9316.800.1512735.1 ش.پ 00001766475659390773-علي ابراهيميان - amount: 46215000.0
+85 | SUCCESS | Transaction added for بابت واريز پايا  140410020172480414از صندوق  قرض  الحسنه  پس  انداز انصا القايم  نيشابور از حسابIR210170000000216121119002GPAC- - amount: 1000000000.0
+86 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766453699962604 - محمود ابراهيميان - amount: 32000000.0
+87 | SUCCESS | Transaction added for انتقال وجه بلو بانک از شبا IR870560611828006821230302 ش.پ 14044746498054 - عليرضا امارلو - amount: 550000.0
+88 | SUCCESS | Transaction added for انتقال از اينترنت 17592030 ملي از ک 6037998211219968 ش م 052101551685 ش پ 160143 - amount: 1150000.0
+89 | SUCCESS | Transaction added for انتقال از اينترنت I000MP01 تجارت - بين 2 از ک 5859831007405805 ش م 084145769668 ش پ 438477 - amount: 1300000.0
+90 | SUCCESS | Transaction added for دريافت کارمزد بابت انتقال وجه از کانال هاي مدرن به شيوه لايت  از سپرده 9316.888.1512735.1-کارمزد دستور پرداخت سامانه پل - amount: 20000.0
+91 | SUCCESS | Transaction added for انتقال وجه آني به شباIR150600361270006672957001به مريم صرافيان ش.پ140410010563106721258 - amount: 100000000.0
+92 | SUCCESS | Transaction added for انتقالي از 9316.888.1512735.1-تمبر و استعلام ايران و اعتبارسنجي و پروانه کسب - amount: 3325000.0
+93 | SUCCESS | Transaction added for انتقال وجه خدمات کاربر ثالث از سپرده 849.706.700200.1 ش.پ 00001766399737779234 - کارگزاري مفيد--87973049-1766397019979- - amount: 100000000.0
+94 | SUCCESS | Transaction added for انتقالي از 9316.888.1512735.1 به 9316.424.1-12 برگ صورتحساب - amount: 108000.0
+95 | SUCCESS | Transaction added for سند دريافت هزينه هاي تشکيل پرونده اعتباري 9316.606.1512735.1 سند داخلي47825418 - amount: 120090000.0
+96 | SUCCESS | Transaction added for انتقال وجه آني از شباIR210190000000217631272004از ابراهيميان علي ش.پ140410010193958980904122653 - amount: 123240000.0
+97 | SUCCESS | Transaction added for انتقال از اينترنت 02884325 ملت از ک 6104337547514313 ش م 171628341048 ش پ 341048 - amount: 1100000.0
+98 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 10409379 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85732866 - amount: 10800000.0
+99 | SUCCESS | Transaction added for خريد کالا و خدمات از پايانه فروش 31171365 پرداخت الکترونيک سامان1 از ک 6219861085979838 ش م 85732856 - amount: 12845000.0
+100 | SUCCESS | Transaction added for انتقال وجه موبايلت از سپرده 9316.888.1579090.1 ش.پ 00001766365794312591 - محمود ابراهيميان - amount: 23000000.0
 
 === Session Summary ===
-Total rows in Excel: 371
+Total rows in Excel: 103
 Previously processed (skipped): 0
-Newly processed: 371
-Successful: 371
+Newly processed: 100
+Successful: 100
 Failed: 0
-Processing completed at: 2025-11-14 14:07:48
+Processing completed at: 2026-01-03 10:40:14

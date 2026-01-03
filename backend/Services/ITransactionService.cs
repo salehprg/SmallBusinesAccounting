@@ -17,5 +17,5 @@ public interface ITransactionService
     Task FixTransactionDateTime();
 
     // Admin: filter by description keywords and date range, then apply cost types
-    Task<List<TransactionDTO>> ApplyCostTypesByDescriptionAsync(List<string> keywords, DateOnly startDate, DateOnly endDate, List<int> costTypeIds);
+    Task<List<TransactionDTO>> ApplyCostTypesByDescriptionAsync(ApplyCostTypesByDescriptionDTO applyCostTypes);
 } 

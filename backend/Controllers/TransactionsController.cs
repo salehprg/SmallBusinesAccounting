@@ -59,12 +59,7 @@ public class TransactionsController(ITransactionService transactionService) : My
     [Authorize(Policy = "Permission:EditTransaction")]
     public async Task<ActionResult<APIResponse<List<TransactionDTO>>>> ApplyCostTypesByDescription([FromBody] ApplyCostTypesByDescriptionDTO body)
     {
-        var result = await _transactionService.ApplyCostTypesByDescriptionAsync(
-            body.Keywords,
-            body.StartDate,
-            body.EndDate,
-            body.CostTypeIds
-        );
+        var result = await _transactionService.ApplyCostTypesByDescriptionAsync(body);
         return Ok(result);
     }
 

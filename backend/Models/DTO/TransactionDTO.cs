@@ -47,6 +47,7 @@ public class TransactionQueryDTO
 public class ApplyCostTypesByDescriptionDTO
 {
     public List<string> Keywords { get; set; } = [];
+    public List<TransactionType> TransactionTypes { get; set; } = [];
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
     public List<int> CostTypeIds { get; set; } = [];
