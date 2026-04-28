@@ -24,22 +24,22 @@ export const CostTypesAPI = {
     const response = await api.get<APIResponse<CostTypeDTO[]>>('/api/CostTypes');
     return response.data.data;
   },
-  
+
   getById: async (id: number): Promise<CostTypeDTO> => {
     const response = await api.get<APIResponse<CostTypeDTO>>(`/api/CostTypes/${id}`);
     return response.data.data;
   },
-  
+
   create: async (data: CreateCostTypeDTO): Promise<CostTypeDTO> => {
     const response = await api.post<APIResponse<CostTypeDTO>>('/api/CostTypes', data);
     return response.data.data;
   },
-  
+
   update: async (id: number, data: { name: string }): Promise<CostTypeDTO> => {
     const response = await api.put<APIResponse<CostTypeDTO>>(`/api/CostTypes/${id}`, data);
     return response.data.data;
   },
-  
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/api/CostTypes/${id}`);
   }
@@ -57,22 +57,22 @@ export const PermissionsAPI = {
     const response = await api.get<APIResponse<PermissionDTO[]>>('/api/Permissions');
     return response.data.data;
   },
-  
+
   getById: async (id: number): Promise<PermissionDTO> => {
     const response = await api.get<APIResponse<PermissionDTO>>(`/api/Permissions/${id}`);
     return response.data.data;
   },
-  
+
   create: async (data: PermissionDTO): Promise<PermissionDTO> => {
     const response = await api.post<APIResponse<PermissionDTO>>('/api/Permissions', data);
     return response.data.data;
   },
-  
+
   update: async (id: number, data: PermissionDTO): Promise<PermissionDTO> => {
     const response = await api.put<APIResponse<PermissionDTO>>(`/api/Permissions/${id}`, data);
     return response.data.data;
   },
-  
+
   delete: async (id: number): Promise<boolean> => {
     const response = await api.delete<APIResponse<boolean>>(`/api/Permissions/${id}`);
     return response.data.data;
@@ -109,47 +109,47 @@ export const PersonsAPI = {
     const response = await api.get<APIResponse<PersonDTO[]>>('/api/Persons');
     return response.data.data;
   },
-  
+
   getById: async (id: number): Promise<PersonDTO> => {
     const response = await api.get<APIResponse<PersonDTO>>(`/api/Persons/${id}`);
     return response.data.data;
   },
-  
+
   create: async (data: CreatePersonDTO): Promise<PersonDTO> => {
     const response = await api.post<APIResponse<PersonDTO>>('/api/Persons', data);
     return response.data.data;
   },
-  
+
   update: async (id: number, data: CreatePersonDTO): Promise<PersonDTO> => {
     const response = await api.put<APIResponse<PersonDTO>>(`/api/Persons/${id}`, data);
     return response.data.data;
   },
-  
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/api/Persons/${id}`);
   },
-  
+
   getBalance: async (id: number): Promise<PersonBalanceDTO> => {
     const response = await api.get<APIResponse<PersonBalanceDTO>>(`/api/Persons/${id}/balance`);
     return response.data.data;
   },
-  
+
   getTransactions: async (id: number, startDate?: Date, endDate?: Date): Promise<PersonBalanceDTO> => {
     let url = `/api/Persons/${id}/transactions`;
     const params = new URLSearchParams();
-    
+
     if (startDate) {
       params.append('startDate', startDate.toISOString());
     }
-    
+
     if (endDate) {
       params.append('endDate', endDate.toISOString());
     }
-    
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
+
     const response = await api.get<APIResponse<PersonBalanceDTO>>(url);
     return response.data.data;
   }
@@ -185,27 +185,27 @@ export const RolesAPI = {
     const response = await api.get<APIResponse<RoleDTO[]>>('/api/Roles');
     return response.data.data;
   },
-  
+
   getById: async (id: number): Promise<RoleDTO> => {
     const response = await api.get<APIResponse<RoleDTO>>(`/api/Roles/${id}`);
     return response.data.data;
   },
-  
+
   create: async (data: CreateRoleDTO): Promise<RoleDTO> => {
     const response = await api.post<APIResponse<RoleDTO>>('/api/Roles', data);
     return response.data.data;
   },
-  
+
   update: async (id: number, data: UpdateRoleDTO): Promise<RoleDTO> => {
     const response = await api.put<APIResponse<RoleDTO>>(`/api/Roles/${id}`, data);
     return response.data.data;
   },
-  
+
   delete: async (id: number): Promise<boolean> => {
     const response = await api.delete<APIResponse<boolean>>(`/api/Roles/${id}`);
     return response.data.data;
   },
-  
+
   updatePermissions: async (data: UpdateRolePermissionsDTO): Promise<RoleDTO> => {
     const response = await api.put<APIResponse<RoleDTO>>('/api/Roles/permissions', data);
     return response.data.data;
@@ -263,13 +263,58 @@ export interface TransactionQueryDTO {
   sortOrder?: string;
 }
 
+// Bulk import (Excel)
+export interface BulkTransactionPreviewRowDTO {
+  rowNumber: number
+  name: string
+  description: string
+  amount: number
+  isCash: boolean
+  // Backend uses DateOnly; in frontend we treat it as an ISO date string (yyyy-mm-dd).
+  date: string
+  transactionType?: TransactionType | null
+  personId?: number | null
+  personName?: string | null
+  isValid: boolean
+  errors: string[]
+}
+
+export interface BulkTransactionPreviewResponseDTO {
+  totalRows: number
+  validRowsCount: number
+  invalidRowsCount: number
+  rows: BulkTransactionPreviewRowDTO[]
+  validRows: BulkTransactionPreviewRowDTO[]
+}
+
+export interface BulkTransactionImportRowDTO {
+  rowNumber: number
+  name: string
+  description: string
+  amount: number
+  isCash: boolean
+  date: string
+  transactionType: TransactionType
+  personId?: number | null
+  costTypes: number[]
+}
+
+export interface BulkTransactionImportRequestDTO {
+  rows: BulkTransactionImportRowDTO[]
+}
+
+export interface BulkTransactionImportResultDTO {
+  insertedCount: number
+  insertedTransactionIds: number[]
+}
+
 export const TransactionsAPI = {
   getAll: async (): Promise<TransactionDTO[]> => {
     const response = await api.get<APIResponse<TransactionDTO[]>>('/api/Transactions');
     return response.data.data;
   },
 
-  getLastTransactions: async (transactionType: TransactionType, count : number): Promise<TransactionDTO[]> => {
+  getLastTransactions: async (transactionType: TransactionType, count: number): Promise<TransactionDTO[]> => {
     const response = await api.get<APIResponse<TransactionDTO[]>>(`/api/Transactions/last/${count}?transactionType=${transactionType}`);
     return response.data.data;
   },
@@ -278,30 +323,60 @@ export const TransactionsAPI = {
     const response = await api.get<APIResponse<string[]>>(`/api/Transactions/autocomplete?query=${encodeURIComponent(query)}`);
     return response.data.data;
   },
-  
+
   getById: async (id: number): Promise<TransactionDTO> => {
     const response = await api.get<APIResponse<TransactionDTO>>(`/api/Transactions/${id}`);
     return response.data.data;
   },
-  
+
   create: async (data: CreateTransactionDTO): Promise<TransactionDTO> => {
     const response = await api.post<APIResponse<TransactionDTO>>('/api/Transactions', data);
     return response.data.data;
   },
-  
+
   update: async (id: number, data: CreateTransactionDTO): Promise<TransactionDTO> => {
     const response = await api.put<APIResponse<TransactionDTO>>(`/api/Transactions/${id}`, data);
     return response.data.data;
   },
-  
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/api/Transactions/${id}`);
   },
-  
+
   query: async (queryParams: TransactionQueryDTO): Promise<TransactionDTO[]> => {
     const response = await api.post<APIResponse<TransactionDTO[]>>('/api/Transactions/query', queryParams);
     return response.data.data;
-  }
+  },
+
+  importPreview: async (file: File): Promise<BulkTransactionPreviewResponseDTO> => {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    const response = await api.post<APIResponse<BulkTransactionPreviewResponseDTO>>("/api/Transactions/import/preview", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+
+    return response.data.data;
+  },
+
+  importCommit: async (
+    payload: BulkTransactionImportRequestDTO
+  ): Promise<BulkTransactionImportResultDTO> => {
+    const response = await api.post("/api/Transactions/import/commit", payload, {
+      headers: {
+        Accept: "text/plain",
+      },
+      responseType: "text",
+    })
+
+    const raw = (response as any).data
+    if (typeof raw === "string") {
+      return JSON.parse(raw) as BulkTransactionImportResultDTO
+    }
+    return raw as BulkTransactionImportResultDTO
+  },
 };
 
 // Users
@@ -346,37 +421,37 @@ export const UsersAPI = {
     const response = await api.get<APIResponse<UserDTO[]>>('/api/Users');
     return response.data.data;
   },
-  
+
   getById: async (id: number): Promise<UserDTO> => {
     const response = await api.get<APIResponse<UserDTO>>(`/api/Users/${id}`);
     return response.data.data;
   },
-  
+
   create: async (data: CreateUserDTO): Promise<UserDTO> => {
     const response = await api.post<APIResponse<UserDTO>>('/api/Users', data);
     return response.data.data;
   },
-  
+
   update: async (id: number, data: UpdateUserDTO): Promise<UserDTO> => {
     const response = await api.put<APIResponse<UserDTO>>(`/api/Users/${id}`, data);
     return response.data.data;
   },
-  
+
   delete: async (id: number): Promise<boolean> => {
     const response = await api.delete<APIResponse<boolean>>(`/api/Users/${id}`);
     return response.data.data;
   },
-  
+
   updateRoles: async (data: UpdateUserRolesDTO): Promise<UserDTO> => {
     const response = await api.put<APIResponse<UserDTO>>('/api/Users/roles', data);
     return response.data.data;
   },
-  
+
   getCurrentUser: async (): Promise<UserDTO> => {
     const response = await api.get<APIResponse<UserDTO>>('/api/Users/me');
     return response.data.data;
   },
-  
+
   getCurrentUserPermissions: async (): Promise<string[]> => {
     const response = await api.get<APIResponse<string[]>>('/api/Users/me/permissions');
     return response.data.data;
@@ -413,65 +488,65 @@ export const ReportsAPI = {
   getSummary: async (startDate: Date, endDate: Date,): Promise<ReportSummaryDTO> => {
     let url = '/api/Report/summary';
     const params = new URLSearchParams();
-    
+
     if (startDate) {
       params.append('StartDate', startDate.toISOString().split("T")[0]);
     }
-    
+
     if (endDate) {
       params.append('EndDate', endDate.toISOString().split("T")[0]);
     }
-    
-    
+
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
+
     const response = await api.get<APIResponse<ReportSummaryDTO>>(url);
     return response.data.data;
   },
-  
+
   getFinancialSummary: async (startDate?: Date, endDate?: Date): Promise<FinancialSummaryDTO> => {
     let url = '/api/Report/financial-summary';
     const params = new URLSearchParams();
-    
+
     if (startDate) {
       params.append('startDate', startDate.toISOString());
     }
-    
+
     if (endDate) {
       params.append('endDate', endDate.toISOString());
     }
-    
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
+
     const response = await api.get<APIResponse<FinancialSummaryDTO>>(url);
     return response.data.data;
   },
-  
+
   getDailyIncome: async (days: number = 7): Promise<DailyIncomeDTO[]> => {
     const response = await api.get<APIResponse<DailyIncomeDTO[]>>(`/api/Report/daily-income?days=${days}`);
     return response.data.data;
   },
-  
+
   getExpensesByCategory: async (startDate?: Date, endDate?: Date): Promise<ExpensesByCategoryDTO[]> => {
     let url = '/api/Report/expenses-by-category';
     const params = new URLSearchParams();
-    
+
     if (startDate) {
       params.append('startDate', startDate.toISOString());
     }
-    
+
     if (endDate) {
       params.append('endDate', endDate.toISOString());
     }
-    
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
+
     const response = await api.get<APIResponse<ExpensesByCategoryDTO[]>>(url);
     return response.data.data;
   }

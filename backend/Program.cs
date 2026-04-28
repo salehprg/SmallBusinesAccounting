@@ -9,6 +9,7 @@ using New_Back.Data;
 using New_Back.DataAccess;
 using New_Back.Middlewares;
 using New_Back.Models.Enums;
+using backend.Helpers;
 using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -133,6 +134,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Register Business Services
+builder.Services.AddScoped<IPersianDateConverter, PersianDateConverter>();
+builder.Services.AddScoped<IExcelTransactionParser, ExcelTransactionParser>();
+builder.Services.AddScoped<ITransactionImportService, TransactionImportService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ICostTypeService, CostTypeService>();

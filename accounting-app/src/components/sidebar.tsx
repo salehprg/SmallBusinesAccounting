@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Calendar, Plus, Minus, UserPlus, FileText, Menu, X, LogOut, Layers, Layers2 } from 'lucide-react';
+import { Calendar, Plus, Minus, UserPlus, FileText, Menu, X, LogOut, Layers, Layers2, Upload } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
 export function Sidebar() {
@@ -73,6 +73,10 @@ export function Sidebar() {
             
             <SidebarItem href="/financial-report" icon={<FileText className="h-5 w-5" />} isCollapsed={!isOpen}>
               گزارش مالی
+            </SidebarItem>
+
+            <SidebarItem href="/import-excel" icon={<Upload className="h-5 w-5" />} isCollapsed={!isOpen}>
+              آپلود صورتحساب
             </SidebarItem>
           </nav>
           

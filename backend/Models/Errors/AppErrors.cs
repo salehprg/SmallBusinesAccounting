@@ -54,4 +54,12 @@ public static class AppErrors
     public static AppException PermissionNotFound = new(4801, "Permission not found", "مجوز مورد نظر یافت نشد");
     
     public static AppException PermissionInUse = new(4802, "Cannot delete permission that is assigned to roles", "این مجوز به نقش‌ها اختصاص یافته است و نمی‌توان آن را حذف کرد");
+
+    // Bulk import errors
+    public static AppException InvalidExcelFile = new(4901, "The uploaded Excel file could not be read or is not a valid .xlsx file", "فایل اکسل نامعتبر است یا قابل خواندن نیست");
+
+    public static AppException BulkImportEmptyFile = new(4903, "The Excel file contains no data rows to import", "فایل اکسل حاوی هیچ ردیف داده‌ای برای وارد کردن نیست");
+
+    public static AppException BulkImportInvalidRows(string developerDetails) =>
+        new(4902, developerDetails, "یک یا چند ردیف نامعتبر است. همه ردیف‌ها باید معتبر باشند.");
 }

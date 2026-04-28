@@ -48,8 +48,15 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    if (response.data.code != 200) {
-      return Promise.reject(response);
+    // Many endpoints return a unified { code, ... } envelope, but some may return
+    // plain DTOs (or even text/plain). Only enforce "code === 200" when present.
+    if (
+      response?.data &&
+      typeof response.data === 'object' &&
+      'code' in response.data &&
+      (response.data as any).code != 200
+    ) {
+      return Promise.reject(response)
     }
     return response;
   },

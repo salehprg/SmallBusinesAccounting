@@ -11,9 +11,10 @@ namespace backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class TransactionsController(ITransactionService transactionService) : MyBaseController
+public class TransactionsController(ITransactionService transactionService, ITransactionImportService transactionImportService) : MyBaseController
 {
     private readonly ITransactionService _transactionService = transactionService;
+    private readonly ITransactionImportService _transactionImportService = transactionImportService;
 
     [HttpGet]
     [Authorize(Policy = "Permission:ViewTransactions")]
@@ -61,6 +62,27 @@ public class TransactionsController(ITransactionService transactionService) : My
     {
         var result = await _transactionService.ApplyCostTypesByDescriptionAsync(body);
         return Ok(result);
+    }
+
+    [HttpPost("import/preview")]
+    [Authorize(Policy = "Permission:CreateTransaction")]
+    [RequestSizeLimit(10_000_000)]
+    public async Task<ActionResult<APIResponse<BulkTransactionPreviewResponseDTO>>> PreviewImport(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            throw AppErrors.BulkImportEmptyFile;
+        }
+
+        await using var stream = file.OpenReadStream();
+        return Ok(await _transactionImportService.PreviewAsync(stream, file.FileName));
+    }
+
+    [HttpPost("import/commit")]
+    [Authorize(Policy = "Permission:CreateTransaction")]
+    public async Task<ActionResult<APIResponse<BulkTransactionImportResultDTO>>> CommitImport([FromBody] BulkTransactionImportRequestDTO body)
+    {
+        return Ok(await _transactionImportService.CommitAsync(body));
     }
 
     [HttpPost]
